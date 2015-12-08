@@ -2,16 +2,17 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '',''))
 import numpy as np
 from sklearn import svm
+from sklearn.datasets import load_svmlight_file
+from sklearn import cross_validation
+from sklearn.metrics import accuracy_score
 
 if len(sys.argv)<4:
     sys.exit("python cross_validation_from_matrix.py inputMatrix.libsvm C outfile")
 
 c=float(sys.argv[2])
 
-from sklearn.datasets import load_svmlight_file
 km, target_array = load_svmlight_file(sys.argv[1])
 
-from sklearn import cross_validation
 sc=[]
 for rs in range(42,52):
     f=open(str(sys.argv[3]+".seed"+str(rs)+".c"+str(c)),'w')
@@ -63,7 +64,6 @@ for rs in range(42,52):
     
         clf.fit(X_train, y_train)
     
-        from sklearn.metrics import accuracy_score
         # predict on test examples
         y_test_predicted=clf.predict(X_test)
         sc.append(accuracy_score(y_test, y_test_predicted))

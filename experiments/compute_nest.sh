@@ -1,22 +1,23 @@
 #!/bin/bash
 
-for dataset in "CAS" "NCI1"; do
-for radius in "3" do
+#for dataset in "CAS" "NCI1" "AIDS" "CPDB"; do
+for dataset in "CAS"; do
+#for radius in "5" "4" "3" "2"; do
+for radius in "5"; do
 for lambda in "0.1" "0.5" "0.8" "0.9" "1.0" "1.1" "1.2" "1.3" "1.4" "1.5" "1.8"; do
-###for lambda in "1.0"; do
 for C in "0.0001" "0.001" "0.01" "0.1" "1.0" "10.0" "100.0" "1000.0"; do
 
 echo "#!/bin/sh
 ### Set the job name
-#PBS -N THCMASS.r$radius.l$lambda.$dataset.$C.nested
+#PBS -N thexp.r$radius.l$lambda.$dataset.$C.nested
 
 ### Declare myprogram non-rerunable
 #PBS -r n
 
 ### Optionally specifiy destinations for your myprogram output
 ### Specify localhost and an NFS filesystem to prevent file copy errors.
-###PBS -e localhost:${HOME}/prova.err
-###PBS -o localhost:/scratch/nnavarin/ODDCLSTNEW/AUTO/LOGS/${dataset}.$kernel.MATRIX.r$r.l$l.out
+#PBS -e localhost:${HOME}/prova.err
+#PBS -o localhost:${HOME}/tesi/logs/${dataset}.$1.MATRIX.r$radius.l$lambda.nested.out
 
 ### Set the queue to batch, the only available queue. 
 #PBS -q cluster_long
@@ -37,11 +38,11 @@ echo "#!/bin/sh
 ### Switch to the working directory; by default Torque launches processes from your home directory.
 ### Jobs should only be run from /home, /project, or /work; Torque returns results via NFS.
 
-cd $HOME/tesi/scikit-learn-graph/
+cd $HOME/cluster_bundle/scikit-learn-graph/
 
-python cross_validation_from_matrix.py ../gram/${dataset}/${dataset}.r$radius.l$lambda.n$1.v$2.e$3.a$4.libsvm $C ../nested/${dataset}/${dataset}.r$radius.l$lambda.n$1.v$2.e$3.a$4"> $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.$2.$3.$4.$C.nested.job
+python ../cross_validation_from_matrix.py grams/${dataset}/k$1.r$radius.l$lambda.mtx.svmlight $C cvres/${dataset}/k$1.r$radius.l$lambda"> $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.$C.nested.job
 
-qsub $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.$2.$3.$4.$C.nested.job
+qsub $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.$C.nested.job
 
 done
 done

@@ -71,4 +71,4 @@ for rs in range(42,42):
 
     f.close()
 scores=np.array(sc) #sc dovrebbe essere accuracy non nested sui vari random seed di 10-fold.
-print "Accuracy: %0.8f (+/- %0.8f)" % (scores.mean(), scores.std())
+#print "Accuracy: %0.8f (+/- %0.8f)" % (scores.mean(), scores.std())
