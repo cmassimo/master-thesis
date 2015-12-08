@@ -55,3 +55,20 @@ docs/_build/
 
 # PyBuilder
 target/
+
+*.txt
+
+*.bib
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.pdf
+*.run.xml
+*.toc
+
