@@ -1,23 +1,25 @@
 #!/bin/bash
 
-for dataset in "CAS"; do
-for radius in "2"; do
-for lambda in "1"; do
+for dataset in "CAS" "NCI1" "AIDS" "CPDB"; do
+for radius in "1" "2" "3" "4"; do
+for iteration in "0" "1" "2" "3" "4" "5" "6" "7" "8"; do
+for lambda in "0.1" "0.2" "0.3" "0.4" "0.5" "0.6" "0.7" "0.8" "0.9" "1.0" "1.1" "1.2" "1.3" "1.4" "1.5" "1.6" "1.7" "1.8" "1.9" "2.0"; do
 
 echo "#!/bin/sh
+
 ### Set the job name
-#PBS -N thexp.r$radius.l$lambda.$dataset.gram
+#PBS -N thexp.r$radius.i$iteration.l$lambda.$dataset.gram
 
 ### Declare myprogram non-rerunable
 #PBS -r n
 
 ### Optionally specifiy destinations for your myprogram output
 ### Specify localhost and an NFS filesystem to prevent file copy errors.
-#PBS -e localhost:${HOME}/prova.err
-#PBS -o localhost:${HOME}/tesi/logs/${dataset}.$2.MATRIX.r$radius.l$lambda.out
+#PBS -e localhost:${HOME}/prova2.err
+###PBS -o localhost:${HOME}/tesi/logs/${dataset}.$1.MATRIX.r$radius.i$iteration.l$lambda.out
 
 ### Set the queue to batch, the only available queue. 
-#PBS -q cluster_long
+#PBS -q cluster_short
 
 ### You MUST specify some number of nodes or Torque will fail to load balance.
 ### nodes=number of distinct host
@@ -29,7 +31,7 @@ echo "#!/bin/sh
 
 ### You can override the default 1 hour real-world time limit.  -l walltime=HH:MM:SS
 ### Jobs on the public clusters are currently limited to 10 days walltime.
-#PBS -l walltime=30:00:00
+#PBS -l walltime=02:59:00
 
 
 ### Switch to the working directory; by default Torque launches processes from your home directory.
@@ -37,10 +39,11 @@ echo "#!/bin/sh
 
 cd $HOME/cluster_bundle/scikit-learn-graph/
 
-python -m scripts/calculate_matrix_allkernels ${dataset} $radius $lambda grams/$1 $2"> $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.$2.gram.job
+python -m scripts/calculate_matrix_allkernels ${dataset} $radius $lambda grams/$dataset/k$1.r$radius.i$iteration.l$lambda.mtx $1 1 1 0 0 $iteration"> $HOME/tesi/jobs/${dataset}.$radius.$iteration.$lambda.$1.gram.job
 
-qsub $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.$2.gram.job
+qsub $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.gram.job
 
+done
 done
 done
 done
