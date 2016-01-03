@@ -1,38 +1,114 @@
-# MKL with all the new approaches vanilla (needs precomputed kernel matrices)
+# CIDM paper replication
 
-# decompose each kernel in N feature buckets, where N = max_radius
-# ODDSTCGK
-# ODDSTPCGK
-# WLDDK
-# WLNSK
-
-from skgraph.kernel.ODDSTCGraphKernel import ODDSTCGraphKernel
-from skgraph.kernel.ODDSTPCGraphKernel import ODDSTPCGraphKernel
-from skgraph.kernel.WLDDKGraphKernel import WLDDKGraphKernel
-from skgraph.kernel.WLNSKGraphKernel import WLNSKGraphKernel
-from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
-from sklearn.datasets import load_svmlight_file
+import sys, os
+import time
 import numpy as np
+import networkx as nx
+from cvxopt import matrix
+from sklearn import cross_validation
+#from sklearn.datasets import load_svmlight_file
+from sklearn.metrics import roc_auc_score
+from skgraph.datasets import load_graph_datasets
+from skgraph.kernel.ODDSTincGraphKernel import ODDSTincGraphKernel
+from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
+from innerCV_easyMKL import calculate_inner_AUC_kfold
 
-gram_files = [
-        "oddstc.gram",
-        "oddstpc.gram",
-        "wlddk.gram",
-        "wlnsk.gram"
-        ]
+if len(sys.argv)<4:
+    sys.exit("python baseline.py kernel dataset radius lambda L C outfile")
 
-prefix = "./grams/"
+kernels =  sys.argv[1].split(',')
+dataset = sys.argv[2]
+radius = int(sys.argv[3])
+lbd = float(sys.argv[4])
+L = float(sys.argv[5])
+c = float(sys.argv[6])
 
-kernels_and_targets = [load_svmlight_file(prefix + gfile) for gfile in gram_files]
 
-klist = [kt[0] for kt in kernels_and_targets]
-Y = kernels_and_targets[0][1]
+if dataset=="CAS":
+    print "Loading bursi(CAS) dataset"        
+    ds=load_graph_datasets.load_graphs_bursi()
+elif dataset=="GDD":
+    print "Loading GDD dataset"        
+    ds=load_graph_datasets.load_graphs_GDD()
+elif dataset=="CPDB":
+    print "Loading CPDB dataset"        
+    ds=load_graph_datasets.load_graphs_CPDB()
+elif dataset=="AIDS":
+    print "Loading AIDS dataset"        
+    ds=load_graph_datasets.load_graphs_AIDS()
+elif dataset=="NCI1":
+    print "Loading NCI1 dataset"        
+    ds=load_graph_datasets.load_graphs_NCI1()
+else:
+    print "Unknown dataset name"
 
-# 10FCV setup here
+target_array = ds.target
 
-l = 0.5
-easy = EasyMKL(lam = l, tracenorm = True)
+print "Generating orthogonal matrices"
+k = ODDSTincGraphKernel(r=radius, l=lbd, normalization=True, version=1, ntype=0, nsplit=0, kernels=kernels)
+grams = k.computeKernelMatricesTrain(ds.graphs)
+print '--- done'
 
-easy.train(klist, Y)
+sc=[]
+for rs in range(42,43):
+    f=open(str(sys.argv[7]+".seed"+str(rs)+".c"+str(c)),'w')
 
-kernel_matrix = easy.sum_kernels(klist, easy.weights)
+    kf = cross_validation.StratifiedKFold(target_array, n_folds=10, shuffle=True, random_state=rs)
+    
+    f.write("Total examples "+str(len(grams[0]))+"\n")
+    f.write("CV\t\t test_acc\n")
+    
+    for train_index, test_index in kf:
+        train_grams=[]
+        test_grams=[]
+        
+        for i in range(len(grams)):
+            train_grams.append([])
+            test_grams.append([])
+
+            index=-1    
+            for row in grams[i]:
+                index+=1    
+                if index in train_index:
+                    train_grams[i].append(np.array(row).take(train_index))
+                else:
+                    test_grams[i].append(np.array(row).take(train_index))
+
+        y_train = target_array[train_index]
+        y_test = target_array[test_index]
+
+        #COMPUTE INNERKFOLD
+#        print "Computing inner 10FCV..."
+#        inner_scores = calculate_inner_AUC_kfold(train_grams, y_train, l=L, rs=rs, folds=3)
+#        print "Inner AUC score: %0.8f (+/- %0.8f)" % (inner_scores.mean(), inner_scores.std())
+#
+#        f.write(str(inner_scores.mean())+"\t")
+
+        for i in xrange(len(train_grams)):
+            train_grams[i]=matrix(np.array(train_grams[i]))
+
+        for i in xrange(len(test_grams)):
+            test_grams[i]=matrix(np.array(test_grams[i]))
+
+        print "Training..."
+        start = time.clock()
+
+        easy = EasyMKL(lam=L, tracenorm = True)
+        easy.train(train_grams, matrix(y_train))
+
+        end = time.clock()
+        print "END Training, elapsed time: %0.4f s" % (end - start)
+        
+        # predict on test examples
+        ranktest = np.array(easy.rank(test_grams))
+        rte = roc_auc_score(np.array(y_test), ranktest)
+    
+        f.write(str(rte)+"\t")
+        
+#        f.write(str(inner_scores.std())+"\n")
+
+    f.close()
+scores=np.array(sc) #sc dovrebbe essere accuracy non nested sui vari random seed di 10-fold.
+
+print "AUC score: %0.8f (+/- %0.8f)" % (scores.mean(), scores.std())
+
