@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #for dataset in "CAS" "NCI1" "AIDS" "CPDB"; do
-for dataset in "CAS"; do
+for dataset in "NCI1"; do
 for radius in "5" "4" "3" "2"; do
 for lambda in "0.1" "0.5" "0.8" "0.9" "1.0" "1.1" "1.2" "1.3" "1.4" "1.5" "1.8"; do
 
@@ -39,9 +39,9 @@ echo "#!/bin/sh
 
 cd $HOME/cluster_bundle/scikit-learn-graph/
 
-python -m scripts/calculate_matrix_allkernels ${dataset} $radius $lambda grams/$dataset/k$1.r$radius.l$lambda.tanh$3.mtx $1 $2 $3"> $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.tanh$3.gram.job
+python -m scripts/calculate_matrix_allkernels ${dataset} $radius $lambda grams/$dataset/$1/k$1.r$radius.l$lambda.mtx $1"> $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.gram.job
 
-qsub $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.tanh$3.gram.job
+qsub $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.gram.job
 
 done
 done

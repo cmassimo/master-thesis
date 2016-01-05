@@ -17,7 +17,7 @@ km, target_array = load_svmlight_file(sys.argv[1])
 sc=[]
 start = time.clock()
 
-for rs in range(42,43):
+for rs in range(42,52):
     f=open(str(sys.argv[3]+".seed"+str(rs)+".c"+str(c)),'w')
 
     kf = cross_validation.StratifiedKFold(target_array, n_folds=10, shuffle=True,random_state=rs)
@@ -68,7 +68,7 @@ for rs in range(42,43):
         #print "Start inner 10fold"
         #COMPUTE INNERKFOLD
         kif = cross_validation.StratifiedKFold(y_train, n_folds=10, shuffle=True, random_state=rs)
-        inner_scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=kif, verbose=1)
+        inner_scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=kif)#, verbose=1)
         #print "inner scores", inner_scores
         print "Inner Accuracy: %0.8f (+/- %0.8f)" % (inner_scores.mean(), inner_scores.std())
 

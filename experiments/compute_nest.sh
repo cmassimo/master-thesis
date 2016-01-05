@@ -1,16 +1,15 @@
 #!/bin/bash
 
 #for dataset in "CAS" "NCI1" "AIDS" "CPDB"; do
-for dataset in "CAS"; do
+for dataset in "NCI1"; do
 #for radius in "5" "4" "3" "2"; do
-for radius in "3"; do
-#for lambda in "0.1" "0.5" "0.8" "0.9" "1.0" "1.1" "1.2" "1.3" "1.4" "1.5" "1.8"; do
-for lambda in "0.1" "0.5" "0.8"; do
+for radius in "2"; do
+for lambda in "0.1" "0.5" "0.8" "0.9" "1.0" "1.1" "1.2" "1.3" "1.4" "1.5" "1.8"; do
 for C in "0.0001" "0.001" "0.01" "0.1" "1.0" "10.0" "100.0" "1000.0"; do
 
 echo "#!/bin/sh
 ### Set the job name
-#PBS -N thexp.r$radius.l$lambda.$dataset.$C.nested
+#PBS -N nested.$dataset.r$radius.l$lambda.$C
 
 ### Declare myprogram non-rerunable
 #PBS -r n
@@ -29,11 +28,11 @@ echo "#!/bin/sh
 #PBS -l nodes=1:ppn=1:infiniband
 
 ### You should tell PBS how much memory you expect your job will use.  mem=1g or mem=1024
-#PBS -l mem=12g
+#PBS -l mem=8g
 
 ### You can override the default 1 hour real-world time limit.  -l walltime=HH:MM:SS
 ### Jobs on the public clusters are currently limited to 10 days walltime.
-#PBS -l walltime=30:00:00
+#PBS -l walltime=100:00:00
 
 
 ### Switch to the working directory; by default Torque launches processes from your home directory.
@@ -41,7 +40,7 @@ echo "#!/bin/sh
 
 cd $HOME/cluster_bundle/scikit-learn-graph/
 
-python $HOME/cluster_bundle/master-thesis/experiments/cross_validation_from_matrix.py grams/${dataset}/k$1.r$radius.l$lambda.mtx.svmlight $C cvres/${dataset}/k$1.r$radius.l$lambda"> $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.$C.nested.job
+python $HOME/cluster_bundle/master-thesis/experiments/cross_validation_from_matrix.py grams/${dataset}/$1/k$1.r$radius.l$lambda.mtx.svmlight $C cvres/${dataset}/$1/k$1.r$radius.l$lambda"> $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.$C.nested.job
 
 qsub $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.$C.nested.job
 

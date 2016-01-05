@@ -1,8 +1,20 @@
 #!/bin/bash
 
-for dataset in "CAS" "NCI1" "AIDS" "CPDB"; do
-for radius in "1" "2" "3" "4"; do
+#for dataset in "CAS" "NCI1" "AIDS" "CPDB" "GDD"; do
+for dataset in "NCI1"; do
+#for radius in "1" "2" "3" "4"; do
+for radius in "1" "2"; do
 for iteration in "0" "1" "2" "3" "4" "5" "6" "7" "8"; do
+
+lines=`qstat | grep cmass | wc -l`
+
+while [ "$lines" -gt 30 ]
+do
+	echo "Too many jobs, waiting..."
+	sleep 30
+	lines=`qstat | grep cmass | wc -l`
+done
+
 for lambda in "0.1" "0.2" "0.3" "0.4" "0.5" "0.6" "0.7" "0.8" "0.9" "1.0" "1.1" "1.2" "1.3" "1.4" "1.5" "1.6" "1.7" "1.8" "1.9" "2.0"; do
 
 echo "#!/bin/sh
@@ -15,7 +27,7 @@ echo "#!/bin/sh
 
 ### Optionally specifiy destinations for your myprogram output
 ### Specify localhost and an NFS filesystem to prevent file copy errors.
-#PBS -e localhost:${HOME}/prova2.err
+#PBS -e localhost:${HOME}/tesi/logs/err/${dataset}/$1/${dataset}.$1.r$radius.i$iteration.l$lambda.err
 ###PBS -o localhost:${HOME}/tesi/logs/${dataset}.$1.MATRIX.r$radius.i$iteration.l$lambda.out
 
 ### Set the queue to batch, the only available queue. 
@@ -27,7 +39,7 @@ echo "#!/bin/sh
 #PBS -l nodes=1:ppn=1:infiniband
 
 ### You should tell PBS how much memory you expect your job will use.  mem=1g or mem=1024
-#PBS -l mem=16g
+#PBS -l mem=24g
 
 ### You can override the default 1 hour real-world time limit.  -l walltime=HH:MM:SS
 ### Jobs on the public clusters are currently limited to 10 days walltime.
@@ -39,9 +51,9 @@ echo "#!/bin/sh
 
 cd $HOME/cluster_bundle/scikit-learn-graph/
 
-python -m scripts/calculate_matrix_allkernels ${dataset} $radius $lambda grams/$dataset/k$1.r$radius.i$iteration.l$lambda.mtx $1 1 1 0 0 $iteration"> $HOME/tesi/jobs/${dataset}.$radius.$iteration.$lambda.$1.gram.job
+python -m scripts/calculate_matrix_allkernels ${dataset} $radius $lambda grams/$dataset/$1/k$1.r$radius.i$iteration.l$lambda.mtx $1 1 1 0 0 $iteration"> $HOME/tesi/jobs/${dataset}.$radius.$iteration.$lambda.$1.gram.job
 
-qsub $HOME/tesi/jobs/${dataset}.$radius.$lambda.$1.gram.job
+qsub $HOME/tesi/jobs/${dataset}.$radius.$iteration.$lambda.$1.gram.job
 
 done
 done

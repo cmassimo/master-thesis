@@ -17,11 +17,11 @@ for s in range(42,52):
     test_values=[0]*10
     std_dev=[0]*10
     filename=[[] for i in xrange(10)]
-    for c in ['0.01','0.1','1.0','10.0','100.0','1000.0']:
+    for c in ['0.0001','0.001','0.01','0.1','1.0','10.0','100.0','1000.0']:
     #for c in ['10.0']:
         #print dirtocheck+"/*.seed"+str(s)+".c"+str(c)
         for f_name in glob.iglob(dirtocheck+"/*.seed"+str(s)+".c"+str(c)):
-            print f_name
+#            print f_name
             f = open(f_name,'r')
             i=-3
             for line in f:
@@ -29,7 +29,7 @@ for s in range(42,52):
                 if (i>=0):
                     words=line.split()
                     words=map(float,words)
-                    print words
+#                    print words
                     if cv_values[i]<words[0]:
                         cv_values[i] = words[0]
                         test_values[i]=words[1]
