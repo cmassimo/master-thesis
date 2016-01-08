@@ -72,13 +72,11 @@ def calculate_inner_AUC_kfold(Xs, Y, l, rs, folds):
 
         end = time.clock()
 
-        print 'Inner AUC test score:',rte
-        print 'Elapsed time:', (end-start)
+        print 'Inner K-fold, elapsed time:', (end-start)
         #print 'weights of kernels:', easy.weights
 
         sc.append(rte)
 
-
     scores=np.array(sc)
-    print "inner AUC avg: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() / 2)
-    return scores.mean()
+    return scores
+
