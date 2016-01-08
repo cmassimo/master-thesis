@@ -43,8 +43,8 @@ grams = k.computeKernelMatricesTrain(ds.graphs)
 print '--- done'
 
 print "Saving Gram matrices..."
-for iidx, kernel_matrix in enumerate(grams):
-    output = open(outfile+".idx"+idx+".svmlight", "w")
+for idx, kernel_matrix in enumerate(grams):
+    output = open(outfile+".idx"+str(idx)+".svmlight", "w")
     for i in xrange(len(kernel_matrix)):
         output.write(str(ds.target[i])+" 0:"+str(i+1)+" ")
         for j in range(len(kernel_matrix[i])):
