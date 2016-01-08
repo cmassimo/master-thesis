@@ -10,14 +10,12 @@ from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
 from innerCV_easyMKL import calculate_inner_AUC_kfold
 
 if len(sys.argv)<4:
-    sys.exit("python baseline.py kernel dataset radius lambda L outfile")
+    sys.exit("python baseline.py kernels dataset radius outfile")
 
 kernels =  sys.argv[1].split(',')
 dataset = sys.argv[2]
 radius = int(sys.argv[3])
-lbd = float(sys.argv[4])
-L = float(sys.argv[5])
-outfile = sys.argv[6]+".d"+dataset+".r"+str(radius)+".l"+str(lbd)+".L"+str(L)
+outfile = sys.argv[4]+"_".join(kernels)+".d"+dataset+".r"+str(radius)
 
 if dataset=="CAS":
     print "Loading bursi(CAS) dataset"        
@@ -40,24 +38,18 @@ else:
 target_array = matrix(ds.target)
 
 print "Generating orthogonal matrices"
-k = ODDSTincGraphKernel(r=radius, l=lbd, normalization=True, version=1, ntype=0, nsplit=0, kernels=kernels)
+k = ODDSTincGraphKernel(r=radius, l=1, normalization=True, version=1, ntype=0, nsplit=0, kernels=kernels)
 grams = k.computeKernelMatricesTrain(ds.graphs)
 print '--- done'
 
-print "Training..."
-easy = EasyMKL(lam=L, tracenorm = True)
-easy.train(grams, target_array)
-print '--- done'
-
-kernel_matrix = np.array(easy.sum_kernels(grams, easy.weights))
-
-print "Saving Gram matrix..."
-output = open(outfile+".svmlight", "w")
-for i in xrange(len(kernel_matrix)):
-    output.write(str(ds.target[i])+" 0:"+str(i+1)+" ")
-    for j in range(len(kernel_matrix[i])):
-        output.write(str(j+1)+":"+str(kernel_matrix[i][j])+" ")
-    output.write("\n")
-output.close()
-print '--- done'
+print "Saving Gram matrices..."
+for iidx, kernel_matrix in enumerate(grams):
+    output = open(outfile+".idx"+idx+".svmlight", "w")
+    for i in xrange(len(kernel_matrix)):
+        output.write(str(ds.target[i])+" 0:"+str(i+1)+" ")
+        for j in range(len(kernel_matrix[i])):
+            output.write(str(j+1)+":"+str(kernel_matrix[i][j])+" ")
+        output.write("\n")
+    output.close()
+    print '--- done'
 
