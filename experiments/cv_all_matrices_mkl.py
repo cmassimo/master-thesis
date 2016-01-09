@@ -1,7 +1,7 @@
 import sys, os
 import time
 import numpy as np
-from cvxopt import matrix
+from cvxopt import spmatrix, sparse, matrix
 from sklearn import cross_validation
 from sklearn.datasets import load_svmlight_file
 from sklearn.metrics import roc_auc_score
@@ -20,7 +20,8 @@ matrix_files = map(lambda f: os.path.splitext(f)[0], sys.argv[4:len(sys.argv)])
 grams = []
 for mf in matrix_files:
     km, target_array = load_svmlight_file(mf+".svmlight")
-    grams.append(km[:,1:].todense().tolist())
+#    grams.append(km[:,1:].todense().tolist())
+    grams.append(km[:,1:])
 
 # CONF VARS
 folds = 3
@@ -33,7 +34,7 @@ for rs in random_states:
 
     kf = cross_validation.StratifiedKFold(target_array, n_folds=folds, shuffle=True, random_state=rs)
     
-    f.write("Total examples "+str(len(km[0]))+"\n")
+    f.write("Total examples "+str(km.shape[0])+"\n")
     f.write("CV\t\t test_roc_score\n")
     
     # OUTER K-FCV
@@ -42,16 +43,16 @@ for rs in random_states:
         test_grams=[]
         
         for i in range(len(grams)):
-            train_grams.append([])
-            test_grams.append([])
+            train_grams.append(grams[i][train_index,:].tocsc()[:,train_index].tocsr())
+            test_grams.append(grams[i][test_index,:].tocsc()[:,train_index].tocsr())
 
-            index=-1    
-            for row in grams[i]:
-                index+=1    
-                if index in train_index:
-                    train_grams[i].append(np.array(row).take(train_index))
-                else:
-                    test_grams[i].append(np.array(row).take(train_index))
+#            index=-1    
+#            for row in grams[i]:
+#                index+=1    
+#                if index in train_index:
+#                    train_grams[i].append(np.array(row).take(train_index))
+#                else:
+#                    test_grams[i].append(np.array(row).take(train_index))
 
         y_train = target_array[train_index]
         y_test = target_array[test_index]
@@ -64,10 +65,14 @@ for rs in random_states:
         f.write(str(inner_scores.mean())+"\t")
 
         for i in xrange(len(train_grams)):
-            train_grams[i]=matrix(np.array(train_grams[i]))
+#            train_grams[i]=matrix(np.array(train_grams[i]))
+            coo_tmp = train_grams[i].tocoo()
+            train_grams[i] = spmatrix(coo_tmp.data.tolist(), coo_tmp.row.tolist(), coo_tmp.col.tolist())
 
         for i in xrange(len(test_grams)):
-            test_grams[i]=matrix(np.array(test_grams[i]))
+#            test_grams[i]=matrix(np.array(test_grams[i]))
+            coo_tmp = test_grams[i].tocoo()
+            test_grams[i] = spmatrix(coo_tmp.data.tolist(), coo_tmp.row.tolist(), coo_tmp.col.tolist())
 
         print "Training..."
         start = time.clock()

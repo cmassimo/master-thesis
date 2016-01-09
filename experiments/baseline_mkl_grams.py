@@ -7,7 +7,6 @@ from sklearn.metrics import roc_auc_score
 from skgraph.datasets import load_graph_datasets
 from skgraph.kernel.ODDSTincGraphKernel import ODDSTincGraphKernel
 from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
-from innerCV_easyMKL import calculate_inner_AUC_kfold
 
 if len(sys.argv)<4:
     sys.exit("python baseline.py kernels dataset radius outfile")
@@ -51,5 +50,5 @@ for idx, kernel_matrix in enumerate(grams):
             output.write(str(j+1)+":"+str(kernel_matrix[i][j])+" ")
         output.write("\n")
     output.close()
-    print '--- done'
+print '--- done'
 
