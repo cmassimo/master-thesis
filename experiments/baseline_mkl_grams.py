@@ -7,6 +7,7 @@ from sklearn.metrics import roc_auc_score
 from skgraph.datasets import load_graph_datasets
 from skgraph.kernel.ODDSTincGraphKernel import ODDSTincGraphKernel
 from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
+from svmlight_loader import dump_svmlight_file
 
 if len(sys.argv)<4:
     sys.exit("python baseline.py kernels dataset radius outfile")
@@ -34,7 +35,7 @@ elif dataset=="NCI1":
 else:
     print "Unknown dataset name"
 
-target_array = matrix(ds.target)
+target_array = ds.target
 
 print "Generating orthogonal matrices"
 k = ODDSTincGraphKernel(r=radius, l=1, normalization=True, version=1, ntype=0, nsplit=0, kernels=kernels)
@@ -43,12 +44,14 @@ print '--- done'
 
 print "Saving Gram matrices..."
 for idx, kernel_matrix in enumerate(grams):
-    output = open(outfile+".idx"+str(idx)+".svmlight", "w")
-    for i in xrange(len(kernel_matrix)):
-        output.write(str(ds.target[i])+" 0:"+str(i+1)+" ")
-        for j in range(len(kernel_matrix[i])):
-            output.write(str(j+1)+":"+str(kernel_matrix[i][j])+" ")
-        output.write("\n")
-    output.close()
+    output = outfile+".idx"+str(idx)+".svmlight"
+    dump_svmlight_file(kernel_matrix, target_array, output, True)
+#    output = open(outfile+".idx"+str(idx)+".svmlight", "w")
+#    for i in xrange(len(kernel_matrix)):
+#        output.write(str(ds.target[i])+" 0:"+str(i+1)+" ")
+#        for j in range(len(kernel_matrix[i])):
+#            output.write(str(j+1)+":"+str(kernel_matrix[i][j])+" ")
+#        output.write("\n")
+#    output.close()
 print '--- done'
 
