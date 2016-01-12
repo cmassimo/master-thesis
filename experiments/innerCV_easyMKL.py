@@ -26,8 +26,12 @@ from sklearn import cross_validation
 import numpy as np
 import time
 
-def calculate_inner_AUC_kfold(Xs, Y, l, rs, folds):
+def calculate_inner_AUC_kfold(Xs, Y, process, l, rs, folds):
     #Xs is an array of kernel matrices
+
+    print process.memory_percent()
+    print process.memory_info()
+    print "---"
 
     sc=[]
     kf = cross_validation.StratifiedKFold(Y, n_folds=folds, shuffle=True, random_state=rs)
@@ -35,10 +39,16 @@ def calculate_inner_AUC_kfold(Xs, Y, l, rs, folds):
     for train_index, test_index in kf:
         train_grams=[]
         test_grams=[]
+        tr_i = matrix(train_index)
+        te_i = matrix(test_index)
 
         for i in xrange(len(Xs)):
-            train_grams.append(Xs[i][train_index,:].tocsc()[:,train_index].tocsr())
-            test_grams.append(Xs[i][test_index,:].tocsc()[:,train_index].tocsr())
+            train_grams.append(Xs[i][tr_i,tr_i])
+            test_grams.append(Xs[i][te_i,tr_i])
+#            train_grams.append(Xs[i][train_index,:].tocsc()[:,train_index].tocsr())
+#            test_grams.append(Xs[i][test_index,:].tocsc()[:,train_index].tocsr())
+#            print str(i) + " [first split] train shape: ", str(train_grams[i].shape)
+#            print str(i) + " [first split] test shape: ", str(test_grams[i].shape)
 #            train_grams.append([])
 #            test_grams.append([])
 #
@@ -50,36 +60,47 @@ def calculate_inner_AUC_kfold(Xs, Y, l, rs, folds):
 #                else:
 #                    test_grams[i].append(np.array(row).take(train_index))
 
-        for i in xrange(len(train_grams)):
-#            train_grams[i]=matrix(np.array(train_grams[i]))
-            coo_tmp = train_grams[i].tocoo()
-            train_grams[i] = spmatrix(coo_tmp.data.tolist(), coo_tmp.row.tolist(), coo_tmp.col.tolist())
+#        print "--- FORMAT CONVERSION ---"
+#
+#        for i in xrange(len(train_grams)):
+##            train_grams[i]=matrix(np.array(train_grams[i]))
+#            coo_tmp = train_grams[i].tocoo()
+#            train_grams[i] = spmatrix(coo_tmp.data.tolist(), coo_tmp.row.tolist(), coo_tmp.col.tolist(), coo_tmp.shape)
+#
+#        coo_tmp = None
+#
+#        for i in xrange(len(test_grams)):
+##            test_grams[i]=matrix(np.array(test_grams[i]))
+#            coo_tmp = test_grams[i].tocoo()
+#            test_grams[i] = spmatrix(coo_tmp.data.tolist(), coo_tmp.row.tolist(), coo_tmp.col.tolist(), coo_tmp.shape)
+#
+#        coo_tmp = None
 
-        for i in xrange(len(test_grams)):
-#            test_grams[i]=matrix(np.array(test_grams[i]))
-            coo_tmp = test_grams[i].tocoo()
-            test_grams[i] = spmatrix(coo_tmp.data.tolist(), coo_tmp.row.tolist(), coo_tmp.col.tolist())
-
-#        print "train size: ",train_grams[0].size[0],train_grams[0].size[1]
-#        print "test size: ",test_grams[0].size[0],test_grams[0].size[1]
-        #print test_grams[0]
+        print process.memory_percent()
+        print process.memory_info()
+        print "---"
 
         Ytr=Y[train_index]    
         Yte=Y[test_index]
 
-        #print "labels: ", len(Ytr), len(Yte)
+#        print "labels: ", len(Ytr), len(Yte)
         start = time.clock()
 
         easy = EasyMKL(lam=l, tracenorm = True)
-        easy.train(train_grams,matrix(Ytr))
+        easy.train(train_grams, matrix(Ytr))
 
+        del train_grams
+
+        print "--- Ranking..."
         ranktest = np.array(easy.rank(test_grams))
-        rte = roc_auc_score(np.array(Yte),ranktest)
+        del test_grams
+        del easy
+        rte = roc_auc_score(np.array(Yte), ranktest)
 
         end = time.clock()
 
         print 'Inner K-fold, elapsed time:', (end-start)
-        #print 'weights of kernels:', easy.weights
+#        print 'weights of kernels:', len(easy.weights)
 
         sc.append(rte)
 
