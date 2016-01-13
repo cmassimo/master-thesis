@@ -39,7 +39,17 @@ target_array = ds.target
 
 print "Generating orthogonal matrices"
 k = ODDSTincGraphKernel(r=radius, l=1, normalization=True, version=1, ntype=0, nsplit=0, kernels=kernels)
-grams = k.computeKernelMatricesTrain(ds.graphs)
+grams = [np.matrix(g) for g in k.computeKernelMatricesTrain(ds.graphs)]
+print '--- done'
+
+# Preprocessing for memory efficient easyMKL
+tracenorm_sum_gram = np.zeros(grams[0].shape)
+for gs in grams:
+    ntrace = sum([gs[i,i] for i in range(gs.shape[0])]) / gs.shape[0]
+    tracenorm_sum_gram += gs / ntrace
+
+print "Saving SUM Matrix..."
+dump_svmlight_file(tracenorm_sum_gram, target_array, outfile+"_SUM_tracen.svmlight", True)
 print '--- done'
 
 print "Saving Gram matrices..."
