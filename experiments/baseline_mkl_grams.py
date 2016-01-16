@@ -1,13 +1,10 @@
 import sys, os
 import time
 import numpy as np
-from cvxopt import matrix
-from sklearn import cross_validation
-from sklearn.metrics import roc_auc_score
+from svmlight_loader import dump_svmlight_file
 from skgraph.datasets import load_graph_datasets
 from skgraph.kernel.ODDSTincGraphKernel import ODDSTincGraphKernel
 from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
-from svmlight_loader import dump_svmlight_file
 
 if len(sys.argv)<4:
     sys.exit("python baseline.py kernels dataset radius outfile")
@@ -42,26 +39,10 @@ k = ODDSTincGraphKernel(r=radius, l=1, normalization=True, version=1, ntype=0, n
 grams = [np.matrix(g) for g in k.computeKernelMatricesTrain(ds.graphs)]
 print '--- done'
 
-# Preprocessing for memory efficient easyMKL
-tracenorm_sum_gram = np.zeros(grams[0].shape)
-for gs in grams:
-    ntrace = sum([gs[i,i] for i in range(gs.shape[0])]) / gs.shape[0]
-    tracenorm_sum_gram += gs / ntrace
-
-print "Saving SUM Matrix..."
-dump_svmlight_file(tracenorm_sum_gram, target_array, outfile+"_SUM_tracen.svmlight", True)
-print '--- done'
-
 print "Saving Gram matrices..."
 for idx, kernel_matrix in enumerate(grams):
+    print kernel_matrix.shape
     output = outfile+".idx"+str(idx)+".svmlight"
     dump_svmlight_file(kernel_matrix, target_array, output, True)
-#    output = open(outfile+".idx"+str(idx)+".svmlight", "w")
-#    for i in xrange(len(kernel_matrix)):
-#        output.write(str(ds.target[i])+" 0:"+str(i+1)+" ")
-#        for j in range(len(kernel_matrix[i])):
-#            output.write(str(j+1)+":"+str(kernel_matrix[i][j])+" ")
-#        output.write("\n")
-#    output.close()
 print '--- done'
 
