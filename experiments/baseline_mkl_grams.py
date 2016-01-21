@@ -1,4 +1,5 @@
 import sys, os
+sys.path.append("/home/cmassimo/cluster_bundle/scikit-learn-graph/")
 import time
 import numpy as np
 from cvxopt import matrix, mul
