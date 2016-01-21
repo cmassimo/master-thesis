@@ -4,6 +4,7 @@ import numpy as np
 from cvxopt import matrix, mul
 from cvxopt.lapack import syev
 from svmlight_loader import load_svmlight_file
+from sklearn.datasets import dump_svmlight_file
 from skgraph.datasets import load_graph_datasets
 from skgraph.kernel.ODDSTincGraphKernel import ODDSTincGraphKernel
 from skgraph.kernel.ODDSTOrthogonalizedGraphKernel import ODDSTOrthogonalizedGraphKernel
@@ -16,20 +17,6 @@ kernels =  sys.argv[1].split(',')
 dataset = sys.argv[2]
 radius = int(sys.argv[3])
 outfile = sys.argv[4]
-
-def dump_svmlight_file(K, target, path):
-    output=open(path, "w")
-
-    for i in xrange(len(K)):
-        output.write(str(target[i])+" ")
-
-        for j in range(len(K[i])):
-            if K[i][j] != 0.:
-                output.write(str(j)+":"+str(K[i][j])+" ")
-
-        output.write("\n")
-
-    output.close()
 
 if dataset=="CAS":
     print "Loading bursi(CAS) dataset"        
