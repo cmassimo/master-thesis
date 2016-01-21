@@ -1,9 +1,12 @@
 import sys, os
 import time
 import numpy as np
-from svmlight_loader import dump_svmlight_file
+from cvxopt import matrix, mul
+from cvxopt.lapack import syev
+from svmlight_loader import load_svmlight_file
 from skgraph.datasets import load_graph_datasets
 from skgraph.kernel.ODDSTincGraphKernel import ODDSTincGraphKernel
+from skgraph.kernel.ODDSTOrthogonalizedGraphKernel import ODDSTOrthogonalizedGraphKernel
 from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
 
 if len(sys.argv)<4:
@@ -12,7 +15,21 @@ if len(sys.argv)<4:
 kernels =  sys.argv[1].split(',')
 dataset = sys.argv[2]
 radius = int(sys.argv[3])
-outfile = sys.argv[4]+"_".join(kernels)+".d"+dataset+".r"+str(radius)
+outfile = sys.argv[4]
+
+def dump_svmlight_file(K, target, path):
+    output=open(path, "w")
+
+    for i in xrange(len(K)):
+        output.write(str(target[i])+" ")
+
+        for j in range(len(K[i])):
+            if K[i][j] != 0.:
+                output.write(str(j)+":"+str(K[i][j])+" ")
+
+        output.write("\n")
+
+    output.close()
 
 if dataset=="CAS":
     print "Loading bursi(CAS) dataset"        
@@ -36,13 +53,29 @@ target_array = ds.target
 
 print "Generating orthogonal matrices"
 k = ODDSTincGraphKernel(r=radius, l=1, normalization=True, version=1, ntype=0, nsplit=0, kernels=kernels)
-grams = [np.matrix(g) for g in k.computeKernelMatricesTrain(ds.graphs)]
+
+#k = ODDSTOrthogonalizedGraphKernel(r=radius, l=1, normalization=False)
+grams = [np.array(g, dtype='float64') for g in k.computeKernelMatrixTrain(ds.graphs)]
 print '--- done'
 
 print "Saving Gram matrices..."
-for idx, kernel_matrix in enumerate(grams):
-    print kernel_matrix.shape
-    output = outfile+".idx"+str(idx)+".svmlight"
-    dump_svmlight_file(kernel_matrix, target_array, output, True)
+for key in kernels:
+    for idx in range(radius+1):
+        kernel_matrix = grams.pop(0)
+
+#        w = matrix(0., (1, len(target_array)))
+#        print w.size, w
+#        mat = matrix(kernel_matrix)
+#        syev(mat, w)
+#        print w.size, w
+#        negs = [ww for ww in w if ww < float(-1e-6)]
+#        print len(negs), negs
+#        if len(negs) > 0:
+#            print idx, ": # negs:", len(negs), "M:", max(negs), 'm:', min(negs)
+#        else:
+#            print idx, ": positive semi-definite, saving..."
+        output = outfile+key+".d"+dataset+".r"+str(radius)+".depth"+str(idx)+".svmlight"
+        dump_svmlight_file(kernel_matrix, target_array, output)
+
 print '--- done'
 

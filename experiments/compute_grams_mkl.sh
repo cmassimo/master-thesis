@@ -2,8 +2,8 @@
 
 #for dataset in "CAS" "NCI1" "AIDS" "CPDB" "GDD"; do
 for dataset in "CAS"; do
-#for radius in "8" "7" "6" "5" "4" "3" "2" "1"; do
-for radius in "7"; do
+#for radius in "8" "7" "6" "5" "4" "3" "2" "1" "0"; do
+for radius in "8"; do
 
 #lines=`qstat | grep cmass | wc -l`
 #

@@ -48,7 +48,7 @@ for seed in "42"; do
 #
 #cd $HOME/cluster_bundle/scikit-learn-graph/
 
-python -u cv_all_matrices_mkl.py $lambda cvres/${dataset}/mkl/multikernel $seed 4337 grams/${dataset}/mkl/*.svmlight #"> $HOME/tesi/jobs/${dataset}.$lambda.nested.job
+python -u ME_cv_all_matrices_mkl.py $lambda cvres/${dataset}/mkl/multikernel $seed 4337 grams/${dataset}/mkl/*.svmlight #"> $HOME/tesi/jobs/${dataset}.$lambda.nested.job
 
 #qsub $HOME/tesi/jobs/${dataset}.$lambda.nested.job
 
