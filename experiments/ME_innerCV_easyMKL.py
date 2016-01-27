@@ -27,7 +27,8 @@ from sklearn.metrics import roc_auc_score
 from sklearn import cross_validation
 from svmlight_loader import load_svmlight_file
 
-def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape):
+def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
+    out_index = matrix(tr_index)
     sc=[]
     kf = cross_validation.StratifiedKFold(Y, n_folds=folds, shuffle=True, random_state=rs)
 
@@ -36,13 +37,15 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape):
 
         tr_i = matrix(train_index)
         te_i = matrix(test_index)
+        Ytr = Y[train_index]
+        Yte = Y[test_index]
 
         start = time.clock()
         # load matrices to sum them with ntrace norm
         train_gram = matrix(0.0, (len(train_index), len(train_index)))
         for mf in mfiles:
             km, ta = load_svmlight_file(mf, shape, zero_based=True)
-            mat = matrix(km.todense().tolist())
+            mat = matrix(km.todense())[out_index, out_index]
             trainmat = mat[tr_i, tr_i]
 
             ntrace = easy.traceN(trainmat)
@@ -53,9 +56,6 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape):
             else:
                 train_gram += trainmat
 
-        Ytr=Y[train_index]
-        Yte=Y[test_index]
-
         end = time.clock()
         print "Matrices loaded in: " + str(end - start)
 
@@ -63,8 +63,6 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape):
         start = time.clock()
 
         easy.train(train_gram, matrix(Ytr))
-
-        del train_gram
 
         print "Step 2: weights"
         # STEP 2: Weights evaluation + sum kernel with weights calculation:
@@ -74,10 +72,11 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape):
         # on-the-fly load and calculations
         for mf, nt in zip(mfiles, easy.traces):
             km, ta = load_svmlight_file(mf, shape, zero_based=True)
+            mat = matrix(km.todense())[out_index, out_index]
             if nt > 0:
-                kermat = matrix(km.todense().tolist())[tr_i, tr_i] / nt
+                kermat = mat[tr_i, tr_i] / nt
             else:
-                kermat = matrix(km.todense().tolist())[tr_i, tr_i]
+                kermat = mat[tr_i, tr_i]
             b = yg*kermat*yg.T
             easy.weights.append(b[0])
             
@@ -85,31 +84,37 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape):
         easy.weights = [w / norm2 for w in easy.weights]
             
         for idx,val in enumerate(easy.traces):
-            easy.weights[idx] = easy.weights[idx] / val        
+            if val > 0.:
+                easy.weights[idx] = easy.weights[idx] / val        
 
         train_gram = matrix(0.0, (len(train_index), len(train_index)))
-        test_gram = matrix(0.0, (len(test_index), len(train_index)))
-        tr_i = matrix(train_index)
-        te_i = matrix(test_index)
+#        test_gram = matrix(0.0, (len(test_index), len(train_index)))
+        test_grams = []
         # reload matrices to sum them again with the weights
-        for w, nt, mf in zip(easy.weights, easy.traces, mfiles):
+        for w, mf in zip(easy.weights, mfiles):
             km, ta = load_svmlight_file(mf, shape, zero_based=True)
-            kermat = matrix(km.todense().tolist())
-            train_gram += (kermat[tr_i, tr_i]) * w # / nt ) * w
-            test_gram += kermat[te_i, tr_i] * w
+            kermat = matrix(km.todense())[out_index, out_index]
+            train_gram += kermat[tr_i, tr_i] * w
+            test_grams.append(kermat[te_i, tr_i])
 
         print "Step 3: final training"
         # STEP 3 final training with easyMKL with weights incorporated
         easy.train2(train_gram, matrix(Ytr))
 
-        del train_gram
+        # weight test_grams with the latest computed weights
+        test_gram = matrix(0.0, (len(test_index), len(train_index)))
+        for w, te_g in zip(easy.weights, test_grams):
+            test_gram += te_g * w
 
         print "--- Ranking..."
         ranktest = np.array(easy.rank(test_gram))
         rte = roc_auc_score(np.array(Yte), ranktest)
 
         end = time.clock()
+        print "kth AUC score: ", rte
 
+        del test_grams
+        del train_gram
         del test_gram
         del easy
 
