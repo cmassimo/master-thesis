@@ -32,7 +32,7 @@ def calculate_outer_AUC_kfold(matrix_files, shape, L, rs, folds, outfile):
     f.write("CV\t\t test_roc_score\n")
 
     easy = EasyMKL(lam=L, tracenorm = True)
-    splitfolds = [(train_index, test_index) for train_index, test_index in kf]
+    splitfolds = [sfolds for sfolds in kf]
     initial_train_grams = [matrix(0.0, (len(s[0]), len(s[0]))) for s in splitfolds]
     all_ntraces = [[] for s in splitfolds]
 
@@ -54,7 +54,7 @@ def calculate_outer_AUC_kfold(matrix_files, shape, L, rs, folds, outfile):
                 initial_train_grams[i] += trainmat
 
     # OUTER K-FCV
-    for i, (train_index, test_index) in enumerate(kf):
+    for i, (train_index, test_index) in enumerate(splitfolds):
         easy = EasyMKL(lam=L, tracenorm = True)
 
         tr_i = matrix(train_index)
@@ -74,7 +74,7 @@ def calculate_outer_AUC_kfold(matrix_files, shape, L, rs, folds, outfile):
         start = time.clock()
 
         train_gram = initial_train_grams[i]
-        easy.ntraces = all_ntraces[i]
+        easy.traces = all_ntraces[i]
 
         easy.train(train_gram, matrix(y_train))
 

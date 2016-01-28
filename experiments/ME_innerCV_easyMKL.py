@@ -33,7 +33,7 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
     kf = cross_validation.StratifiedKFold(Y, n_folds=folds, shuffle=True, random_state=rs)
 
     easy = EasyMKL(lam=l, tracenorm = True)
-    splitfolds = [(train_index, test_index) for train_index, test_index in kf]
+    splitfolds = [sfolds for sfolds in kf]
     initial_train_grams = [matrix(0.0, (len(s[0]), len(s[0]))) for s in splitfolds]
     all_ntraces = [[] for s in splitfolds]
 
@@ -71,7 +71,7 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
         start = time.clock()
 
         train_gram = initial_train_grams[i]
-        easy.ntraces = all_ntraces[i]
+        easy.traces = all_ntraces[i]
 
         print train_gram.size, len(Ytr)
 
