@@ -32,7 +32,34 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
     sc=[]
     kf = cross_validation.StratifiedKFold(Y, n_folds=folds, shuffle=True, random_state=rs)
 
-    for train_index, test_index in kf:
+    easy = EasyMKL(lam=l, tracenorm = True)
+    splitfolds = [(train_index, test_index) for train_index, test_index in kf]
+    initial_train_grams = [matrix(0.0, (len(s[0]), len(s[0]))) for s in splitfolds]
+    all_ntraces = [[] for s in splitfolds]
+
+    start = time.clock()
+
+    # load matrices to sum them with ntrace norm
+    for mf in mfiles:
+        km, ta = load_svmlight_file(mf, shape, zero_based=True)
+        mat = matrix(km.todense())[out_index,out_index]
+        for i, ids in enumerate(splitfolds):
+            ntraces = []
+            tr_i = matrix(ids[0])
+            trainmat = mat[tr_i, tr_i]
+
+            ntrace = easy.traceN(trainmat)
+            all_ntraces[i].append(ntrace)
+
+            if ntrace > 0.:
+                initial_train_grams[i] += (trainmat / ntrace)
+            else:
+                initial_train_grams[i] += trainmat
+
+    end = time.clock()
+    print "Matrices loaded in: " + str(end - start)
+
+    for i, (train_index, test_index) in enumerate(splitfolds):
         easy = EasyMKL(lam=l, tracenorm = True)
 
         tr_i = matrix(train_index)
@@ -40,27 +67,13 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
         Ytr = Y[train_index]
         Yte = Y[test_index]
 
-        start = time.clock()
-        # load matrices to sum them with ntrace norm
-        train_gram = matrix(0.0, (len(train_index), len(train_index)))
-        for mf in mfiles:
-            km, ta = load_svmlight_file(mf, shape, zero_based=True)
-            mat = matrix(km.todense())[out_index, out_index]
-            trainmat = mat[tr_i, tr_i]
-
-            ntrace = easy.traceN(trainmat)
-            easy.traces.append(ntrace)
-            if ntrace > 0.:
-                train_gram += (trainmat / ntrace)
-            # useless since the matrix is full of zeros??
-            else:
-                train_gram += trainmat
-
-        end = time.clock()
-        print "Matrices loaded in: " + str(end - start)
-
         print "Inner training..."
         start = time.clock()
+
+        train_gram = initial_train_grams[i]
+        easy.ntraces = all_ntraces[i]
+
+        print train_gram.size, len(Ytr)
 
         easy.train(train_gram, matrix(Ytr))
 
