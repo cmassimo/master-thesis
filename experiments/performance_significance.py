@@ -17,17 +17,16 @@ for s in range(42,52):
     test_values=[0]*10
     std_dev=[0]*10
     filename=[[] for i in xrange(10)]
-    for c in ['0.0001','0.001','0.01','0.1','1.0','10.0','100.0','1000.0']:
-    #for c in ['10.0']:
-        #print dirtocheck+"/*.seed"+str(s)+".c"+str(c)
-        for f_name in glob.iglob(dirtocheck+"/*.seed"+str(s)+".c"+str(c)):
+    for l in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
+        print dirtocheck+"/*.seed"+str(s)+".L"+str(l)
+        for f_name in glob.iglob(dirtocheck+"/*.seed"+str(s)+".L"+str(l)):
 #            print f_name
-            f = open(f_name,'r')
+            f = open(f_name, 'r')
             i=-3
             for line in f:
                 i+=1
                 if (i>=0):
-                    words=line.split()
+                    words=line.split()[0:3]
                     words=map(float,words)
 #                    print words
                     if cv_values[i]<words[0]:
