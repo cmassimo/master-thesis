@@ -41,7 +41,6 @@ def calculate_outer_AUC_kfold(matrix_files, shape, L, rs, folds, outfile):
         km, ta = load_svmlight_file(mf, shape, zero_based=True)
         mat = matrix(km.todense())
         for i, ids in enumerate(splitfolds):
-            ntraces = []
             tr_i = matrix(ids[0])
             trainmat = mat[tr_i, tr_i]
 
@@ -109,7 +108,7 @@ def calculate_outer_AUC_kfold(matrix_files, shape, L, rs, folds, outfile):
             test_grams.append(kermat[te_i, tr_i])
 
         # STEP 3 final training with easyMKL with weights incorporated
-        easy.train2(train_gram, matrix(y_train))
+        easy.train2(train_gram)
 
         test_gram = matrix(0.0, (len(test_index), len(train_index)))
         for w, te_g in zip(easy.weights, test_grams):
@@ -125,10 +124,12 @@ def calculate_outer_AUC_kfold(matrix_files, shape, L, rs, folds, outfile):
         del test_grams
         del train_gram
         del test_gram
-        del easy
 
         f.write(str(rte)+"\t")
-        f.write(str(inner_scores.std())+"\n")
+        f.write(str(inner_scores.std())+"\t")
+        f.write(",".join(map(lambda x: str(x), easy.weights)) + "\n")
+
+        del easy
 
         sc.append(rte)
 

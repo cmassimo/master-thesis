@@ -19,6 +19,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with scikit-learn-graph.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import time
 import numpy as np
 from cvxopt import matrix, mul
@@ -44,7 +45,6 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
         km, ta = load_svmlight_file(mf, shape, zero_based=True)
         mat = matrix(km.todense())[out_index,out_index]
         for i, ids in enumerate(splitfolds):
-            ntraces = []
             tr_i = matrix(ids[0])
             trainmat = mat[tr_i, tr_i]
 
@@ -72,8 +72,6 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
 
         train_gram = initial_train_grams[i]
         easy.traces = all_ntraces[i]
-
-        print train_gram.size, len(Ytr)
 
         easy.train(train_gram, matrix(Ytr))
 
@@ -112,7 +110,7 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
 
         print "Step 3: final training"
         # STEP 3 final training with easyMKL with weights incorporated
-        easy.train2(train_gram, matrix(Ytr))
+        easy.train2(train_gram)
 
         # weight test_grams with the latest computed weights
         test_gram = matrix(0.0, (len(test_index), len(train_index)))
@@ -136,5 +134,8 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
         sc.append(rte)
 
     scores=np.array(sc)
+    del initial_train_grams
+    del all_ntraces
+
     return scores
 

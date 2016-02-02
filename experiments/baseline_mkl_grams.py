@@ -4,7 +4,6 @@ import time
 import numpy as np
 from cvxopt import matrix, mul
 from cvxopt.lapack import syev
-from svmlight_loader import load_svmlight_file
 from sklearn.datasets import dump_svmlight_file
 from skgraph.datasets import load_graph_datasets
 from skgraph.kernel.ODDSTincGraphKernel import ODDSTincGraphKernel
