@@ -3,21 +3,22 @@ import sys, os
 #sys.path.append(os.path.join(os.path.dirname(__file__), '..', '',''))
 import numpy as np
 from sklearn import svm
-from sklearn.datasets import load_svmlight_file
+from svmlight_loader import load_svmlight_file
 from sklearn import cross_validation
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import roc_auc_score
 
 if len(sys.argv)<4:
-    sys.exit("python cross_validation_from_matrix.py inputMatrix.libsvm C outfile")
+    sys.exit("python cross_validation_from_matrix.py inputMatrix.libsvm C outfile shape")
 
 c=float(sys.argv[2])
+shape=int(sys.argv[4])
 
-km, target_array = load_svmlight_file(sys.argv[1])
+km, target_array = load_svmlight_file(sys.argv[1], shape)
 
 sc=[]
 start = time.clock()
 
-for rs in range(42,52):
+for rs in range(42,43):
     f=open(str(sys.argv[3]+".seed"+str(rs)+".c"+str(c)),'w')
 
     kf = cross_validation.StratifiedKFold(target_array, n_folds=10, shuffle=True,random_state=rs)
@@ -25,8 +26,7 @@ for rs in range(42,52):
     #remove column zero because
     #first entry of each line is the index
     
-    gram=km[:,1:].todense()
-    #gram=km.todense()
+    gram=km.todense()
     
     f.write("Total examples "+str(len(gram))+"\n")
     f.write("CV\t\t test_acc\n")
@@ -39,7 +39,7 @@ for rs in range(42,52):
         #generated train and test lists, incuding indices of the examples in training/test
         #for the specific fold. Indices starts from 0 now
         
-        clf = svm.SVC(C=c, kernel='precomputed')
+        clf = svm.SVC(C=c, kernel='precomputed', probability=True)
         train_gram = [] #[[] for x in xrange(0,len(train))]
         test_gram = []# [[] for x in xrange(0,len(test))]
           
@@ -68,7 +68,7 @@ for rs in range(42,52):
         #print "Start inner 10fold"
         #COMPUTE INNERKFOLD
         kif = cross_validation.StratifiedKFold(y_train, n_folds=10, shuffle=True, random_state=rs)
-        inner_scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=kif)#, verbose=1)
+        inner_scores = cross_validation.cross_val_score(clf, X_train, y_train, scoring='roc_auc', cv=kif)#, verbose=1)
         #print "inner scores", inner_scores
         print "Inner Accuracy: %0.8f (+/- %0.8f)" % (inner_scores.mean(), inner_scores.std())
 
@@ -77,9 +77,10 @@ for rs in range(42,52):
         clf.fit(X_train, y_train)
     
         # predict on test examples
-        y_test_predicted=clf.predict(X_test)
-        sc.append(accuracy_score(y_test, y_test_predicted))
-        f.write(str(accuracy_score(y_test, y_test_predicted))+"\t")
+        y_proba=clf.predict_proba(X_test)
+        y_test_predicted = [yp[1] for yp in y_proba]
+        sc.append(roc_auc_score(y_test, y_test_predicted))
+        f.write(str(roc_auc_score(y_test, y_test_predicted))+"\t")
         
         f.write(str(inner_scores.std())+"\n")
 
