@@ -1,6 +1,7 @@
 from joblib import Parallel, delayed
 import re
 import sys, os
+sys.path.append("/home/cmassimo/cluster_bundle/scikit-learn-graph/")
 import time
 import numpy as np
 from cvxopt import matrix
@@ -18,7 +19,7 @@ outfile = sys.argv[2]
 rs = int(sys.argv[3])
 shape = int(sys.argv[4])
 kernels =  sys.argv[5].split(',')
-folds = 3
+folds = 10 
 
 # prendo solo i nomi file delle matrici gram senza estensione per passarli a load_svmlight_file
 matrix_files = {}
@@ -49,16 +50,21 @@ for train_index, test_index in kf:
 
     # FINAL TRAINING for the results
     print "Outer training..."
-    start = time.clock()
 
     # test set indices and labels
     te_i = matrix(test_index)
     y_test = target_array[test_index]
 
+    print 'Calculating single kernel sum matrices...'
+    start = time.clock()
     grams = Parallel(n_jobs=2)(delayed(single_kernel_train_and_sum)(L, train_index, target_array, folds, rs, matrix_files[i], shape) for i in matrix_files.keys())
+    end = time.clock()
+    print "END sum matrices calculation, elapsed time: %0.4f s" % (end - start)
 
+    start = time.clock()
     train_grams=[]
     test_grams=[]
+
     for i in range(len(grams)):
         train_grams.append(grams[i][tr_i,tr_i])
         test_grams.append(grams[i][te_i,tr_i])

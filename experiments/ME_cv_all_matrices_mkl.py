@@ -98,21 +98,26 @@ def calculate_outer_AUC_kfold(matrix_files, shape, L, rs, folds, outfile):
             if val > 0.:
                 easy.weights[idx] = easy.weights[idx] / val        
 
-        test_grams = []
+#        test_grams = []
         train_gram = matrix(0.0, (len(train_index), len(train_index)))
+        test_gram = matrix(0.0, (len(test_index), len(train_index)))
         # reload matrices to sum them again with the weights
-        for w, mf in zip(easy.weights, matrix_files):
+        for w, nt, mf in zip(easy.weights, easy.traces, matrix_files):
             km, ta = load_svmlight_file(mf, shape, zero_based=True)
             kermat = matrix(km.todense())
-            train_gram += (kermat[tr_i, tr_i]) * w
-            test_grams.append(kermat[te_i, tr_i])
+            if nt > 0:
+                train_gram += (kermat[tr_i, tr_i] / nt) * w
+            else:
+                train_gram += kermat[tr_i, tr_i] * w
+            test_gram += kermat[te_i, tr_i] * w
+#            test_grams.append(kermat[te_i, tr_i])
 
         # STEP 3 final training with easyMKL with weights incorporated
         easy.train2(train_gram)
 
-        test_gram = matrix(0.0, (len(test_index), len(train_index)))
-        for w, te_g in zip(easy.weights, test_grams):
-            test_gram += te_g * w
+#        test_gram = matrix(0.0, (len(test_index), len(train_index)))
+#        for w, te_g in zip(easy.weights, test_grams):
+#            test_gram += te_g * w
 
         end = time.clock()
         print "END Training, elapsed time: %0.4f s" % (end - start)
@@ -121,7 +126,7 @@ def calculate_outer_AUC_kfold(matrix_files, shape, L, rs, folds, outfile):
         ranktest = np.array(easy.rank(test_gram))
         rte = roc_auc_score(np.array(y_test), ranktest)
 
-        del test_grams
+#        del test_grams
         del train_gram
         del test_gram
 

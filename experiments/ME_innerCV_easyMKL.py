@@ -99,23 +99,27 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
                 easy.weights[idx] = easy.weights[idx] / val        
 
         train_gram = matrix(0.0, (len(train_index), len(train_index)))
-#        test_gram = matrix(0.0, (len(test_index), len(train_index)))
-        test_grams = []
+        test_gram = matrix(0.0, (len(test_index), len(train_index)))
+#        test_grams = []
         # reload matrices to sum them again with the weights
-        for w, mf in zip(easy.weights, mfiles):
+        for w, nt, mf in zip(easy.weights, easy.traces, mfiles):
             km, ta = load_svmlight_file(mf, shape, zero_based=True)
             kermat = matrix(km.todense())[out_index, out_index]
-            train_gram += kermat[tr_i, tr_i] * w
-            test_grams.append(kermat[te_i, tr_i])
+            if nt > 0:
+                train_gram += (kermat[tr_i, tr_i] / nt) * w
+            else:
+                train_gram += kermat[tr_i, tr_i] * w
+            test_gram += kermat[te_i, tr_i] * w
+#            test_grams.append(kermat[te_i, tr_i])
 
         print "Step 3: final training"
         # STEP 3 final training with easyMKL with weights incorporated
         easy.train2(train_gram)
 
         # weight test_grams with the latest computed weights
-        test_gram = matrix(0.0, (len(test_index), len(train_index)))
-        for w, te_g in zip(easy.weights, test_grams):
-            test_gram += te_g * w
+#        test_gram = matrix(0.0, (len(test_index), len(train_index)))
+#        for w, te_g in zip(easy.weights, test_grams):
+#            test_gram += te_g * w
 
         print "--- Ranking..."
         ranktest = np.array(easy.rank(test_gram))
@@ -124,7 +128,7 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
         end = time.clock()
         print "kth AUC score: ", rte
 
-        del test_grams
+#        del test_grams
         del train_gram
         del test_gram
         del easy

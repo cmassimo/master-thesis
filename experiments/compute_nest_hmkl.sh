@@ -1,22 +1,24 @@
 #!/bin/bash
 
-#for dataset in "CAS" "NCI1" "AIDS" "CPDB" "GDD"; do
-for dataset in "CAS"; do
+#for dset_length in "CAS",4337 "NCI1",4110 "AIDS",1503 "CPDB",684 "GDD",1178; do
+for dset_length in "AIDS",1503 "CPDB",684 "GDD",1178 "NCI1",4110; do
+dataset=${dset_length%,*}
+size=${dset_length#*,}
 for lambda in "0" "0.1" "0.2" "0.3" "0.4" "0.5" "0.6" "0.7" "0.8" "0.9" "1.0"; do
 for seed in "42" "43" "44" "45" "46" "47" "48" "49" "50" "51"; do
 
-lines=`qstat | grep cmass | wc -l`
+lines=`qstat | grep hmkl | wc -l`
 
-while [ "$lines" -gt 79 ]
+while [ "$lines" -gt 39 ]
 do
 	echo "$lines jobs, waiting..."
-	sleep 120
-	lines=`qstat | grep cmass | wc -l`
+	sleep 60
+	lines=`qstat | grep hmkl | wc -l`
 done
 
 echo "#!/bin/sh
 ### Set the job name
-#PBS -N hmkl.$dataset.l$lambda
+#PBS -N hmkl.$dataset.$seed.l$lambda
 
 ### Declare myprogram non-rerunable
 #PBS -r n
@@ -32,10 +34,10 @@ echo "#!/bin/sh
 ### You MUST specify some number of nodes or Torque will fail to load balance.
 ### nodes=number of distinct host
 ### ppn=processes per node  :cache6mb
-#PBS -l nodes=1:ppn=1:infiniband
+#PBS -l nodes=1:ppn=2:infiniband
 
 ### You should tell PBS how much memory you expect your job will use.  mem=1g or mem=1024
-#PBS -l mem=5g
+#PBS -l mem=6g
 
 ### You can override the default 1 hour real-world time limit.  -l walltime=HH:MM:SS
 ### Jobs on the public clusters are currently limited to 10 days walltime.
@@ -47,7 +49,7 @@ echo "#!/bin/sh
 
 cd $HOME/cluster_bundle/scikit-learn-graph/
 
-python -u ME_cv_all_matrices_hierarchy_mkl.py $lambda cvres/${dataset}/hmkl/multikernel $seed 4337 grams/${dataset}/mkl/*.svmlight "> $HOME/tesi/jobs/${dataset}.$lambda.hmkl.nested.job
+python -u $HOME/cluster_bundle/master-thesis/experiments/ME_cv_all_matrices_hierarchy_mkl.py $lambda cvres/${dataset}/hmkl/hmultikernel $seed $size $1 /export/tmp/cmassimo_grams/${dataset}/*.svmlight "> $HOME/tesi/jobs/${dataset}.$lambda.hmkl.nested.job
 
 qsub $HOME/tesi/jobs/${dataset}.$lambda.hmkl.nested.job
 

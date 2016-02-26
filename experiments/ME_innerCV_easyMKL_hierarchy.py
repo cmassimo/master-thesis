@@ -15,8 +15,13 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
     kf = cross_validation.StratifiedKFold(Y, n_folds=folds, shuffle=True, random_state=rs)
 
     for train_index, test_index in kf:
+        print "Inner training..."
+        print 'Calculating single kernel sum matrices...'
+        start = time.clock()
         grams = Parallel(n_jobs=2)(delayed(single_kernel_train_and_sum)(l, train_index, Y, folds, rs, mfiles[i], shape, out_index) for i in mfiles.keys())
 #        grams.append(single_kernel_train_and_sum(l, train_index, Y, folds, rs, mfiles[0], shape, out_index))
+        end = time.clock()
+        print "END sum matrices calculation, elapsed time: %0.4f s" % (end - start)
 
         tr_i = matrix(train_index)
         te_i = matrix(test_index)
@@ -24,9 +29,8 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
         train_grams=[]
         test_grams=[]
         for i in range(len(grams)):
-            gram = grams[i]
-            train_grams.append(gram[tr_i,tr_i])
-            test_grams.append(gram[te_i,tr_i])
+            train_grams.append(grams[i][tr_i,tr_i])
+            test_grams.append(grams[i][te_i,tr_i])
 
         y_train = Y[train_index]
         y_test = Y[test_index]
@@ -41,10 +45,12 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index):
         del train_grams
         
         # predict on test examples
+        print "--- Ranking..."
         ranktest = np.array(easy.rank(test_grams))
         del test_grams
         del easy
         rte = roc_auc_score(np.array(y_test), ranktest)
+        print "kth AUC score: ", rte
 
         sc.append(rte)
 
@@ -77,7 +83,6 @@ def single_kernel_train_and_sum(L, train_index, target_array, folds, rs, matrix_
             train_gram += trainmat
 
     # STEP 1: preliminar training with easyMKL
-    print "Sub training..."
     start = time.clock()
 
     easy.train(train_gram, matrix(y_train))
@@ -109,24 +114,25 @@ def single_kernel_train_and_sum(L, train_index, target_array, folds, rs, matrix_
         if val > 0.:
             easy.weights[idx] = easy.weights[idx] / val        
 
-    train_gram = matrix(0.0, (len(train_index), len(train_index)))
-    # reload matrices to sum them again with the weights
-    for w, mf in zip(easy.weights, matrix_files):
-        km, ta = load_svmlight_file(mf, shape, zero_based=True)
-        if outer_train_index is not None:
-            kermat = matrix(km.todense())[outer_train_index, outer_train_index]
-        else:
-            kermat = matrix(km.todense())
-        train_gram += kermat[tr_i, tr_i] * w
+#    train_gram = matrix(0.0, (len(train_index), len(train_index)))
+#    for w, mf in zip(easy.weights, matrix_files):
+#        km, ta = load_svmlight_file(mf, shape, zero_based=True)
+#        if outer_train_index is not None:
+#            kermat = matrix(km.todense())[outer_train_index, outer_train_index]
+#        else:
+#            kermat = matrix(km.todense())
+#        train_gram += kermat[tr_i, tr_i] * w
 
-    # STEP 3 final training with easyMKL with weights incorporated
-    easy.train2(train_gram, matrix(y_train))
+#    # STEP 3 final training with easyMKL with weights incorporated
+#    easy.train2(train_gram)
 
-    del train_gram
+    #del train_gram
 
     end = time.clock()
-    print "END Sub Training, elapsed time: %0.4f s" % (end - start)
+    print "END Single Training, elapsed time: %0.4f s" % (end - start)
 
+    # reload matrices to sum them again with the weights
+    start = time.clock()
     if outer_train_index is not None:
         sum_kernel = matrix(0.0, (len(outer_train_index), len(outer_train_index)))
     else:
@@ -139,7 +145,8 @@ def single_kernel_train_and_sum(L, train_index, target_array, folds, rs, matrix_
             kermat = matrix(km.todense())
         sum_kernel += kermat * w
 
-    print "Sum matrix:", sum_kernel.size
+    end = time.clock()
+    print "Kernels weighed and summed, elapsed time:", (end-start)
 
     del easy
     return sum_kernel

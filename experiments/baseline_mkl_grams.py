@@ -47,7 +47,7 @@ print '--- done'
 
 print "Saving Gram matrices..."
 for key in kernels:
-    for idx in range(radius+1):
+    for idx in range(len(grams)):
         kernel_matrix = grams.pop(0)
 
 #        w = matrix(0., (1, len(target_array)))

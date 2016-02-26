@@ -1,30 +1,17 @@
 #!/bin/bash
 
-#for dataset in "CAS" "NCI1" "AIDS" "CPDB" "GDD"; do
-for dataset in "GDD"; do
-for radius in "8" "7" "6" "5" "4" "3" "2" "1" "0"; do
-
-#lines=`qstat | grep cmass | wc -l`
-#
-#while [ "$lines" -gt 59 ]
-#do
-#	echo "$lines jobs, waiting..."
-#	sleep 120
-#	lines=`qstat | grep cmass | wc -l`
-#done
-
 echo "#!/bin/sh
 
 ### Set the job name
-#PBS -N mkl.$dataset.r$radius.grams
+#PBS -N mkl.performance.sign
 
 ### Declare myprogram non-rerunable
 #PBS -r n
 
 ### Optionally specifiy destinations for your myprogram output
 ### Specify localhost and an NFS filesystem to prevent file copy errors.
-#PBS -e localhost:${HOME}/tesi/logs/err/${dataset}.mkl.MATRIX.r$radius.grams.err
-#PBS -o localhost:${HOME}/tesi/logs/${dataset}.mkl.MATRIX.r$radius.grams.out
+#PBS -e localhost:${HOME}/tesi/logs/err/CPDB_performance_sign.err
+#PBS -o localhost:${HOME}/tesi/logs/results/CPDB_performance_significance.out
 
 ### Set the queue to batch, the only available queue. 
 #PBS -q cluster_long
@@ -39,18 +26,14 @@ echo "#!/bin/sh
 
 ### You can override the default 1 hour real-world time limit.  -l walltime=HH:MM:SS
 ### Jobs on the public clusters are currently limited to 10 days walltime.
-#PBS -l walltime=900:00:00
-
+#PBS -l walltime=100:00:00
 
 ### Switch to the working directory; by default Torque launches processes from your home directory.
 ### Jobs should only be run from /home, /project, or /work; Torque returns results via NFS.
 
 cd $HOME/cluster_bundle/scikit-learn-graph/
 
-python -u $HOME/cluster_bundle/scikit-learn-graph/scripts/baseline_mkl_grams.py $1 $dataset $radius grams/${dataset}/mkl/ "> $HOME/tesi/jobs/${dataset}.$radius.grams.job
+python -u $HOME/cluster_bundle/master-thesis/experiments/performance_significance.py $1 "> $HOME/tesi/jobs/performance_sign.job
 
-qsub $HOME/tesi/jobs/${dataset}.$radius.grams.job
-
-done
-done
+qsub $HOME/tesi/jobs/performance_sign.job
 
