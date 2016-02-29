@@ -4,10 +4,13 @@ import time
 import numpy as np
 from cvxopt import matrix, mul
 from cvxopt.lapack import syev
-from sklearn.datasets import dump_svmlight_file
+from itertools import product
+from skgraph.datasets.ioskgraph import dump_svmlight_file
+#from sklearn.datasets import dump_svmlight_file
 from skgraph.datasets import load_graph_datasets
 from skgraph.kernel.ODDSTincGraphKernel import ODDSTincGraphKernel
 from skgraph.kernel.ODDSTOrthogonalizedGraphKernel import ODDSTOrthogonalizedGraphKernel
+from skgraph.kernel.OrthoNSPDKGraphKernel import OrthoNSPDKGraphKernel
 from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
 
 if len(sys.argv)<4:
@@ -16,7 +19,9 @@ if len(sys.argv)<4:
 kernels =  sys.argv[1].split(',')
 dataset = sys.argv[2]
 radius = int(sys.argv[3])
-outfile = sys.argv[4]
+distance = int(sys.argv[4])
+#outfile = sys.argv[4]
+outfile = sys.argv[5]
 
 if dataset=="CAS":
     print "Loading bursi(CAS) dataset"        
@@ -39,7 +44,8 @@ else:
 target_array = ds.target
 
 print "Generating orthogonal matrices"
-k = ODDSTincGraphKernel(r=radius, l=1, normalization=True, version=1, ntype=0, nsplit=0, kernels=kernels)
+#k = ODDSTincGraphKernel(r=radius, l=1, normalization=True, version=1, ntype=0, nsplit=0, kernels=kernels)
+k = OrthoNSPDKGraphKernel(r=radius, d=distance)
 
 #k = ODDSTOrthogonalizedGraphKernel(r=radius, l=1, normalization=False)
 grams = [np.array(g, dtype='float64') for g in k.computeKernelMatrixTrain(ds.graphs)]
@@ -47,8 +53,9 @@ print '--- done'
 
 print "Saving Gram matrices..."
 for key in kernels:
-    for idx in range(len(grams)):
-        kernel_matrix = grams.pop(0)
+    for idx in range(radius+1):
+#for com in product(range(radius+1), range(distance+1)):
+    kernel_matrix = grams.pop(0)
 
 #        w = matrix(0., (1, len(target_array)))
 #        print w.size, w
@@ -61,8 +68,9 @@ for key in kernels:
 #            print idx, ": # negs:", len(negs), "M:", max(negs), 'm:', min(negs)
 #        else:
 #            print idx, ": positive semi-definite, saving..."
-        output = outfile+key+".d"+dataset+".r"+str(radius)+".depth"+str(idx)+".svmlight"
-        dump_svmlight_file(kernel_matrix, target_array, output)
+    output = outfile+key+".d"+dataset+".r"+str(radius)+".depth"+str(idx)+".svmlight"
+#    output = outfile+"oNSPDK.d"+dataset+".r"+str(com[0])+".d"+str(com[1])+".svmlight"
+    dump_svmlight_file(kernel_matrix, target_array, output)
 
 print '--- done'
 

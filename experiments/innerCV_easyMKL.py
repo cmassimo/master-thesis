@@ -19,7 +19,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with scikit-learn-graph.  If not, see <http://www.gnu.org/licenses/>.
 """
-from skgraph.kernel.EasyMKL.FastEasyMKL import FastEasyMKL
+from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
 from sklearn.metrics import roc_auc_score
 from cvxopt import matrix
 from sklearn import cross_validation
@@ -36,7 +36,7 @@ def calculate_inner_AUC_kfold(Xs, Y, l, rs, folds):
 
         Ytr=Y[train_index]    
         #print "Inner training..."
-        easy = FastEasyMKL(lam=l, tracenorm = True)
+        easy = EasyMKL(lam=l, tracenorm = True)
         easy.train([matrix(Xs[i][np.ix_(train_index, train_index)]) for i in range(len(Xs))], matrix(Ytr))
 
         #print "--- Ranking..."

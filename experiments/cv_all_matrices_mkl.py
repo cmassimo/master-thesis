@@ -6,7 +6,7 @@ from cvxopt import matrix
 from sklearn import cross_validation
 from svmlight_loader import load_svmlight_file
 from sklearn.metrics import roc_auc_score
-from skgraph.kernel.EasyMKL.FastEasyMKL import FastEasyMKL
+from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
 from innerCV_easyMKL import calculate_inner_AUC_kfold
 
 if len(sys.argv)<4:
@@ -56,7 +56,7 @@ for rs in random_states:
         #print "Outer training..."
         start = time.clock()
 
-        easy = FastEasyMKL(lam=L, tracenorm = True)
+        easy = EasyMKL(lam=L, tracenorm = True)
         easy.train([matrix(grams[i][np.ix_(train_index, train_index)]) for i in range(len(grams))], matrix(y_train))
 
         end = time.clock()
