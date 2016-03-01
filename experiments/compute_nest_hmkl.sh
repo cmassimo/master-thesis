@@ -37,7 +37,7 @@ echo "#!/bin/sh
 #PBS -l nodes=1:ppn=2:infiniband
 
 ### You should tell PBS how much memory you expect your job will use.  mem=1g or mem=1024
-#PBS -l mem=6g
+#PBS -l mem=60g
 
 ### You can override the default 1 hour real-world time limit.  -l walltime=HH:MM:SS
 ### Jobs on the public clusters are currently limited to 10 days walltime.
