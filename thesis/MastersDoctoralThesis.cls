@@ -166,7 +166,7 @@
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % New command to make the lines in the title page
 \newcommand{\decoRule}{\rule{.8\textwidth}{.4pt}} % New command for a rule to be used under figures
 
-\renewcommand{\abovechapterspace}{\vspace*{10pt}} % Reduce the whitespace above a chapter heading
+%\renewcommand{\abovechapterspace}{\vspace*{10pt}} % Reduce the whitespace above a chapter heading
 
 \setcounter{tocdepth}{3} % The depth to which the document sections are printed to the table of contents
 \providecommand\addchaptertocentry[1]{%
@@ -274,12 +274,16 @@ KOMA-script documentation for details.}]{fancyhdr}
 %	DEDICATION PAGE DESIGN
 %----------------------------------------------------------------------------------------
 
-\newcommand\dedicatory[1]{
+\newcommand\dedicatory[3]{
 	\checktoopen
 	\tttypeout{Dedicatory}
 	\null\vfil
 	\thispagestyle{plain}
 	\begin{center}{\Large\slshape #1}\end{center}
+	\bigskip
+	\begin{center}{\Large\slshape #2}\end{center}
+	\bigskip
+	\begin{center}{\Large\slshape #3}\end{center}
 	\vfil\null
 }
 
@@ -390,7 +394,7 @@ KOMA-script documentation for details.}]{fancyhdr}
 
 \ifbool{hyperrefsupport}{% If the nohyperref class option has not been specified
 \AfterPackage{biblatex}{ % Load the hyperref package after the biblatex package for compatibility 
-\RequirePackage{hyperref} % Required for customising links and the PDF
+\RequirePackage[hidelinks]{hyperref} % Required for customising links and the PDF
 \hypersetup{pdfpagemode={UseOutlines},
 bookmarksopen=true,
 bookmarksopenlevel=0,

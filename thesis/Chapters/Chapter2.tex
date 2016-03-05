@@ -1,0 +1,52 @@
+% Chapter 2
+
+\chapter{Background} % Main chapter title
+
+\label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter2} 
+
+\section{Graph Kernel Methods}
+premise: graph kernels relies on the ability of an algorithm to distinguish
+between non-isomorphic graphs. NP problem => approximations
+Try to enrich the feature space without bloating it or make it redundant.
+
+\subsection{ODD kernels}
+% explain ordered graph decomposition kernels
+\subsection{Fast subtree kernels}
+% explain FS kernels
+
+%----------------------------------------------------------------------------------------
+
+\section{Latest Improvements on Graph Kernel Methods}
+
+\subsection{ODD kernels with contexts}
+% explain contexts
+
+\subsection{Multiple Kernel Learning}
+\subsubsection{EasyMKL}
+% what is it and why it matters
+
+%----------------------------------------------------------------------------------------
+
+\section{Evaluation strategy}
+\label{subsec:evaluation}
+%seeds + 10FCV + parameter selection embedded in the validation process
+The final results were obtained by combining a standard practice evaluation
+technique with the parameters selection process.
+Every experiment has been conducted employing the K-fold nested cross-validation
+technique [ref].
+
+This technique is based on the minimization of the ideal error by repeatedly 
+splitting the whole data set into two separate sets: a training set and a test
+set.
+While the test set must be left out from the whole training process and
+used exclusively for performance assessment purposes, the scheme consists of 
+three nested loops the outer of which only serves to accumulate a statistically
+significant number of training runs in the first nesting, the training set is
+split into $K$ subsets, $K-1$ of which become the training set for the $i^{th}$
+iteration of training.
+This subset of the original training set is then split again in $K$ subsets
+which again are used for training and validation.
+When used in combination with parameters selection with the so called grid-search
+technique, the performances obtained in the inner nesting are usually used to
+determine the best set of parameters in what is called model selection.
+

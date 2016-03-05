@@ -1,0 +1,199 @@
+% Chapter 3
+
+\chapter{Combining the improvements on Graph Kernels} % Main chapter title
+\label{Chapter3} % For referencing the chapter elsewhere, use \ref{Chapter3} 
+
+\section{Incremental kernels calculation}
+The kernels we analysed in this study present feature space representations
+that are in a subset relation; this prompted us to devise a method to calculate
+such representations in an incremental fashion trying to gain a significant
+speed-up.
+
+\begin{algorithm}
+    \caption{The devised algorithm to incrementally compute the explicit
+    features space representation for the available ODD kernels, namely
+    $ODD_{ST}$, $ODD_{STC}$, $ODD_{STP}$, $ODD_{STPC}$.}
+    \label{alg:incremental}
+    \begin{algorithmic}[1]
+        \ForAll{$kernel \in Kernels$}
+            \State $\phi_{kernel} \gets [0,\dots,0]$
+        \EndFor
+
+        \ForAll{$v \in V_g$}
+            \State $f \gets \{\}$
+            \State $size \gets \{\}$
+            \State $dag \gets DAG_h(v, g)$
+            \ForAll{$u \in \Call{ReverseTopologicalOrder}{dag}$}
+                \ForAll{$d \in \{0,\dots,diam(dag)-|sp(v,u)|\}$}
+                    \If{$d=0$}
+                        \State $f_{u,0} \gets \kappa(L(u))$
+                        \State $size_{u,0} \gets 1$
+                        \State add $f_{u,0}$ to $\phi_{ODD_{ST}}$
+                        \State add $f_{u,0}$ to $\phi_{ODD_{STP}}$
+                    \Else
+                        \State $(S_1,\dots,S_{\rho(u)}) \gets \Call{Sort}{
+                        f_{ch_1(u),d-1},f_{ch_2(u),d-1},\dots,f_{ch_{\rho(u)}(u),d-1}}$
+                        \State $f_{u,d} \gets \kappa(L(u)\lceil{}S_1\#S_2\#\dots\#S_{\rho(u)}\rfloor)$
+                        \State $size_{u,d} \gets 1 + \sum_{i=1}^{\rho(u)}size_{ch_i(u),d-1}$
+                        \ForAll{$ch \in children(u)$}
+                            \State assign $f_{ch,d-1}$ as a context to $f_{u,d}$
+                            \State compute weight of $f_{ch,d-1}$
+                            \State add contextualized feature to $\phi_{ODD_{STC}}$
+                            \State add contextualized feature to $\phi_{ODD_{STPC}}$
+                        \EndFor
+                        \State add $f_{u,d}$ to $\phi_{ODD_{ST}}$
+                        \State add $f_{u,d}$ to $\phi_{ODD_{STP}}$
+                    \EndIf
+                    \If{$u=v$}
+                        \State add $f_{u,d}\circ{}c$ to $\phi_{ODD_{STC}}$
+                        \State add $f_{u,d}\circ{}c$ to $\phi_{ODD_{STPC}}$
+                    \EndIf
+
+                    \State Compute $ODD_{STP}$ and $ODD_{STPC}$ peculiar features
+                    and contexts and add them to the relevant $\phi$ in a similar
+                    fashion\label{line:stp}
+                \EndFor
+            \EndFor
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+In Algorithm~\ref{alg:incremental}, line~\ref{line:stp} refers to the sub-procedures
+defined in \cite{nnavarin, rtesselli}.
+As one can see, given a graph instance, the algorithm is able to build and
+collect the features in one pass thus maintaining a performance of $O(n)$ where
+$n$ is the dimension of the input (i.e. the number of graphs) versus the
+previous approach that would require $O(m \cdot n)$ with $m$ being the number of
+kernels being computed.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.4]{Figures/kernel_times}
+    \caption{Times in seconds required to compute the kernels $ODD_{ST}$ and 
+    $ODD_{STC}$ incrementally and sequentially on a selection of datasets.}
+    \label{fig:times}
+\end{figure}
+
+The plot in figure~\ref{fig:times} shows the measured times on a variety of
+datasets (see section~\ref{subsec:datasets} for further details on each one)
+
+%----------------------------------------------------------------------------------------
+
+\section{Embed parameters selection in the learning process with MKL}
+\label{subsec:parameters}
+
+As previously mentioned, since we were using a $MKL$ approach, the whole set of
+input kernel matrices derived from the grid of parameters has been fed into the
+algorithm at each step.
+
+This choice stem from the fact that the implementation we used for $MKL$ gives us
+back a set of weights, one for each of the input kernel matrices; these weights,
+multiplied by their related matrix which then get summed together give us the
+best linear combination of the input kernels.
+While a weight is not to be taken as an assessment of the goodness of a single
+kernel matrix (since they are optimal as a combination), a very low weight can
+indeed be a sure sign that the related matrix has given a very poor contribution
+to the classification task.
+
+%\subsubsection{An alternative approach: hierarchical MKL}
+%\label{subsec:hierarchy}
+% describe the approach in detail (pseudocode)
+
+%    \begin{algorithm}[h]
+%        \caption{MKL nested K-fold cross validation training}\label{puremkl}
+%        \begin{algorithmic}[1]
+%            \Procedure{ModelSelection}{$kernels*$}\Comment{input is a list of kernel matrices}
+%                \ForAll{a}{A}
+%                \While{$r\not=0$}\Comment{We have the answer if r is 0}
+%                    \State $a\gets b$
+%                    \State $b\gets r$
+%                    \State $r\gets a\bmod b$
+%                \EndWhile\label{euclidendwhile}
+%                \State \textbf{return} $b$\Comment{The gcd is b}
+%        \EndProcedure
+%    \end{algorithmic}
+%    \end{algorithm}
+%In Algorithm~\ref{puremkl}, variable \var{foobar} (in line~\ref{foobar}), corresponds to\ldots
+
+%----------------------------------------------------------------------------------------
+
+\section{Weak Kernels and Feature Spaces}
+\label{subsec:features}
+% kernel generation
+
+Before the actual training process could take place we needed to generate the
+orthogonalized kernel matrices for each one of the weak kernels we wished to
+combine.
+$MKL$ approaches work best when the kernels are very orthogonal between each other.
+
+All the kernels we considered stem from the Ordered Decomposition DAG Kernel,
+hence their features induce by construction a partial order relation between
+themselves because of the property that a feature of size $n$ is present in a 
+sample then all of its sub-features of size $n-1$ are present as well.
+In light of this property we can state that feature of a given size are
+orthogonal to features of any other size but their own \cite{gmkl}.
+% why??
+
+This rationale led us to divide each kernel feature set into a number of buckets
+equal to the radius parameter used during the DAG decomposition phase \cite{gmkl}.
+Each bucket contains the features of a given size, the depth of the sub-tree
+representing it, and is used to compute an individual kernel matrix thus
+resulting in a greater number of orthogonal kernel matrices.
+
+%Given the way the $ODD$ kernels construct their features we identified an area
+%where a further increase in orthogonalization, i.e. independence, between the
+%buckets was possible.
+%To get this gain we pruned duplicate features from each bucket following this
+%pattern: given a radius $r$, if a feature of size $i$ has already been
+%added to the $i^{th}$ bucket, it won't be present in buckets $i+1\dots{}r$.
+%This way features are added only once to the bucket set resulting in increased
+%independence between the kernels.
+
+%\subsection{Differences between the two approaches}
+%
+%\begin{figure}[ht]
+%    \centering
+%    \begin{subfigure}{.4\textwidth}
+%        \centering
+%        \includegraphics[width=\linewidth]{Figures/feats_cardinality}
+%        \caption{}
+%        \label{fig:feats_card}
+%    \end{subfigure}
+%    \begin{subfigure}{.4\textwidth}
+%        \centering
+%        \includegraphics[width=\linewidth]{Figures/weights_dist}
+%        \caption{}
+%        \label{fig:weights_dist}
+%    \end{subfigure}
+%
+%    \caption{Figure~\ref{fig:feats_card} shows the number of features for each
+%        bucket (i.e. kernel) using either of the orthogonalization techniques.
+%        Figure~\ref{fig:weights_dist} shows feature weights distribution derived
+%        from the two different orthogonalization techniques.
+%        Data has been collected from the $CPDB$ dataset using the $ODD_{ST}$ kernel with
+%        parameters: $radius=3$ and $\lambda=1$.
+%        $\lambda$ parameter being equal to 1 makes the $y$ axis of the plot become
+%        the feature frequency. In both plots red refers to the enhanced
+%        orthogonalization technique while blue refers to the naive technique,
+%        the $x$ axis in figure~\ref{fig:weights_dist} has been truncated to the
+%        first 150 features sorted by frequency.}
+%\end{figure}
+%
+%For starters figure~\ref{fig:feats_card} shows the difference between the number
+%of collected features for each bucket with respect to each orthogonalization
+%technique. Adopting the naive approach results indeed in a lot of features being
+%collected more than once in particular for the intermediate buckets in terms of
+%depth.
+%Figure~\ref{fig:weights_dist} shows the drastic reduction in feature frequencies
+%derived from the enhanced orthogonalization strategy.
+%Another important thing that can be discerned from this figure is the overall
+%smoothing of the red curve with respect to the blue one, meaning that the effect
+%derived from the Zipfian distribution of feature weights resulting from the
+%simple orthogonalization method, is mitigated.
+%This mitigation gives bigger and discriminating feature more leverage in the
+%categorization phase since, given the structural nature of the feature space,
+%usually smaller and less informative features naturally tend to have higher
+%frequency.
+
+%----------------------------------------------------------------------------------------
+

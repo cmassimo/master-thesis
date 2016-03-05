@@ -1,0 +1,117 @@
+% Chapter 4
+
+\chapter{Experiments}
+\label{Chapter4}
+
+In order to assess the quality of the previously exposed ideas and approaches we
+needed to test them using the framework described in section~\ref{subsec:evaluation}. 
+Since our method has the parameter selection phase embedded in the learning
+process (section~\ref{subsec:parameters}) the experiments structure were quite
+simple, namely consisting only in the pre-calculation of the relevant kernel
+matrices, one for each tuple of parameters combination, and then using them at
+all at once in a stratified k-fold cross-validation routine.
+The $k$ parameter of the latter has been fixed at 10 since this value already
+provides good statistical significance while helping containing the bias
+skewing during the training phase.
+Moreover, this whole routine has been run ten times to mitigate the high
+variance derived during the testing phase due to the chosen value of $k$.
+
+\section{Datasets}
+\label{subsec:datasets}
+
+The experiments were conducted on five real-world applications datasets, namely:
+CAS [ref], NCI1 [ref], AIDS [ref], CPDB [ref], GDD[ref]. All these datasets
+contains chemical and molecular particles encoded in graph form.
+The AIDS Antiviral Screen dataset contains chemical compounds, categorized
+into chemical groups; CAS and CPDB are dataset of mutagenic
+compounds; NCI1 consists of chemical compounds screened for activity against 
+non-small lung cancer cells; GDD is composed of X-ray crystal structures of
+proteins represented as graphs.
+The graph encoding of this data is such that every node is labelled and none
+has a self loop that is there are no nodes with an edge going out and going back
+into them.
+Some statistics about these datasets are gathered in table~\ref{table:datasets}.
+
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{|r|r|r|r|r|}
+            \hline
+            Dataset & n. of graphs & sample split & avg nodes & avg edges \\ \hline
+            AIDS    & 1503         & 28.07        & 58.90     & 61.40     \\ \hline      
+            CAS     & \textbf{4337} & 55.36        & 29.90     & 30.90     \\ \hline      
+            CPDB    &  684         & 49.85        & 14.10     & 14.60     \\ \hline      
+            GDD     & 1503         & 58.65        & 284.31    & \textbf{2862.63}   \\ \hline      
+            NCI1    & 1503         & 50.04        & 29.87     & 32.30     \\ \hline      
+        \end{tabular}
+        \label{table:datasets}
+        \caption{Statistics about the datasets employed in the experiments: number
+        of graphs, labels percentage among samples, average number of nodes, average
+        number of edges. It is clear from this table that the CAS and NCI1 datasets
+        are the bigger ones while the GDD holds the most complex graphs either in
+        terms of topography and processing. Furthermore the AIDS dataset turns out
+        to be quite unbalanced in terms of labels distribution.}
+    \end{table}
+
+%----------------------------------------------------------------------------------------
+
+\section{Description}
+
+The kernel combinations selected for this study were:
+\begin{itemize}
+    \item the $ODD_{ST}$ and $ODD_{STC}$ graph kernels,
+    \item the $ODD_{ST+}$ and $ODD_{ST+C}$ graph kernels,
+    \item the $WL$ fast subtree and $WLC$ graph kernels,
+\end{itemize}
+
+The first experiment consisted in a nested 10-fold cross validation routine run
+on each dataset.
+The routine has been implemented using a slightly modified version of EasyMKL
+\cite{easymkl} in order to keep a constant level of memory occupation,
+given the large amount of matrices that had to be loaded into memory at each
+step of the algorithm.
+% Stats??
+The weak kernels used for this experiment were generated from the $ODD$ kernels
+in \cite{rtesselli}, namely $ODD_{ST}$, $TCK_{ST}$, $ODD_{ST+}$, and $TCK_{ST+}$.
+The hyper-parameter selection process for the ODD kernels has been embedded
+into the MKL learning phase so each set of orthogonalized kernels has been
+pre-computed for each one of the possible combination of parameters that would
+otherwise have been used in a grid-search fashion.
+Since EasyMKL takes care of weighing the individual weak kernels, the $\lambda$
+parameters of the ODD kernels has been fixed to 1, while the $radius$ parameter
+values were the set $\{0,\dots,8\}$.
+
+During the cross-validation routine, the $\Lambda$ parameter of EasyMKL has been
+validated from the set $\{0.0, 0.1,\dots,1.0\}$.
+
+\subsection{Baselines}
+To assess the quality of our results we compared them with the results we got
+from testing come baseline performances against the same datasets.
+Beside the performance measures available in \cite{gmkl}, we tested our framework
+with only the $ODD_{ST}$ orthogonalized kernels, then with the orthogonalized
+$ODD_{STC}$ kernels alone.
+Furthermore we collected the same performance measure for the $ODD_{STC}$ kernel,
+with and without $ST$ features, with a 10-fold cross validation implemented
+using a SVM.
+
+%----------------------------------------------------------------------------------------
+
+\section{Results and discussion}
+\label{subsec:results}
+
+\begin{landscape}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|r|r|r|r|r|r|}
+        \hline
+        a & AIDS & CAS & CPDB & GDD & NCI1 \\ \hline
+        $MKL_{ST,STC}$ & \textbf{$0.8609 \pm 0.0041$} & $0.9030 \pm 0.00073$ & $0.8583 \pm 0.0040$ & $0.8502 \pm 0.0018$ & $0.9214 \pm 0.00066$ \\ \hline
+        $MKL_{ST}$ & $0.8598 \pm 0.0040$ & $0.9034 \pm 0.00078$ & $0.8615 \pm 0.0045$ & $0.8500 \pm 0.0017$ & $0.9211 \pm 0.00054$ \\ \hline
+        $MKL_{STC}$ & $0.0000 \pm 0.0000$ & $0.0000 \pm 0.00000$ & & & \\ \hline
+        $ODD_{STC}$ v0 & & & & & \\ \hline
+        $ODD_{STC}$ v1 & & & & & \\ \hline
+    \end{tabular}
+    \label{table:results}
+    \caption{ROAUC measure relative to the first experiment. }
+\end{table}
+\end{landscape}
+
