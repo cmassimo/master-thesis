@@ -28,41 +28,22 @@ from sklearn.metrics import roc_auc_score
 from sklearn import cross_validation
 from svmlight_loader import load_svmlight_file
 
-def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index, te_index):
-    out_tr_index = matrix(tr_index)
-    out_te_index = matrix(te_index)
+def calculate_inner_AUC_kfold(Xs, Y, l, rs, folds, tr_index):
     sc=[]
     kf = cross_validation.StratifiedKFold(Y, n_folds=folds, shuffle=True, random_state=rs)
-    grams = []
-    out_test_grams = []
-
-    start = time.clock()
-
-    #TODO load matrices the usual way without processing
-    for mf in mfiles:
-        gram = matrix(load_svmlight_file(mf, shape, zero_based=True)[0].todense())
-        grams.append(gram[out_tr_index, out_tr_index])
-        out_test_grams.append(gram[out_te_index, out_te_index])
-
-    end = time.clock()
-    print "Matrices loaded in: " + str(end - start)
 
     for train_index, test_index in kf:
-        easy = EasyMKL(lam=l, tracenorm = True)
-
-        tr_i = matrix(train_index)
+        tr_i = matrix(tr_index)[matrix(train_index)]
         Ytr = Y[train_index]
 
         start = time.clock()
 
-        train_gram = initial_train_grams[i]
-        easy.traces = all_ntraces[i]
+        easy = EasyMKL(lam=l, tracenorm = True)
+        easy.train([g[tr_i, tr_i] for g in Xs], matrix(Ytr))
 
-        easy.train([g[tr_i, tr_i] for g in grams], matrix(Ytr))
-
-        te_i = matrix(test_index)
+        te_i = matrix(tr_index)[matrix(test_index)]
         Yte = Y[test_index]
-        ranktest = np.array(easy.rank([g[te_i, tr_i] for g in grams]))
+        ranktest = np.array(easy.rank([g[te_i, tr_i] for g in Xs]))
         rte = roc_auc_score(np.array(Yte), ranktest)
 
         end = time.clock()
@@ -74,5 +55,5 @@ def calculate_inner_AUC_kfold(Y, l, rs, folds, mfiles, shape, tr_index, te_index
 
     scores=np.array(sc)
 
-    return scores, grams, out_test_grams
+    return scores
 
