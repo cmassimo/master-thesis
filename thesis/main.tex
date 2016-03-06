@@ -54,6 +54,9 @@ headsepline, % Uncomment to get a line under the header
 \usepackage{algorithm}% http://ctan.org/pkg/algorithms
 \usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
 \usepackage{pdflscape}
+\usepackage{amsmath,amsthm}
+
+\newtheorem{definition}{Definition}
 %----------------------------------------------------------------------------------------
 %	MARGIN SETTINGS
 %----------------------------------------------------------------------------------------
@@ -204,6 +207,8 @@ I would deeply and sincerely like to thank\dots
 \textbf{ODD} & \textbf{O}rdered \textbf{D}AG \textbf{D}ecomposition\\
 \textbf{ST} & \textbf{S}ub \textbf{T}ree\\
 \textbf{STC} & \textbf{S}ub \textbf{T}ree with \textbf{C}ontext\\
+\textbf{ROC} & \textbf{R}eceiver \textbf{O}perator \textbf{C}urve\\
+\textbf{AUC} & \textbf{A}rea \textbf{U}nder \textbf{C}urve\\
 
 \end{abbreviations}
 
@@ -253,11 +258,11 @@ managed to be an invaluable presence and motivation.}
 % Include the chapters of the thesis as separate files from the Chapters folder
 % Uncomment the lines as you write the chapters
 
-\include{Chapters/Chapter1}
-\include{Chapters/Chapter2} 
-%\include{Chapters/Chapter3}
-%\include{Chapters/Chapter4} 
-%\include{Chapters/Chapter5} 
+\include{Chapters/Chapter1} % Introduction
+\include{Chapters/Chapter2} % Background
+%\include{Chapters/Chapter3} % Contribution
+%\include{Chapters/Chapter4} % Experiments
+%\include{Chapters/Chapter5} % Conclusions and future works
 
 %----------------------------------------------------------------------------------------
 %	THESIS CONTENT - APPENDICES
