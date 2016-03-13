@@ -15,10 +15,10 @@ if len(sys.argv)<4:
 Lambda = float(sys.argv[1])
 output = sys.argv[2]
 ncols = int(sys.argv[3])
-mfiles = sys.argv[5:len(sys.argv)]
+mfiles = sys.argv[4:len(sys.argv)]
 nfolds = 10
 
-def calculate_outer_AUC_kfold(grams, target_array, L, rs, folds, outfile):
+def calculate_outer_AUC_kfold(grams, target_array, L, rs, folds, outfile, ftimes):
     f = open(outfile, 'w')
 
     kf = cross_validation.StratifiedKFold(target_array, n_folds=folds, shuffle=True, random_state=rs)
@@ -31,7 +31,7 @@ def calculate_outer_AUC_kfold(grams, target_array, L, rs, folds, outfile):
         y_train = target_array[train_index]
 
         # COMPUTE INNER K-FOLD
-        inner_scores = calculate_inner_AUC_kfold(grams, y_train, l=L, rs=rs, folds=folds, tr_index=train_index)
+        inner_scores = calculate_inner_AUC_kfold(grams, y_train, l=L, rs=rs, folds=folds, tr_index=train_index, times_file=ftimes)
 
         f.write(str(inner_scores.mean())+"\t")
 
@@ -49,6 +49,7 @@ def calculate_outer_AUC_kfold(grams, target_array, L, rs, folds, outfile):
 
         end = time.clock()
         print "END Training, elapsed time:", (end - start)
+        ftimes.write("END Training, elapsed time: " + str(end - start))
 
         f.write(str(rte)+"\t")
         f.write(str(inner_scores.std())+"\t")
@@ -66,13 +67,17 @@ print "Matrices loaded in:", str(end - start)
 
 target_array = load_svmlight_file(mfiles[0], ncols, zero_based=True)[1]
 
+times_file = open(os.path.dirname(output)+"/times/"+os.path.basename(output)+".L" + str(Lambda), 'w')
+
 start = time.clock()
 i = 0
 for rs in range(42,52):
     fname = output+".seed"+str(rs)+".L"+str(Lambda)
     if not os.path.isfile(fname):
-        calculate_outer_AUC_kfold(grams, target_array, Lambda, rs, nfolds, fname)
+        calculate_outer_AUC_kfold(grams, target_array, Lambda, rs, nfolds, fname, times_file)
         i+=1
 
 end = time.clock()
+times_file.write("END "+ str(i) + " seeds, elapsed time: " + str(end - start))
+times_file.close()
 print "END", i, "seeds, elapsed time:", (end - start)

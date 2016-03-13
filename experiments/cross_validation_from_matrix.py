@@ -12,14 +12,16 @@ if len(sys.argv)<4:
 
 c=float(sys.argv[2])
 shape=int(sys.argv[3])
+output=sys.argv[[4]
 
 km, target_array = load_svmlight_file(sys.argv[1], shape)
+times_file = open(os.path.dirname(output) + "/times/" + os.path.basename(output) + ".seed"+str(rs)+".c"+str(c), 'w')
 
 sc=[]
 start = time.clock()
 
 for rs in range(42,52):
-    fname = str(sys.argv[4]+".seed"+str(rs)+".c"+str(c)) 
+    fname = str(output+".seed"+str(rs)+".c"+str(c)) 
 
     if not os.path.isfile(fname):
         f=open(fname,'w')
@@ -73,7 +75,7 @@ for rs in range(42,52):
             kif = cross_validation.StratifiedKFold(y_train, n_folds=10, shuffle=True, random_state=rs)
             inner_scores = cross_validation.cross_val_score(clf, X_train, y_train, scoring='roc_auc', cv=kif)#, verbose=1)
             #print "inner scores", inner_scores
-            print "Inner Accuracy: %0.8f (+/- %0.8f)" % (inner_scores.mean(), inner_scores.std())
+#            print "Inner Accuracy: %0.8f (+/- %0.8f)" % (inner_scores.mean(), inner_scores.std())
 
             f.write(str(inner_scores.mean())+"\t")
 
@@ -92,6 +94,10 @@ for rs in range(42,52):
 
         end = time.clock()
 
-        print "Accuracy: %0.8f (+/- %0.8f)" % (scores.mean(), scores.std())
+#        print "Accuracy: %0.8f (+/- %0.8f)" % (scores.mean(), scores.std())
         print "Elapsed time: %0.4f s" % (end - start)
+        times_file.write("Elapsed time: %0.4f s" % (end - start))
+
+times_file.close()
+
 

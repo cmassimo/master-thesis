@@ -28,7 +28,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn import cross_validation
 from svmlight_loader import load_svmlight_file
 
-def calculate_inner_AUC_kfold(Xs, Y, l, rs, folds, tr_index):
+def calculate_inner_AUC_kfold(Xs, Y, l, rs, folds, tr_index, times_file):
     sc=[]
     kf = cross_validation.StratifiedKFold(Y, n_folds=folds, shuffle=True, random_state=rs)
 
@@ -50,6 +50,7 @@ def calculate_inner_AUC_kfold(Xs, Y, l, rs, folds, tr_index):
 
         del easy
 
+        times_file.write("Inner K-fold, elapsed time: " + str(end-start))
         print 'Inner K-fold, elapsed time:', (end-start)
         sc.append(rte)
 
