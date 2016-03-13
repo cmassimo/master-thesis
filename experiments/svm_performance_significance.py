@@ -21,13 +21,18 @@ for s in range(42,52):
     filename=['' for i in range(k)]
 
     for f_name in glob.iglob(dirtocheck+"/*.seed"+str(s)+"*"):
-        f = np.loadtxt(f_name, delimiter="\t", skiprows=2)
+        try:
+            f = np.loadtxt(f_name, delimiter="\t", skiprows=2, dtype='str')
+        except StopIteration:
+            print "error in:", f_name
+            raise
 
         for i, line in enumerate(f):
-            if cv_values[i] < line[0]:
-                cv_values[i] = line[0]
-                test_values[i] = line[1]
-                std_dev[i] = line[2]
+            fline = np.array(line[0:3], dtype='float64')
+            if cv_values[i] < fline[0]:
+                cv_values[i] = fline[0]
+                test_values[i] = fline[1]
+                std_dev[i] = fline[2]
                 filename[i] = f_name
 
     print("SEED "+str(s))

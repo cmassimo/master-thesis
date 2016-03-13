@@ -10,16 +10,17 @@ from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
 from ME_innerCV_easyMKL import calculate_inner_AUC_kfold
 
 if len(sys.argv)<4:
-    sys.exit("python cv_all_matrices_mkl.py L outfile shape matrix_files*")
+    sys.exit("python cv_all_matrices_mkl.py Ls outfile shape seeds matrix_files*")
 
-Lambda = float(sys.argv[1])
+Lambdas = map(lambda x: float(x), sys.argv[1].split(','))
 output = sys.argv[2]
 ncols = int(sys.argv[3])
+seeds = map(lambda x: int(x), sys.argv[4].split(',')) 
 mfiles = sys.argv[5:len(sys.argv)]
 nfolds = 10
 
 def calculate_outer_AUC_kfold(grams, target_array, L, rs, folds, outfile):
-    f = open(outfile, 'w')
+    f = open((outfile+".seed"+str(rs)+".L"+str(L)), 'w')
 
     kf = cross_validation.StratifiedKFold(target_array, n_folds=folds, shuffle=True, random_state=rs)
 
@@ -67,12 +68,9 @@ print "Matrices loaded in:", str(end - start)
 target_array = load_svmlight_file(mfiles[0], ncols, zero_based=True)[1]
 
 start = time.clock()
-i = 0
-for rs in range(42,52):
-    fname = output+".seed"+str(rs)+".L"+str(Lambda)
-    if not os.path.isfile(fname):
-        calculate_outer_AUC_kfold(grams, target_array, Lambda, rs, nfolds, fname)
-        i+=1
+for rs in seeds:
+    for l in Lambdas:
+        calculate_outer_AUC_kfold(grams, target_array, l, rs, nfolds, output)
 
 end = time.clock()
-print "END", i, "seeds, elapsed time:", (end - start)
+print "END", len(seeds), "seeds, elapsed time:", (end - start)
