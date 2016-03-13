@@ -1,24 +1,257 @@
 % Chapter 2
 
 \chapter{Background} % Main chapter title
+This chapter covers in more detail the fundamental concepts needed to assure a
+thorough comprehension of the topics discussed in the following chapters.
+We start by giving a definition of machine learning, analysing the 
+principal aspects of the general approach such as risk minimization and evaluation
+strategy.
+Then Section \ref{sec:kernel} deals with the theoretical foundations of the 
+methods that are in the scope of this thesis, while Section \ref{sec:graphkernels}
+delves in the details of the various approaches that will be covered.
 
 \label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter2} 
 
-\section{Graph Kernel Methods}
-premise: graph kernels relies on the ability of an algorithm to distinguish
-between non-isomorphic graphs. NP problem => approximations
-Try to enrich the feature space without bloating it or make it redundant.
+\section{Machine Learning}
 
-\subsection{ODD kernels}
-% explain ordered graph decomposition kernels
-\subsection{Fast subtree kernels}
-% explain FS kernels
+Machine learning is the Artificial Intelligence branch discipline that aims
+to approximate human learning processes, which are still rather obscure,
+by the means of algorithms and formal methods.
+Central to this discipline is the idea of learning a \emph{concept}, or a function
+$c(x_i)$ on some example data $x_i \in X$, where the learning process consist
+mainly in finding an approximation good enough for the task at hand.
+The learning process is carried on by an algorithm which builds an hypothesis
+on the available data and uses that hypothesis, let's say $h()$,  to approximate
+$c()$.
+One of the main goal of such an algorithm is to use the given data to constantly
+improve the hypothesis $h()$ up to a certain performance measure, depending
+on the task, the paradigm considered or other external factors such as available
+resources.
+
+This approach has is better exploited in scenarios where either an exact
+algorithmic solution to the problem (learning $c()$) is infeasible, when there is
+too much uncertainty in the data or when the problem definition itself is too
+difficult to formally define or too vague.
+Since a machine learning algorithm is often looking for an approximation of the 
+optimal solution, the first problem can be solved settling with a suboptimal
+solution that is more easily obtainable; given the iterative fashion in which
+the learning progress, data noise can be recognised and avoided; lastly,
+an algorithm that learns from the data can be used to explore multiple problem
+definitions, as is often the case with more \emph{data mining} oriented approaches.
+
+One of the most common examples of machine learning applications is the binary
+classification of so-called spam emails.
+This problem states that an email can either be ``spam'' or not but the definition
+of ``being spam'' is not unique or universally accepted, so we need to be guided
+in the initial definition by a human counterpart: we submit a set of emails to a
+human supervisor that labels them for us then, from this initial evidence, a
+machine learning algorithm tries to ``learn'' this particular concept of spam
+and uses this knowledge to label future incoming emails which if confirmed by the
+supervisor go to increase the algorithm's knowledge and possibly meliorate it in
+a continuing iterative fashion.
+
+This iterative process of learning from experience, incorporating the new one
+as it comes, trying to make better decision based on a performance measure, is
+the fundamental scheme behind the learning process in machine learning and can
+be summed by the following definition:
+
+\begin{definition}
+    (Learning). A computer program is said to learn from experience \emph{E} with
+    respect to some class of tasks \emph{T} and performance measure \emph{P},
+    if its performance at tasks in \emph{T}, as measured by \emph{P}, improves
+    with experience \emph{E} [Mitchell].
+\end{definition}
+
+Learning in this context can be divided in three main paradigms, of which this
+thesis covers only the first:
+\begin{description}
+    \item [Supervised learning:] the function to learn has the shape
+    $c: X \to Y$ for some sample data $X$ and some target value $Y$.
+    The supervision comes from the fact that the target function values are
+    given from above by an ``expert'' and plays an active guidance role throughout
+    the whole learning process.
+    \item [Unsupervised learning:] in this case no target function values are
+        given so the algorithm works ``blindly'' trying to catch patterns or
+        regularities coming only from the data itself.
+    \item [Reinforcement learning:] this is a form of supervised learning
+        where the algorithm gets a reward at each search step, reward that can
+        be either positive, negative or null, and tries to find the optimal
+        strategy to maximize the total reward.
+\end{description}
+
+Another big dichotomy in machine learning is given by the way we acquire the
+available data, of which again this thesis covers only the first one:
+
+\begin{description}
+    \item [Batch learning:] all the data available for learning is given to the
+        algorithm beforehand and it all concur, one way or another, in the
+        learning process.
+    \item [Online learning:] the data becomes available as it gets produced
+        and collected so the algorithm can base its learning process only
+        on the currently observed sample.
+\end{description}
+
+\subsection{Supervised Learning}
+
+This work uses a supervised learning approach, in that the dataset
+used in the experiments consists in previously and correctly labelled records with
+reasonable certainty.
+We are then facing a \emph{classification} problem, one in which we need to learn
+a decision function that will classify each new record with the correct label.
+In this paradigm we are given a set of tuples (i.e. examples) called \emph{training set}:
+$S = \{(x_i, y_i)| i=1,\dots,n\}$ with $x_i \in \mathrm{X}, y_i \in \mathrm{Y}$
+where $\mathrm{X}$ is the set of data instances and $\mathrm{Y}$ is the set of
+labels.
+The set $S$ is governed by an underlying unknown probability distribution $P$ over
+$\mathrm{X}$.
+Furthermore, the domain of $\mathrm{Y}$ defines the type of classification task
+that the algorithm should perform:
+\begin{itemize}
+    \item $Y = \{\pm{1}\}$: binary classification task
+    \item $Y = \{1,\dots,n\}$: multi-class classification task
+    \item $Y = \mathbb{R}$: regression task, or the approximation of a real
+        function
+\end{itemize}
+
+The current work will focus on the first of the three, in other words we will
+try to approximate as tightly as possible the function $c:X\to Y$ with an
+hypothesis $h:X\to Y, h\in \mathcal{H}$, where $\mathcal{H}$ is the hypothesis
+space that is fixed a priori, setting an inductive bias.
+Bias can be introduced either by said choice of the hypothesis space or by the
+choice of the learning algorithm and is a guarantee that learning is taking place:
+a infinite hypothesis space and an exhaustive search algorithm would render
+any learning useless since the algorithm could return an infinite number of
+hypothesis from $\mathcal{H}$ that could fit any given data.
+
+\subsection{Overfitting}
+The kind of bias that we apply to our learning process affects the resulting
+hypothesis in ways that can be counter-productive.
+Generally is assumed that the data in the training set is generated according
+to an unknown probability distribution $P$ on $X$.
+We aim to obtain optimal hypothesis $h^*$ that is, the one that minimizes the
+prediction error (often referred to as \emph{risk} or ideal error) which is
+defined as:
+
+$$R(h)=\int_{X\times Y} L(h(x),y)~dP(x,y)$$
+
+where $L$ is a loss function; given that $P$ is unknown it follows that also
+$R(h)$ for any given $h$ is unknown, we can only measure the loss function
+on the classified data we already have, with the following formula:
+
+$$R_e(h)=\frac{1}{N} \sum_{(x,y) \in S} L(h(x),y)$$
+
+While minimizing $R_e(h)$ might be tempting, doing so will inevitably tailor our
+hypothesis to the data we have in our training set which tells us nothing about
+the underlying (unknown) distribution $P$ nor about the possibly infinite set of
+data that $h$ might have to classify.
+Hence we are not consistently modelling the decision function that we are trying
+to learn but just the one that fits the set of samples.
+Minimize the empirical error will eventually result in increasing the ideal
+error because one of the effect of the minimization is that $h$ will lack
+\emph{generalization}.
+This situation is called \emph{overfitting} and it occurs when the either the
+hypothesis space is too complex or the model has too many parameters with
+respect to the number of samples i.e. we are trying too hard to model the
+available data.
+The contrary is called \emph{underfitting} and negatively affects the
+generalization power of an hypothesis by making it fail to learn much from the
+sample data.
+
+\subsubsection{Structural Risk Minimization}
+%VC-dimension yada yada yada
+
+\subsection{Hypothesis Evaluation Strategy}
+\label{subsec:evaluation}
+
+Given a dataset, we could train our algorithm an all the samples and that would
+maximize the learning performance since the cardinality of the training set is
+inversely proportional to the bound on the ideal error.
+However we cannot rely on the learning phase alone but we also need a way to
+assess the goodness of a given hypothesis with respect to a given metric, be it 
+either the prediction accuracy or a more sophisticated one like the ROC AUC.
+In this thesis a variant of the technique explained in the following section
+has been employed.
+
+%seeds + 10FCV + parameter selection embedded in the validation process
+%The final results were obtained by combining a standard practice evaluation
+%technique with the parameters selection process.
+%Every experiment has been conducted employing the K-fold nested cross-validation
+%technique [ref].
+
+\subsubsection{Cross Validation}
+This technique is based on the minimization of the estimated ideal error by
+(repeatedly) splitting the whole data set into two separate sets: a training set
+and a test set.
+Training is performed on the training set and the resulting hypothesis performance
+is tested on the test set.
+The point of this process is to simulate the situation in which the hypothesis
+face prediction on previously completely unseen samples thus mimicking the real
+world scenario.
+A considerable drawback that needs to be weighed in during this phase is the 
+possibly consisted reduction of the cardinality of the training set which as 
+previously noted will likely lead to an increase in the bound on true risk.
+
+Cross validation can be done in several ways. Typically the \emph{k-fold} cross
+validation technique is employed, where $k$ is a fixed integer value that
+determines the number of slices the training set will be split into, each one to
+be used as the validation set during the relative fold, while the remaining $k-1$
+become the new training set.
+After $k$ folds have returned $k$ different hypothesis, the one with the best
+performance on its validation set is returned as the best one.
+The variation of $k$ can dramatically affect the overall learning outcome.
+For $k=1$ the technique is called \emph{leave-one-out} and has the peculiarity
+of decreasing the model bias (outliers will not affect the model) but increasing
+the variance on the validation set.
+On the other hand for large values of $k$, we obtain the opposite effect.
+
+\subsubsection{Nested Cross Validation}
+An important thing to note at this point is that with the technique detailed in
+the previous section, we are not assessing the performance of each hypothesis
+independently from the training set since every validation set becomes at some
+point part of the training set of another fold.
+This will likely lead to an overestimate of the hypothesis performance.
+
+It is the mandatory that the test set must be left out from the whole training
+process and used exclusively for performance assessment purposes.
+The scheme consists of two nested loops, in the first nesting, the training set
+is split into $k$ subsets, $k-1$ of which become the training set for the
+$i^{th}$ iteration of training while the $k^{th}$ set becomes the test set.
+This subset of the original training set is then split again in $k$ subsets
+which again are used for training and validation with the usual cross validation
+technique.
+Once the best hypothesis has been selected in the innermost loop, it is retrained
+with the whole outer training set and tested against the test set, which has
+remained completely isolated from the learning phase until now.
+When used in combination with parameters selection with the so called grid-search
+technique, the performances obtained in the inner nesting are usually used to
+determine the best set of parameters in what is called model selection.
 
 %----------------------------------------------------------------------------------------
 
-\section{Latest Improvements on Graph Kernel Methods}
+\section{Kernel Methods}
+\label{sec:kernel}
+\subsection{Theoretical Overview and Notation}
 
-\subsection{ODD kernels with contexts}
+%----------------------------------------------------------------------------------------
+
+\section{Kernel Methods On Structured Data}
+\label{sec:graphkernels}
+
+\subsection{The Framework: Convolution Kernels}
+\subsection{Kernels For Trees}
+\subsubsection{Sub Tree Kernel}
+\subsubsection{Augmented Sub Tree Kernel}
+
+\subsection{Kernels For Graphs}
+\subsubsection{ODD kernels}
+% explain ordered graph decomposition kernels
+\subsubsection{Fast subtree kernels}
+% explain FS kernels
+
+\subsection{Latest Improvements on Graph Kernel Methods}
+\label{subsec:kernel}
+
+\subsubsection{ODD kernels with contexts}
 % explain contexts
 
 \subsection{Multiple Kernel Learning}
@@ -27,26 +260,4 @@ Try to enrich the feature space without bloating it or make it redundant.
 
 %----------------------------------------------------------------------------------------
 
-\section{Evaluation strategy}
-\label{subsec:evaluation}
-%seeds + 10FCV + parameter selection embedded in the validation process
-The final results were obtained by combining a standard practice evaluation
-technique with the parameters selection process.
-Every experiment has been conducted employing the K-fold nested cross-validation
-technique [ref].
-
-This technique is based on the minimization of the ideal error by repeatedly 
-splitting the whole data set into two separate sets: a training set and a test
-set.
-While the test set must be left out from the whole training process and
-used exclusively for performance assessment purposes, the scheme consists of 
-three nested loops the outer of which only serves to accumulate a statistically
-significant number of training runs in the first nesting, the training set is
-split into $K$ subsets, $K-1$ of which become the training set for the $i^{th}$
-iteration of training.
-This subset of the original training set is then split again in $K$ subsets
-which again are used for training and validation.
-When used in combination with parameters selection with the so called grid-search
-technique, the performances obtained in the inner nesting are usually used to
-determine the best set of parameters in what is called model selection.
-
+% vim: spell spelllang=en_gb

@@ -168,6 +168,7 @@
 
 %\renewcommand{\abovechapterspace}{\vspace*{10pt}} % Reduce the whitespace above a chapter heading
 
+\setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3} % The depth to which the document sections are printed to the table of contents
 \providecommand\addchaptertocentry[1]{%
 \ifdef{\phantomsection}{\phantomsection}{}% The \phantomsection command is necessary for hyperref to jump to the correct page
