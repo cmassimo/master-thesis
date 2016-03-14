@@ -12,7 +12,8 @@ Then, in the following sections, we proceed with examining the existing techniqu
 \section{Why Combining Kernels}
 \label{sec:why}
 
-In the previous chapter we described a number of approaches (section \ref{sec:}
+In the previous chapter we described a number of approaches (section \ref{sec:graphkernels})
+and the relative improvements that has been presented in the recent years.
 
 \subsection{The Case For Graph Kernels}
 
@@ -24,13 +25,6 @@ In the previous chapter we described a number of approaches (section \ref{sec:}
 \label{sec:meth}
 %thorough description
  
-\subsection{Embedded Parameters Selection}
-\label{subsec:parameters}
-%fix
-
-As previously mentioned, since we were using a $MKL$ approach, the whole set of
-input kernel matrices derived from the grid of parameters has been fed into the
-algorithm at each step.
 
 This choice stem from the fact that the implementation we used for $MKL$ gives us
 back a set of weights, one for each of the input kernel matrices; these weights,
@@ -41,29 +35,48 @@ kernel matrix (since they are optimal as a combination), a very low weight can
 indeed be a sure sign that the related matrix has given a very poor contribution
 to the classification task.
 
-%\subsubsection{An alternative approach: hierarchical MKL}
-%\label{subsec:hierarchy}
-% describe the approach in detail (pseudocode)
+% easyMKL altrimenti ciao
 
-%    \begin{algorithm}[h]
-%        \caption{MKL nested K-fold cross validation training}\label{puremkl}
-%        \begin{algorithmic}[1]
-%            \Procedure{ModelSelection}{$kernels*$}\Comment{input is a list of kernel matrices}
-%                \ForAll{a}{A}
-%                \While{$r\not=0$}\Comment{We have the answer if r is 0}
-%                    \State $a\gets b$
-%                    \State $b\gets r$
-%                    \State $r\gets a\bmod b$
-%                \EndWhile\label{euclidendwhile}
-%                \State \textbf{return} $b$\Comment{The gcd is b}
-%        \EndProcedure
-%    \end{algorithmic}
-%    \end{algorithm}
-%In Algorithm~\ref{puremkl}, variable \var{foobar} (in line~\ref{foobar}), corresponds to\ldots
+\subsection{Immersed Model Selection}
+\label{subsec:parameters}
+% butta tutte le matrici in un colpo solo
+One of the main advantages of the proposed method is that it permits to embed
+the otherwise cumbersome process of hyper-parameter optimization (section \ref{subsubsec:grid})
+inside the learning phase in a completely transparent way, which will be hereby
+described.
+
+It is custom practice to perform hyper-parameter optimization employing a grid
+search technique.
+In our setting this would translate to having to compute one kernel matrix
+for all the possible combinations of values deriving from every set of values
+chosen for each parameter both from the kernel and the selected learning
+algorithm, for instance the $h$ and $\lambda$ parameters for the $ODD$ kernels
+and the $C$ parameter if using the SVM.
+Then every thusly computed set of kernels would have been fed to the $MKL$
+algorithm to be evaluated via cross-validation.
+Let $l,m,n$ be the cardinality respectively of the three sets of values above,
+the cross-validation instances would have been $l\cdot m\cdot n$.
+
+A first improvement over the above scenario is to adopt a multiple kernel learning
+approach and feed the algorithm the kernels computed from the grid all at once.
+One of the advantages of this approach is that instead of selecting one combination
+of parameters thus restricting the generalization power of the resulting model,
+the whole set of parameters combination concurs in the model determination hence
+increasing the chances of it being more general.
+
+Given the fact that our $MKL$ implementation of choice has an algorithmic
+complexity that is not dependent on the cardinality of the input but rather on
+its dimensions, one drawback of this approach is that the memory consumption
+invariably increases with the number of kernel thus making this approach still
+computationally prone to the curse of dimensionality.
+
+Section \ref{sec:opt} deals with a possible solution to this problem.
 
 \subsection{Kernels and Feature Spaces}
 \label{subsec:features}
-% analyse the combinations? Analyse the bucketized version?
+
+
+% buckets => leva un parametro
 
 %----------------------------------------------------------------------------------------
 
@@ -71,6 +84,8 @@ to the classification task.
 \label{sec:opt}
 % memory consumption (+ alternate methods constant RAM)
 
+Memory consumption is basically bound to $O(m\cdot n^2)$ with $m$ being the number of kernels and
+$n$ the number of samples while being in practice $O(2\cdot (m\cdot n^2))$.
 %----------------------------------------------------------------------------------------
 
 \section{Incremental kernels calculation} 

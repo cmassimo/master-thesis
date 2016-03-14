@@ -270,9 +270,19 @@ technique.
 Once the best hypothesis has been selected in the innermost loop, it is trained
 with the whole outer loop training set and tested against the test set, which has
 remained completely isolated from the learning phase until now.
-When used in combination with parameters selection with the so called grid-search
-technique, the performances obtained in the outer loop are usually used to
-determine the best set of parameters in what is called model selection.
+When used in combination with hyper-parameter optimization with the so called grid
+search technique, the performances obtained in the outer loop are usually used
+to determine the best set of parameters in what is called model selection.
+
+\subsubsection{Grid Search}
+\label{subsubsec:grid}
+An often used technique to perform hyper-parameter optimization is the exhaustive
+search on a hand-picked sub-space of the hyper-parameters space that is, selecting
+a set of value for each parameter then evaluating every possible combination
+deriving from the cartesian product of these sets by the means of cross-validation.
+This approach is potentially doomed by the curse of dimensionality, a solution
+for which could be a limited randomized search, but is also clearly very easily
+parallelizable.
 
 %----------------------------------------------------------------------------------------
 
@@ -381,11 +391,6 @@ Here we will briefly describe one of the most tried kernel machines in the liter
 \emph{Support Vector Machines} or SVM [Vapnick] rest on the principle of structural risk
 minimization (section \ref{subsubsec:srm}) providing a trade-off between hypotheses
 space complexity and the performances in fitting the training data.
-
-
-
-
-
 
 %----------------------------------------------------------------------------------------
 
