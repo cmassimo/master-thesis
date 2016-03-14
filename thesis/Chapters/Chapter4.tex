@@ -8,8 +8,8 @@ needed to test them using the framework described in section~\ref{subsec:evaluat
 Since our method has the parameter selection phase embedded in the learning
 process (section~\ref{subsec:parameters}) the experiments structure were quite
 simple, namely consisting only in the pre-calculation of the relevant kernel
-matrices, one for each tuple of parameters combination, and then using them at
-all at once in a stratified k-fold cross-validation routine.
+matrices, one for each tuple of parameters combination, and then using them all
+at once in a stratified k-fold cross-validation routine.
 The $k$ parameter of the latter has been fixed at 10 since this value already
 provides good statistical significance while helping containing the bias
 skewing during the training phase.
@@ -32,7 +32,7 @@ has a self loop that is there are no nodes with an edge going out and going back
 into them.
 Some statistics about these datasets are gathered in table~\ref{table:datasets}.
 
-    \begin{table}[h]
+    \begin{table}[ht]
         \centering
         \begin{tabular}{|r|r|r|r|r|}
             \hline
@@ -43,13 +43,13 @@ Some statistics about these datasets are gathered in table~\ref{table:datasets}.
             GDD     & 1503         & 58.65        & 284.31    & \textbf{2862.63}   \\ \hline      
             NCI1    & 1503         & 50.04        & 29.87     & 32.30     \\ \hline      
         \end{tabular}
-        \label{table:datasets}
         \caption{Statistics about the datasets employed in the experiments: number
         of graphs, labels percentage among samples, average number of nodes, average
         number of edges. It is clear from this table that the CAS and NCI1 datasets
         are the bigger ones while the GDD holds the most complex graphs either in
         terms of topography and processing. Furthermore the AIDS dataset turns out
         to be quite unbalanced in terms of labels distribution.}
+        \label{table:datasets}
     \end{table}
 
 %----------------------------------------------------------------------------------------
@@ -57,33 +57,40 @@ Some statistics about these datasets are gathered in table~\ref{table:datasets}.
 \section{Description}
 
 The kernel combinations selected for this study were:
-\begin{itemize}
-    \item the $ODD_{ST}$ and $ODD_{STC}$ graph kernels,
-    \item the $ODD_{ST+}$ and $ODD_{ST+C}$ graph kernels,
+\begin{enumerate}
+    \item the $ODD_{ST}$ and $TCK_{ST}$ graph kernels,
+    \item the $ODD_{ST+}$ and $TCK_{ST+}$ graph kernels,
     \item the $WL$ fast subtree and $WLC$ graph kernels,
-\end{itemize}
+\end{enumerate}
 
-The first experiment consisted in a nested 10-fold cross validation routine run
-on each dataset.
-The routine has been implemented using a slightly modified version of EasyMKL
-\cite{easymkl} in order to keep a constant level of memory occupation,
-given the large amount of matrices that had to be loaded into memory at each
-step of the algorithm.
-% Stats??
+for each combination a separated set of experiment was conducted, while maintaining
+the same structure, of which a detailed breakdown will now be given.
+
+%\subsubsection[$ODD_{ST}$ and $ODD_{STC}$]{$\boldsymbol{ODD_{ST}}$ and $\boldsymbol{TCK_{ST}}$}
 The weak kernels used for this experiment were generated from the $ODD$ kernels
 in \cite{rtesselli}, namely $ODD_{ST}$, $TCK_{ST}$, $ODD_{ST+}$, and $TCK_{ST+}$.
-The hyper-parameter selection process for the ODD kernels has been embedded
-into the MKL learning phase so each set of orthogonalized kernels has been
+The hyper-parameter selection process for the kernels has been embedded
+into the MKL learning phase so each set of kernel matrices has been
 pre-computed for each one of the possible combination of parameters that would
 otherwise have been used in a grid-search fashion.
 Since EasyMKL takes care of weighing the individual weak kernels, the $\lambda$
-parameters of the ODD kernels has been fixed to 1, while the $radius$ parameter
-values were the set $\{0,\dots,8\}$.
+parameters of the ODD kernels has been fixed to 1, while the $h$ parameter
+values were the set $\{1,\dots,10\}$.
 
 During the cross-validation routine, the $\Lambda$ parameter of EasyMKL has been
 validated from the set $\{0.0, 0.1,\dots,1.0\}$.
 
-\subsection{Baselines}
+% brief code listing
+
+\subsection{Alternative approach}
+The routine has been implemented using a slightly modified version of EasyMKL
+\cite{easymkl} in order to keep a constant level of memory occupation,
+given the large amount of matrices that had to be loaded into memory at each
+step of the algorithm.
+
+% brief code listing
+
+\section{Baselines}
 To assess the quality of our results we compared them with the results we got
 from testing come baseline performances against the same datasets.
 Beside the performance measures available in \cite{gmkl}, we tested our framework
@@ -93,25 +100,108 @@ Furthermore we collected the same performance measure for the $ODD_{STC}$ kernel
 with and without $ST$ features, with a 10-fold cross validation implemented
 using a SVM.
 
+\subsection{MKL without buckets}
+
+\subsection{SVM}
 %----------------------------------------------------------------------------------------
 
 \section{Results and discussion}
 \label{subsec:results}
 
+\subsection{Resources requirements}
+
+\subsection{Models performances}
+
+\subsection{First group}
+
 \begin{landscape}
-\begin{table}[h]
-    \centering
-    \begin{tabular}{|r|r|r|r|r|r|}
-        \hline
-        a & AIDS & CAS & CPDB & GDD & NCI1 \\ \hline
-        $MKL_{ST,STC}$ & \textbf{$0.8609 \pm 0.0041$} & $0.9030 \pm 0.00073$ & $0.8583 \pm 0.0040$ & $0.8502 \pm 0.0018$ & $0.9214 \pm 0.00066$ \\ \hline
-        $MKL_{ST}$ & $0.8598 \pm 0.0040$ & $0.9034 \pm 0.00078$ & $0.8615 \pm 0.0045$ & $0.8500 \pm 0.0017$ & $0.9211 \pm 0.00054$ \\ \hline
-        $MKL_{STC}$ & $0.0000 \pm 0.0000$ & $0.0000 \pm 0.00000$ & & & \\ \hline
-        $ODD_{STC}$ v0 & & & & & \\ \hline
-        $ODD_{STC}$ v1 & & & & & \\ \hline
-    \end{tabular}
-    \label{table:results}
-    \caption{ROAUC measure relative to the first experiment. }
-\end{table}
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|l|r|r|r|r|r|}
+            \hline
+            method&CAS&NCI1&AIDS&CPDB&GDD\\
+            \hline
+            MKL (ODD\_ST, TCK\_ST)* &&&0.8632 $\pm$ 0.0034&0.8632 $\pm$ 0.0033&\\
+            \hline
+            MKL (ODD\_ST)*&&&&&\\
+            \hline
+            MKL (TCK\_ST)*&&&&&\\
+            \hline
+            MKL (ODDS\_ST, TCK\_ST)&&&0.8468 $\pm$ 0.0041&0.8517 $\pm$ 0.0033&0.8611 $\pm$ 0.0017\\
+            \hline
+            MKL (ODD\_ST)&&&0.8387 $\pm$ 0.0043&0.8400 $\pm$ 0.0032&0.8012$\pm$ 0.0018\\
+            \hline
+            MKL (TCK\_ST)&0.8953 $\pm$ 0.0013&0.9095 $\pm$ 0.0006&0.8486 $\pm$ 0.0040&0.8525 $\pm$ 0.0029&0.8617 $\pm$ 0.0021\\
+            \hline
+            MKL (MKL-ODD)** &0.9049 $\pm$ 0.0008&0.9144 $\pm$ 0.0008&0.8515 $\pm$ 0.0031&0.8564 $\pm$ 0.0056&0.8498 $\pm$ 0.0026\\
+            \hline
+            SVM (ODD\_ST)** &0.8982 $\pm$ 0.0017&0.9069 $\pm$ 0.0010&0.8262 $\pm$ 0.0052&0.8442 $\pm$ 0.0067&0.8473 $\pm$ 0.0038\\
+            \hline
+            SVM (TCK\_ST +ODD\_ST)&0.9009 $\pm$ 0.0010&0.9110 $\pm$ 0.0011&0.8322 $\pm$ 0.0065&0.8497 $\pm$ 0.0072&0.8626 $\pm$ 0.0018\\
+            \hline
+            SVM (TCK\_ST)&0.9006 $\pm$ 0.0013&0.9149 $\pm$ 0.0010&0.8225 $\pm$ 0.0066&0.8421 $\pm$ 0.0080&0.8674 $\pm$ 0.0026\\
+            \hline
+        \end{tabular}
+        \label{table:results_st}
+        \caption{ROAUC measure relative to the first experiment. }
+
+        \centering
+        \begin{tabular}{|l|r|r|r|r|r|}
+            \hline
+            method&CAS&NCI1&AIDS&CPDB&GDD\\
+            \hline
+            MKL ($ODD_{ST+}, TCK_{ST+}$)*&&&0.8632 $\pm$ 0.0034&0.8632 $\pm$ 0.0033&\\
+            \hline
+            ODD\_ST con MKL*&&&&&\\
+            \hline
+            TCK\_ST con MKL*&&&&&\\
+            \hline
+            TCK\_ST (+ODD\_ST) con SVM&0.9009 $\pm$ 0.0010&0.9110 $\pm$ 0.0011&0.8322 $\pm$ 0.0065&0.8497 $\pm$ 0.0072&0.8626 $\pm$ 0.0018\\
+            \hline
+            TCK\_ST con SVM&0.9006 $\pm$ 0.0013&0.9149 $\pm$ 0.0010&0.8225 $\pm$ 0.0066&0.8421 $\pm$ 0.0080&0.8674 $\pm$ 0.0026\\
+            \hline
+            ODDS\_ST, TCK\_ST con MKL&&&0.8468 $\pm$ 0.0041&0.8517 $\pm$ 0.0033&0.8611 $\pm$ 0.0017\\
+            \hline
+            ODD\_ST con MKL&&&0.8387 $\pm$ 0.0043&0.8400 $\pm$ 0.0032&0.8012$\pm$ 0.0018\\
+            \hline
+            TCK\_ST con MKL&0.8953 $\pm$ 0.0013&0.9095 $\pm$ 0.0006&0.8486 $\pm$ 0.0040&0.8525 $\pm$ 0.0029&0.8617 $\pm$ 0.0021\\
+            \hline
+        \end{tabular}
+        \label{table:results_stp}
+        \caption{ROAUC measure relative to the second experiment. }
+    \end{table}
+
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|l|r|r|r|r|r|}
+            \hline
+            method&CAS&NCI1&AIDS&CPDB&GDD\\
+            \hline
+            ODD\_ST, TCK\_ST con MKL*&&&0.8632 $\pm$ 0.0034&0.8632 $\pm$ 0.0033&\\
+            \hline
+            ODD\_ST con MKL*&&&&&\\
+            \hline
+            TCK\_ST con MKL*&&&&&\\
+            \hline
+            TCK\_ST (+ODD\_ST) con SVM&0.9009 $\pm$ 0.0010&0.9110 $\pm$ 0.0011&0.8322 $\pm$ 0.0065&0.8497 $\pm$ 0.0072&0.8626 $\pm$ 0.0018\\
+            \hline
+            TCK\_ST con SVM&0.9006 $\pm$ 0.0013&0.9149 $\pm$ 0.0010&0.8225 $\pm$ 0.0066&0.8421 $\pm$ 0.0080&0.8674 $\pm$ 0.0026\\
+            \hline
+            ODDS\_ST, TCK\_ST con MKL&&&0.8468 $\pm$ 0.0041&0.8517 $\pm$ 0.0033&0.8611 $\pm$ 0.0017\\
+            \hline
+            ODD\_ST con MKL&&&0.8387 $\pm$ 0.0043&0.8400 $\pm$ 0.0032&0.8012$\pm$ 0.0018\\
+            \hline
+            TCK\_ST con MKL&0.8953 $\pm$ 0.0013&0.9095 $\pm$ 0.0006&0.8486 $\pm$ 0.0040&0.8525 $\pm$ 0.0029&0.8617 $\pm$ 0.0021\\
+            \hline
+        \end{tabular}
+        \label{table:results_wl}
+        \caption{ROAUC measure relative to the third experiment. }
+    \end{table}
 \end{landscape}
+
+\subsection{Second group}
+\subsection{Third group}
+
+\section{Kernels Contribution Breakdown}
+% eventuale plot dei pesi delle matrici per gli esperimenti principali
 

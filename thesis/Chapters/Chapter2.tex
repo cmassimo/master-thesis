@@ -28,10 +28,10 @@ improve the hypothesis $h()$ up to a certain performance measure, depending
 on the task, the paradigm considered or other external factors such as available
 resources.
 
-This approach has is better exploited in scenarios where either an exact
-algorithmic solution to the problem (learning $c()$) is infeasible, when there is
-too much uncertainty in the data or when the problem definition itself is too
-difficult to formally define or too vague.
+This approach is better exploited in scenarios where either an exact
+algorithmic solution to the problem (learning $c()$) would be infeasible, when
+there is too much uncertainty in the data or when the problem definition itself
+is too difficult to formally define or too vague.
 Since a machine learning algorithm is often looking for an approximation of the 
 optimal solution, the first problem can be solved settling with a suboptimal
 solution that is more easily obtainable; given the iterative fashion in which
@@ -55,8 +55,8 @@ as it comes, trying to make better decision based on a performance measure, is
 the fundamental scheme behind the learning process in machine learning and can
 be summed by the following definition:
 
-\begin{definition}
-    (Learning). A computer program is said to learn from experience \emph{E} with
+\begin{definition}[Learning]
+    A computer program is said to learn from experience \emph{E} with
     respect to some class of tasks \emph{T} and performance measure \emph{P},
     if its performance at tasks in \emph{T}, as measured by \emph{P}, improves
     with experience \emph{E} [Mitchell].
@@ -107,19 +107,18 @@ $\mathrm{X}$.
 Furthermore, the domain of $\mathrm{Y}$ defines the type of classification task
 that the algorithm should perform:
 \begin{itemize}
-    \item $Y = \{\pm{1}\}$: binary classification task
-    \item $Y = \{1,\dots,n\}$: multi-class classification task
-    \item $Y = \mathbb{R}$: regression task, or the approximation of a real
-        function
+    \item $Y = \{\pm{1}\}$: binary classification
+    \item $Y = \{1,\dots,n\}$: multi-class classification
+    \item $Y = \mathbb{R}$: regression, or the approximation of a real function
 \end{itemize}
 
 The current work will focus on the first of the three, in other words we will
 try to approximate as tightly as possible the function $c:X\to Y$ with an
-hypothesis $h:X\to Y, h\in \mathcal{H}$, where $\mathcal{H}$ is the hypothesis
+hypothesis $h:X\to Y, h\in \mathcal{H}$, where $\mathcal{H}$ is the hypotheses
 space that is fixed a priori, setting an inductive bias.
-Bias can be introduced either by said choice of the hypothesis space or by the
+Bias can be introduced either by said choice of the hypotheses space or by the
 choice of the learning algorithm and is a guarantee that learning is taking place:
-a infinite hypothesis space and an exhaustive search algorithm would render
+a infinite hypotheses space and an exhaustive search algorithm would render
 any learning useless since the algorithm could return an infinite number of
 hypothesis from $\mathcal{H}$ that could fit any given data.
 
@@ -128,29 +127,30 @@ The kind of bias that we apply to our learning process affects the resulting
 hypothesis in ways that can be counter-productive.
 Generally is assumed that the data in the training set is generated according
 to an unknown probability distribution $P$ on $X$.
-We aim to obtain optimal hypothesis $h^*$ that is, the one that minimizes the
+We aim to find an optimal hypothesis $h^*$ that is, the one that minimizes the
 prediction error (often referred to as \emph{risk} or ideal error) which is
 defined as:
 
 $$R(h)=\int_{X\times Y} L(h(x),y)~dP(x,y)$$
 
 where $L$ is a loss function; given that $P$ is unknown it follows that also
-$R(h)$ for any given $h$ is unknown, we can only measure the loss function
-on the classified data we already have, with the following formula:
+$R(h)$ for any given $h$ is unknown, we can only give a bound on it and measure
+the loss function on the classified data we already have, with the following
+formula:
 
 $$R_e(h)=\frac{1}{N} \sum_{(x,y) \in S} L(h(x),y)$$
 
-While minimizing $R_e(h)$ might be tempting, doing so will inevitably tailor our
-hypothesis to the data we have in our training set which tells us nothing about
-the underlying (unknown) distribution $P$ nor about the possibly infinite set of
-data that $h$ might have to classify.
+While minimizing the empirical error $R_e(h)$ might be tempting, doing so will
+inevitably tailor our hypothesis to the data we have in our training set which
+tells us nothing about the underlying (unknown) distribution $P$ nor about the 
+possibly infinite set of data that $h$ might have to classify.
 Hence we are not consistently modelling the decision function that we are trying
 to learn but just the one that fits the set of samples.
-Minimize the empirical error will eventually result in increasing the ideal
+Empirical error minimization alone will eventually result in increasing the ideal
 error because one of the effect of the minimization is that $h$ will lack
 \emph{generalization}.
 This situation is called \emph{overfitting} and it occurs when the either the
-hypothesis space is too complex or the model has too many parameters with
+hypotheses space is too complex or the model has too many parameters with
 respect to the number of samples i.e. we are trying too hard to model the
 available data.
 The contrary is called \emph{underfitting} and negatively affects the
@@ -158,7 +158,55 @@ generalization power of an hypothesis by making it fail to learn much from the
 sample data.
 
 \subsubsection{Structural Risk Minimization}
-%VC-dimension yada yada yada
+\label{subsubsec:srm}
+To avoid the scenarios depicted in the previous section we need a way to determine
+how powerful an hypothesis can be, i.e. its expressiveness.
+This is achieved by measuring the complexity of the originating hypotheses space,
+using a measure called \emph{Vapnik-Chervonenkis dimension} (VC-dimension).
+First we will introduce the concept of shattering of a set $\mathrm{X}$:
+\begin{definition}[Shattering]
+    $S \subset X$ is shattered by an hypotheses space $\mathcal{H}$ iff
+    $$\forall S' \subseteq S, \exists h \in \mathcal{H} s.t. \forall x \in S, h(x)=1 \iff x \in S'$$
+\end{definition}
+i.e. $\mathcal{H}$ implements all the possible dichotomies of $S$.
+Given this definition we can now proceed to define more formally what the
+VC-dimension is:
+\begin{definition}[VC-dimension]
+    The VC-dimension of an hypotheses space $\mathcal{H}$, defined on an sample
+    space $\mathrm{X}$, is the cardinality of the largest subset of $\mathrm{X}$
+    shattered by $\mathcal{H}$, or:
+    $$VC(\mathcal{H}) = \max_{S\subseteq \mathrm{X}} |S| : \mathcal{H}\text{ shatters }S$$
+\end{definition}
+and indeed $VC(\mathcal{H})=\infty$ if $S$ is infinite.
+
+Now, while referring to a binary classification task as is the scope of the present
+work, we can show how the VC-dimension affects the bound on the ideal error:
+\begin{displaymath}
+    R_D(h_{w^*}(x)) \leq R_e(h_{w^*}(x)) + \sqrt{\frac{VC(\mathcal{H})}{N}
+    (\log{(\frac{2N}{VC(\mathcal{H})})}+1) - \frac{1}{N}\log{\delta}}
+\end{displaymath}
+where $R_D$ is the true risk (i.e. ideal error), $R_e$ is the empirical error,
+$h_{w^*}(x)$ is the optimal hypothesis returned by the algorithm and $N$ is the
+cardinality of the training set.
+
+As we can see, the first term in the rightmost part of the inequality only 
+depends from the hypothesis while the second term depends from the ratio
+between the VC-dimension and training set size, beside the confidence ($\delta$)
+with which the bound is valid.
+This last term is generally called VC-confidence.
+
+From these premises we can assert that selecting a complex hypotheses space,
+that is one with a high VC-dimension, or whose hypotheses can successfully shatter
+very large sets, will indeed make $R_e$ decrease since it will generate more
+expressive hypotheses that will better fit the data; on the other hand the ratio
+$\frac{VC(\mathcal{H})}{N}$ will also increase making the VC-confidence increase
+as well, negatively affecting the overall ideal error bound.
+
+A tried approach to balance this two terms is called \emph{structural risk
+minimization} which considers hypotheses spaces of crescent complexity
+(i.e. increasing VC-dimension) and for each one selects the hypothesis with
+the lower empirical error, finding the hypothesis with the lower bound on the
+ideal error.
 
 \subsection{Hypothesis Evaluation Strategy}
 \label{subsec:evaluation}
@@ -188,8 +236,8 @@ The point of this process is to simulate the situation in which the hypothesis
 face prediction on previously completely unseen samples thus mimicking the real
 world scenario.
 A considerable drawback that needs to be weighed in during this phase is the 
-possibly consisted reduction of the cardinality of the training set which as 
-previously noted will likely lead to an increase in the bound on true risk.
+possibly consistent reduction of the cardinality of the training set which as 
+previously noted will likely lead to increase the bound on true risk.
 
 Cross validation can be done in several ways. Typically the \emph{k-fold} cross
 validation technique is employed, where $k$ is a fixed integer value that
@@ -206,35 +254,142 @@ On the other hand for large values of $k$, we obtain the opposite effect.
 
 \subsubsection{Nested Cross Validation}
 An important thing to note at this point is that with the technique detailed in
-the previous section, we are not assessing the performance of each hypothesis
+the previous section we are not assessing the performance of each hypothesis
 independently from the training set since every validation set becomes at some
 point part of the training set of another fold.
 This will likely lead to an overestimate of the hypothesis performance.
 
-It is the mandatory that the test set must be left out from the whole training
+It is hence mandatory that the test set must be left out from the whole training
 process and used exclusively for performance assessment purposes.
-The scheme consists of two nested loops, in the first nesting, the training set
+The scheme consists of two nested loops, in the first loop, the training set
 is split into $k$ subsets, $k-1$ of which become the training set for the
 $i^{th}$ iteration of training while the $k^{th}$ set becomes the test set.
 This subset of the original training set is then split again in $k$ subsets
 which again are used for training and validation with the usual cross validation
 technique.
-Once the best hypothesis has been selected in the innermost loop, it is retrained
-with the whole outer training set and tested against the test set, which has
+Once the best hypothesis has been selected in the innermost loop, it is trained
+with the whole outer loop training set and tested against the test set, which has
 remained completely isolated from the learning phase until now.
 When used in combination with parameters selection with the so called grid-search
-technique, the performances obtained in the inner nesting are usually used to
+technique, the performances obtained in the outer loop are usually used to
 determine the best set of parameters in what is called model selection.
 
 %----------------------------------------------------------------------------------------
 
 \section{Kernel Methods}
 \label{sec:kernel}
-\subsection{Theoretical Overview and Notation}
+
+In this section we briefly analyse a family of methods that rely on a solid
+theoretical framework.
+\emph{Kernel methods} collect all those techniques that represent the hypothesis
+in terms of the input samples.
+These methods do not work on the explicit representation of the examples but
+need just a measure of their pairwise similarity.
+For the whole thing to be sound this measure has to be computed using a
+\emph{kernel function}.
+
+The two main components of a kernel method are:
+\begin{itemize}
+    \item a problem-specific kernel function
+    \item a general purpose learning algorithm
+\end{itemize}
+now we will give a more detailed overview of these two main concepts.
+
+\subsection{Kernel functions}
+\label{subsec:kernelfunc}
+A function $K:X\times X \to Y$ is a kernel function if it satisfies the following properties:
+\begin{itemize}
+    \item it is a continuous function
+    \item it is symmetric i.e. $K(x,y) = K(y,x)~\forall x,y \in X$
+    \item it is positive-semidefinite that is, if $\forall N\geq 1, \forall x_1,\dots x_N \in X$,
+        the matrix defined as $K_{i,j} = K(x_i,x_j)$ is positive-semidefinite,
+        or $\sum_{i,j}c_ic_jK_{i,j}~\geq~0$ $\forall c_1,\dots c_N \in \mathbb{R}$
+        or equivalently if all its eigenvalues are non-negative.
+\end{itemize}
+
+Being able to represent each sample $x \in X$ as $\phi(x) = \{\phi_n(x)\}_{n \geq 1}$
+so that computing $K(x,y)$ is equivalent to computing the dot product $\langle
+\phi(x),\phi(y)\rangle$ then $K$ is a kernel.
+The converse is always true when $X$ is a countable set for an opportune choice
+of $\phi$.
+The vector space defined by such $\phi$ is called \emph{feature space}.
+
+A useful extension, called \emph{zero extension}, is available given a kernel $K$
+defined on a certain input space, say $S\subset X$; we can extend it to work
+on $X\times X$ thanks to it being positive-semidefinite i.e.
+$K(x,y)=0~\forall x,y \in X\setminus S$.
+
+Kernel are also demonstrably closed under the sum operation:
+\begin{theorem}
+    Given two valid kernels $K_1(x,x')$ and $K_2(x,x')$, then $c_1K_1(x,x') +
+    c_2K_2(x,x'), c_1,c_2 \geq 0$, is a valid kernel.
+\end{theorem}
+\begin{proof}
+    Given any final set of instances $\{x_1,\dots,x+n\}$, let $K_1$ and $K_2$ be
+    the kernel matrices of the kernel mentioned above. Then the kernel matrix
+    associated to $c_1K_1(x,x') + c_2K_2(x,x')$ is $K=c_1K_1+c_2K_2$ which is
+    postive-semidefinite because for any $v\in\mathbb{R}^n, v^\top(c_1K_1+c_2K_2)v
+    = c_1(v^\top K_1v)+c_2(v^\top K_2v) \geq 0$, as both addends are greater or
+    equal to 0 because of the positive-semidefinitedness of $K_1\text{ and }K_2$,
+    and it is symmetric since the sum is commutative.
+\end{proof}
+
+\subsection{Kernel machines}
+
+What kernel machines try to accomplish is basically sample separation in a given
+feature space.
+This is achieved exploiting the information contained in the kernel matrix about
+sample pairwise similarity, by defining the separation problem as an optimization
+problem, constrained on those very similarity values, we are guaranteed to find
+a global optimum by the properties of the kernel function, as detailed in
+section~\ref{subsec:kernelfunc}.
+Taking as an example setting non-linearly separable data in a binary classification
+context, we will now go through the whole technique.
+Being non linearly separable means that the data cannot be separated by a single
+hyperplane in the input space, that is, the space in which the samples are defined.
+A solution to this problem is to define a function $\phi$ that will map each
+sample from the input space $X$ with $n$ dimensions, to another space $\mathcal{H}$
+of much higher dimensionality, let's say $M >> n$, i.e. $\phi:X\to \mathcal{H}$.
+Given a sample $x \in X$, the $j^{th}$ feature of $\phi(x)$ will be then be
+computed by another non-linear function $\phi_j$, $\forall j \in \{1,\dots,M\}$.
+This technique is employed because of the result brought on by Cover's Theorem
+that states:
+
+\begin{theorem}[Cover's Theorem]
+    A complex pattern-classification problem, cast in a high-dimensional space
+    non-linearly, is more likely to be linearly separable than in a low-dimensional
+    space, provided that the space is not densely populated.
+\end{theorem}
+
+this result rely on the fact that projecting the data in an higher-dimensional
+space than the input one, they will become more sparse hence more easily separable
+with a linear separator.
+Given these premises, and a value of $M$ high enough for the mapped samples to
+be linearly separable a kernel machine looks for the optimal linear separator in
+$\mathcal{H}$ and then maps it back to the input space as a non-linear separator.
+To find this optimal separator the kernel machine has to deal with samples of
+very high (possibly infinite) dimensionality and this could quickly render the
+search for the solution to the optimization problem infeasible or too onerous.
+Given that, in the problem formulation, the function $\phi$ only appears inside
+the computation of dot products, these values can be calculated by a kernel
+function (section~\ref{subsec:kernelfunc}) thus referring to $\mathcal{H}$
+only implicitly and avoiding having to deal with a high number of dimensions
+altogether using what is commonly known as the \emph{kernel trick}.
+
+\subsubsection{Support Vector Machines}
+Here we will briefly describe one of the most tried kernel machines in the literature. 
+\emph{Support Vector Machines} or SVM [Vapnick] rest on the principle of structural risk
+minimization (section \ref{subsubsec:srm}) providing a trade-off between hypotheses
+space complexity and the performances in fitting the training data.
+
+
+
+
+
 
 %----------------------------------------------------------------------------------------
 
-\section{Kernel Methods On Structured Data}
+\section{Kernels On Structured Data}
 \label{sec:graphkernels}
 
 \subsection{The Framework: Convolution Kernels}
@@ -245,7 +400,7 @@ determine the best set of parameters in what is called model selection.
 \subsection{Kernels For Graphs}
 \subsubsection{ODD kernels}
 % explain ordered graph decomposition kernels
-\subsubsection{Fast subtree kernels}
+\subsubsection{Fast Subtree kernels}
 % explain FS kernels
 
 \subsection{Latest Improvements on Graph Kernel Methods}

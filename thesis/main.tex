@@ -57,6 +57,7 @@ headsepline, % Uncomment to get a line under the header
 \usepackage{amsmath,amsthm}
 
 \newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
 %----------------------------------------------------------------------------------------
 %	MARGIN SETTINGS
 %----------------------------------------------------------------------------------------
@@ -75,7 +76,7 @@ headsepline, % Uncomment to get a line under the header
 %	THESIS INFORMATION
 %----------------------------------------------------------------------------------------
 
-\thesistitle{Analysis of Graph Kernel Learning Approaches Combination} % Your thesis title, this is used in the title and abstract, print it elsewhere with \ttitle
+\thesistitle{A New Methodology For Combining Graph Kernels} % Your thesis title, this is used in the title and abstract, print it elsewhere with \ttitle
 \supervisor{Prof. Alessandro \textsc{Sperduti}} % Your supervisor's name, this is used in the title page, print it elsewhere with \supname
 \examiner{} % Your examiner's name, this is not currently used anywhere in the template, print it elsewhere with \examname
 \degree{Master degree} % Your degree name, this is used in the title page and abstract, print it elsewhere with \degreename
@@ -156,22 +157,26 @@ headsepline, % Uncomment to get a line under the header
 \begin{abstract}
 \addchaptertocentry{\abstractname} % Add the abstract to the table of contents
 
-Graph mining and machine learning method that use graph representation have seen
-a steady growth in success and proposed approaches during the last decade.
+Graph mining and machine learning methods that use graph representation have seen
+a steady growth in success and proposed approaches during the last decades.
 A number of improvements over the existing techniques, have recently been
-proposed, further increasing the performance limits.
-These works typically addresses a specific weak point in a particular approach,
+proposed, further raising the performance limits.
+These works typically address a specific weak point in a particular approach,
 so a natural question one may want to answer is if a combination of these
 improvements can outperform the single one.
 
-In this study we analyse the combination of these improvements, namely
-kernel methods with contextual informations and $EasyMKL$, a new $MKL$ paradigm
-implementation, and see that in most cases the increased complexity of the
-feature space derived from these combinations translates into increased
-performances while maintaining good computational bounds.
+To be able to efficiently and effectively answer to such questions, a tested way
+of combining the various improvement is needed.
+In this study we devise a general methodology to favor the implementation of these
+combinations and test them in an easy and time-efficient way.
 
-The results are derived from a number of real world problems using publicly
-available bio-chemical datasets.
+To warrant the generalization of the proposed methodology we analysed three
+possible combination, namely we took three graph kernels that has recently
+been extended with contextual information and combined the two versions for each
+one.
+
+The analyses are derived from a number of real world, publicly available
+bio-chemical datasets.
 
 \end{abstract}
 
@@ -260,9 +265,9 @@ managed to be an invaluable presence and motivation.}
 
 \include{Chapters/Chapter1} % Introduction
 \include{Chapters/Chapter2} % Background
-%\include{Chapters/Chapter3} % Contribution
-%\include{Chapters/Chapter4} % Experiments
-%\include{Chapters/Chapter5} % Conclusions and future works
+\include{Chapters/Chapter3} % Contribution
+\include{Chapters/Chapter4} % Experiments
+\include{Chapters/Chapter5} % Conclusions and future works
 
 %----------------------------------------------------------------------------------------
 %	THESIS CONTENT - APPENDICES
