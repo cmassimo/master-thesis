@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import re
 
 # MKL matrices weights distribution
-weights_raw = np.loadtxt("csv/NCI1_mkl_ODDSTC_weights_dist.csv", delimiter=',', dtype='str').T
+weights_raw = np.loadtxt(sys.argv[1], delimiter=',', dtype='str').T
 wdict = {re.search('r\d+\.l\d\.\d', w[0]).group(0):np.array(w[1:], dtype='float64') for w in weights_raw}
 
 lambdas = [0.1, 0.5, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.8]

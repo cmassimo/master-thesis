@@ -4,6 +4,7 @@ from skgraph.datasets import load_graph_datasets
 from skgraph.kernel.ODDSTincGraphKernel import ODDSTincGraphKernel
 from skgraph.kernel.ODDSTOrthogonalizedGraphKernel import ODDSTOrthogonalizedGraphKernel
 import matplotlib.pyplot as plt
+import math
 
 ds = load_graph_datasets.load_graphs_CPDB()
 
@@ -47,8 +48,8 @@ plt.legend((p0[0], p1[0]), ('enhanced o15n', 'naive o15n'))
 #plt.show()
 plt.savefig('weights_dist.pdf')
 
-x = [15.97398, 28.09628, 12.086722, 2.134117, 299.721692]
-x1 = [32.597597, 58.937005, 26.602846, 4.154025, 660.222288]
+x = np.array([15.97398, 28.09628, 12.086722, 2.134117, 299.721692])
+x1 = np.array([32.597597, 58.937005, 26.602846, 4.154025, 660.222288])
 bins = np.array(range(5))
 ks = ['CAS', 'NCI1', 'AIDS', 'CPDB', 'GDD']
 
@@ -60,5 +61,7 @@ plt.ylabel('time in seconds')
 plt.xlabel('dataset')
 plt.title('Kernel computation performances')
 plt.legend((p0[0], p1[0]), ('incremental', 'sequential'), loc='upper left')
+plt.show()
+
 plt.savefig('kernel_times.pdf')
 

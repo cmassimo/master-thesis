@@ -2,46 +2,80 @@
 \label{Chapter3}
 
 This chapter details the contribution of the present work.
-We start by analysing the motives behind kernels combination and in particular
-behind graph kernels combination (section \ref{sec:why}).
-Then, in the following sections, we proceed with examining the existing techniques
-(section \ref{sec:tech}), we discuss in detail the proposed methodology (section
-\ref{sec:meth}) and finally give an overview of the main optimization choices (sections
+We discuss in detail the proposed methodology (Section \ref{sec:meth}) and
+finally give an overview of the main optimization choices (Sections
 \ref{sec:opt}, and \ref{sec:inc})
-
-\section{Why Combining Kernels}
-\label{sec:why}
-
-In the previous chapter we described a number of approaches (section \ref{sec:graphkernels})
-and the relative improvements that has been presented in the recent years.
-
-\subsection{The Case For Graph Kernels}
-
-\section{Existing combination techniques}
-\label{sec:tech}
-%kernels SUM: descrption, pros, cons
 
 \section{The Proposed Methodology}
 \label{sec:meth}
 %thorough description
- 
 
-This choice stem from the fact that the implementation we used for $MKL$ gives us
-back a set of weights, one for each of the input kernel matrices; these weights,
-multiplied by their related matrix which then get summed together give us the
-best linear combination of the input kernels.
-While a weight is not to be taken as an assessment of the goodness of a single
-kernel matrix (since they are optimal as a combination), a very low weight can
-indeed be a sure sign that the related matrix has given a very poor contribution
-to the classification task.
+Having discussed the need for kernels combination and the possibilities available
+in the literature, we now proceed to illustrate the main idea behind the present
+work.
 
-% easyMKL altrimenti ciao
+As discussed in Section \ref{subsec:mkl}, $MKL$ methods generally provide a consistent
+way of using different, possibly weak, kernels to build a model which is the result
+of their composition in some way that vary from implementation to implementation.
+The constant point here is that the set of weak kernels gets \emph{combined}, thus
+making one of those methods the perfect candidate to be the foundation of our
+combining methodology.
+
+The easyMKL implementation (Section \ref{subsubsec:easymkl}) was deemed a good
+choice because of the promising overall performances and the empirical evidence
+that the method is not significantly affected by the number of kernels
+being combined, a major point of our method, and last but not least it was
+available and easily integrated with our pre-existing kernels code base.
+
+The methodology therefore consists in a k-fold nested cross-validation with
+easyMKL as the kernel machine as detailed in Algorithm \ref{alg:method} and further in
+Figure %\ref{fig:method}.
+
+The new idea behind an otherwise standard and tried scheme of operations is that
+the kernel list instantiated in line \ref{line:kernels}, comprises all the 
+kernels computed from the grid of parameters combinations that would otherwise
+have been individually fed to a standard single kernel machine (e.g. SVM).
+Doing so, the single kernel hyper-parameter optimization phase can be avoided in its
+entirety and the only parameters that needs validation are the ones of the chosen
+$MKL$ implementation, namely one regularization parameter ($\Lambda$) in our case.
+This point will be further elaborated on in the following section.
+
+\begin{algorithm}
+    \caption{High level implementation of the proposed methodology.}
+    \label{alg:method}
+    \begin{algorithmic}[1]
+        \State $K \gets []$
+        \Comment{K is the list of kernel matrices}
+        \label{line:kernels}
+        \ForAll{$kernel \in Kernels$}
+            \ForAll{$tuple \in params\_grid$}
+                \State $K_{kernel} \gets \Call{computeKernel}{kernel, tuple, dataset}$
+            \EndFor
+        \EndFor
+
+        \ForAll{$outer\_fold \in Folds$}
+            \State $training\_set, test\_set \gets \Call{split}{K}$
+            \ForAll{$\Lambda \in params$}
+                \ForAll{$inner\_fold \in Folds$}
+                    \State $inner\_tr\_set, validation\_set \gets \Call{split}{training\_set}$
+                    \State $model \gets \Call{easyMKL}{\Lambda,inner\_tr\_set}$
+                    \State validate $model$ with $validation\_set$
+                \EndFor
+            \EndFor
+            
+            \State select the best $model,\Lambda$ coming from the inner loop
+            \State $final\_model \gets \Call{easyMKL}{best\_\Lambda,training\_set}$
+            \State test $final\_model$ with $test\_set$
+        \EndFor
+
+        \State \textbf{return} $final\_model$ with best average among the $Folds$
+    \end{algorithmic}
+\end{algorithm}
 
 \subsection{Immersed Model Selection}
 \label{subsec:parameters}
-% butta tutte le matrici in un colpo solo
 One of the main advantages of the proposed method is that it permits to embed
-the otherwise cumbersome process of hyper-parameter optimization (section \ref{subsubsec:grid})
+the otherwise cumbersome process of hyper-parameter optimization (Section \ref{subsubsec:grid})
 inside the learning phase in a completely transparent way, which will be hereby
 described.
 
@@ -66,26 +100,100 @@ increasing the chances of it being more general.
 
 Given the fact that our $MKL$ implementation of choice has an algorithmic
 complexity that is not dependent on the cardinality of the input but rather on
-its dimensions, one drawback of this approach is that the memory consumption
-invariably increases with the number of kernel thus making this approach still
-computationally prone to the curse of dimensionality.
+its dimensions, it could be easily be the case that hundreds of kernel are used
+at once; this can lead to an increase of the memory consumption in a measure
+proportional to the size of the input dataset.
 
-Section \ref{sec:opt} deals with a possible solution to this problem.
+Section \ref{sec:opt} deals with a possible algorithmic solution to this problem,
+while the following section will show how it is possible to combine the idea here
+described with another technique used in multiple kernel learning to further
+improve the feature spaces and reduce the computational burden eliminating
+one hyper-parameter.
 
 \subsection{Kernels and Feature Spaces}
 \label{subsec:features}
 
+Even if in principle $MKL$ algorithms can deal with large number of kernels, the
+memory consumption problem previously described will manifest itself even for
+datasets of modest dimension, depending on the parameters grid.
 
-% buckets => leva un parametro
+Beside adopting a sampling strategy on the dataset, thus reducing the dimension
+of the kernel matrices, another solution consist in trying to reduce the number 
+of hyper-parameters that concur in generating the parameter grid which size will
+directly determine the number of total kernels to combine.
+
+In this study we are working with graph kernels and this fact allowed us to utilize
+the feature division strategy delineated in \cite{gmkl}.
+The method described there can be generalised to every kernel, given an appropriate
+subdivision rationale.
+Therefore when dealing with $ODD$ kernels we maintained the proposed features
+subdivision according to the size for the following reasons:
+given the hierarchical structure inherent to the $ODD$ features that is, if a tree
+of size $s$ is present in the explicit feature space representation of a graph,
+also all of its proper subtrees, i.e. the subtrees of size $s' < s$, are (\cite{gmkl}),
+hence, mapping features of different size to different kernels makes it so no two
+dependent features end up contributing to the same kernel.
+Moreover the standard weighing scheme of the $ODD$ kernel can be delegated to
+the $MKL$ algorithm, in this case also easyMKL, because the weight assigned to a
+particular kernel by the algorithm would directly correlate with the underlying
+feature space thus rendering the $\lambda$ parameter of the $ODD$ kernel superfluous.
+
+The most direct consequence of the adoption of this techniques is that we reduced
+the considerably the dimension of the grid and thus of the generated kernels, at
+the expenses of a modest increase due to the newly computed kernel for each group
+of features.
 
 %----------------------------------------------------------------------------------------
 
 \section{Method optimization}
 \label{sec:opt}
+
+%after preliminary promising results concentrate on refining the approach and performances
 % memory consumption (+ alternate methods constant RAM)
 
+While implementing the methodology, a good effort has been focused toward the
+optimization of the code in terms of execution time and memory occupation.
+\dots
 Memory consumption is basically bound to $O(m\cdot n^2)$ with $m$ being the number of kernels and
 $n$ the number of samples while being in practice $O(2\cdot (m\cdot n^2))$.
+
+\dots
+This approach has been implemented in a routine which employed a slight modification
+of the standard easyMKL algorithm \cite{easymkl} in order to keep a constant
+level of memory occupation, given the large amount of matrices that had to be
+loaded into memory at each step of the algorithm.
+
+% fix
+\begin{algorithm}
+    \caption{High level implementation of the proposed methodology.}
+    \label{alg:method_me}
+    \begin{algorithmic}[1]
+        \State $K \gets []$
+        \Comment{K is the list of kernel matrices}
+        \ForAll{$kernel \in Kernels$}
+            \ForAll{$tuple \in params\_grid$}
+                \State $K_{kernel} \gets \Call{computeKernel}{kernel, tuple, dataset}$
+            \EndFor
+        \EndFor
+
+        \ForAll{$outer\_fold \in Folds$}
+            \State $training\_set, test\_set \gets \Call{split}{K}$
+            \ForAll{$\Lambda \in params$}
+                \ForAll{$inner\_fold \in Folds$}
+                    \State $inner\_tr\_set, validation\_set \gets \Call{split}{training\_set}$
+                    \State $model \gets \Call{easyMKL}{\Lambda,inner\_tr\_set}$
+                    \State validate $model$ with $validation\_set$
+                \EndFor
+            \EndFor
+            
+            \State select the best $model,\Lambda$ coming from the inner loop
+            \State $final\_model \gets \Call{easyMKL}{best\_\Lambda,training\_set}$
+            \State test $final\_model$ with $test\_set$
+        \EndFor
+
+        \State \textbf{return} $final\_model$ with best average among the $Folds$
+    \end{algorithmic}
+\end{algorithm}
 %----------------------------------------------------------------------------------------
 
 \section{Incremental kernels calculation} 
@@ -97,8 +205,8 @@ speed-up.
 
 \begin{algorithm}
     \caption{The devised algorithm to incrementally compute the explicit
-    features space representation for the available ODD kernels, namely
-    $ODD_{ST}$, $ODD_{STC}$, $ODD_{STP}$, $ODD_{STPC}$.}
+    features space representation for the available $ODD$ kernels, namely
+    $ODD_{ST}$, $TCK_{ST}$, $ODD_{ST+}$, $TCK_{ST+}$.}
     \label{alg:incremental}
     \begin{algorithmic}[1]
         \ForAll{$kernel \in Kernels$}
@@ -115,7 +223,7 @@ speed-up.
                         \State $f_{u,0} \gets \kappa(L(u))$
                         \State $size_{u,0} \gets 1$
                         \State add $f_{u,0}$ to $\phi_{ODD_{ST}}$
-                        \State add $f_{u,0}$ to $\phi_{ODD_{STP}}$
+                        \State add $f_{u,0}$ to $\phi_{ODD_{ST+}}$
                     \Else
                         \State $(S_1,\dots,S_{\rho(u)}) \gets \Call{Sort}{
                         f_{ch_1(u),d-1},f_{ch_2(u),d-1},\dots,f_{ch_{\rho(u)}(u),d-1}}$
@@ -124,18 +232,18 @@ speed-up.
                         \ForAll{$ch \in children(u)$}
                             \State assign $f_{ch,d-1}$ as a context to $f_{u,d}$
                             \State compute weight of $f_{ch,d-1}$
-                            \State add contextualized feature to $\phi_{ODD_{STC}}$
-                            \State add contextualized feature to $\phi_{ODD_{STPC}}$
+                            \State add contextualized feature to $\phi_{TCK_{ST}}$
+                            \State add contextualized feature to $\phi_{TCK_{ST+}}$
                         \EndFor
                         \State add $f_{u,d}$ to $\phi_{ODD_{ST}}$
-                        \State add $f_{u,d}$ to $\phi_{ODD_{STP}}$
+                        \State add $f_{u,d}$ to $\phi_{ODD_{ST+}}$
                     \EndIf
                     \If{$u=v$}
-                        \State add $f_{u,d}\circ{}c$ to $\phi_{ODD_{STC}}$
-                        \State add $f_{u,d}\circ{}c$ to $\phi_{ODD_{STPC}}$
+                        \State add $f_{u,d}\circ{}c$ to $\phi_{TCK_{ST}}$
+                        \State add $f_{u,d}\circ{}c$ to $\phi_{TCK_{ST+}}$
                     \EndIf
 
-                    \State Compute $ODD_{STP}$ and $ODD_{STPC}$ peculiar features
+                    \State Compute $ODD_{ST+}$ and $TCK_{ST+}$ peculiar features
                     and contexts and add them to the relevant $\phi$ in a similar
                     fashion\label{line:stp}
                 \EndFor
@@ -156,12 +264,13 @@ kernels being computed.
     \centering
     \includegraphics[scale=0.4]{Figures/kernel_times}
     \caption{Times in seconds required to compute the kernels $ODD_{ST}$ and 
-    $ODD_{STC}$ incrementally and sequentially on a selection of datasets.}
+    $TCK_{ST}$ incrementally and sequentially on a selection of datasets.}
     \label{fig:times}
 \end{figure}
 
 The plot in figure~\ref{fig:times} shows the measured times on a variety of
-datasets (see section~\ref{subsec:datasets} for further details on each one)
+datasets (see Section~\ref{subsec:datasets} for further details on each one)
 
 %----------------------------------------------------------------------------------------
 
+% vim: spell spelllang=en_gb
