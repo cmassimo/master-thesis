@@ -50,6 +50,9 @@ plt.savefig('weights_dist.pdf')
 
 x = np.array([15.97398, 28.09628, 12.086722, 2.134117, 299.721692])
 x1 = np.array([32.597597, 58.937005, 26.602846, 4.154025, 660.222288])
+ratios = x/x1
+x1 = map(lambda y: math.log(y), x1)
+x = [x1[i]*ratios[i] for i in range(len(x1))]
 bins = np.array(range(5))
 ks = ['CAS', 'NCI1', 'AIDS', 'CPDB', 'GDD']
 
@@ -57,7 +60,7 @@ plt.clf()
 width = 0.2
 p0 = plt.bar(bins-0.1, x, width, color='r', align='center', tick_label=ks)
 p1 = plt.bar(bins, x1, width, color='b', align='edge', tick_label=ks)
-plt.ylabel('time in seconds')
+plt.ylabel('time in seconds (log)')
 plt.xlabel('dataset')
 plt.title('Kernel computation performances')
 plt.legend((p0[0], p1[0]), ('incremental', 'sequential'), loc='upper left')
