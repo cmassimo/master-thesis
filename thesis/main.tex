@@ -79,7 +79,7 @@ headsepline, % Uncomment to get a line under the header
 \thesistitle{A New Methodology For Combining Graph Kernels} % Your thesis title, this is used in the title and abstract, print it elsewhere with \ttitle
 \supervisor{Prof. Alessandro \textsc{Sperduti}} % Your supervisor's name, this is used in the title page, print it elsewhere with \supname
 \examiner{} % Your examiner's name, this is not currently used anywhere in the template, print it elsewhere with \examname
-\degree{Master degree} % Your degree name, this is used in the title page and abstract, print it elsewhere with \degreename
+\degree{Laurea Magistrale} % Your degree name, this is used in the title page and abstract, print it elsewhere with \degreename
 \author{Carlo Maria \textsc{Massimo}} % Your name, this is used in the title page and abstract, print it elsewhere with \authorname
 \addresses{} % Your address, this is not currently used anywhere in the template, print it elsewhere with \addressname
 
@@ -144,11 +144,11 @@ headsepline, % Uncomment to get a line under the header
 %	QUOTATION PAGE
 %----------------------------------------------------------------------------------------
 
-\vspace*{0.2\textheight}
-
-\noindent\enquote{\itshape 'OMG this is so meta I cant even}\bigbreak
-
-\hfill clojure
+%\vspace*{0.2\textheight}
+%
+%\noindent\enquote{\itshape 'OMG this is so meta I cant even}\bigbreak
+%
+%\hfill clojure
 
 %----------------------------------------------------------------------------------------
 %	ABSTRACT PAGE
@@ -157,7 +157,7 @@ headsepline, % Uncomment to get a line under the header
 \begin{abstract}
 \addchaptertocentry{\abstractname} % Add the abstract to the table of contents
 
-Graph mining and machine learning methods that use graph representation have seen
+Graph mining and machine learning methods that use the graph representation have seen
 a steady growth in success and proposed approaches during the last decades.
 A number of improvements over the existing techniques, have recently been
 proposed, further raising the performance limits.
@@ -174,23 +174,26 @@ To warrant the generalization of the proposed methodology we analysed three
 possible combination, namely we took three graph kernels that has recently
 been extended with contextual information and combined the two versions for each
 one.
-
 The analyses are derived from a number of real world, publicly available
 bio-chemical datasets.
 
+Empirical results show that the proposed methodology is, on larger
+datasets, faster than current state-of-the-art kernel machines while always
+maintaining comparable performances and in some cases exceed those of the
+proposed baselines.
 \end{abstract}
 
 %----------------------------------------------------------------------------------------
 %	ACKNOWLEDGEMENTS
 %----------------------------------------------------------------------------------------
 
-\begin{acknowledgements}
-\addchaptertocentry{\acknowledgementname} % Add the acknowledgements to the table of contents
-
-I would deeply and sincerely like to thank\dots
-
-
-\end{acknowledgements}
+%\begin{acknowledgements}
+%\addchaptertocentry{\acknowledgementname} % Add the acknowledgements to the table of contents
+%
+%I would deeply and sincerely like to thank\dots
+%
+%
+%\end{acknowledgements}
 
 %----------------------------------------------------------------------------------------
 %	LIST OF CONTENTS/FIGURES/TABLES PAGES
@@ -202,20 +205,22 @@ I would deeply and sincerely like to thank\dots
 
 \listoftables % Prints the list of tables
 
+\listofalgorithms
+
 %----------------------------------------------------------------------------------------
 %	ABBREVIATIONS
 %----------------------------------------------------------------------------------------
 
-\begin{abbreviations}{ll} % Include a list of abbreviations (a table of two columns)
-
-\textbf{MKL} & \textbf{M}ultiple \textbf{K}ernel \textbf{L}earning\\
-\textbf{ODD} & \textbf{O}rdered \textbf{D}AG \textbf{D}ecomposition\\
-\textbf{ST} & \textbf{S}ub \textbf{T}ree\\
-\textbf{STC} & \textbf{S}ub \textbf{T}ree with \textbf{C}ontext\\
-\textbf{ROC} & \textbf{R}eceiver \textbf{O}perator \textbf{C}urve\\
-\textbf{AUC} & \textbf{A}rea \textbf{U}nder \textbf{C}urve\\
-
-\end{abbreviations}
+%\begin{abbreviations}{ll} % Include a list of abbreviations (a table of two columns)
+%
+%\textbf{MKL} & \textbf{M}ultiple \textbf{K}ernel \textbf{L}earning\\
+%\textbf{ODD} & \textbf{O}rdered \textbf{D}AG \textbf{D}ecomposition\\
+%\textbf{ST} & \textbf{S}ub \textbf{T}ree\\
+%\textbf{TCK} & \textbf{T}ree \textbf{C}ontext \textbf{K}ernel\\
+%\textbf{ROC} & \textbf{R}eceiver \textbf{O}perator \textbf{C}urve\\
+%\textbf{AUC} & \textbf{A}rea \textbf{U}nder \textbf{C}urve\\
+%
+%\end{abbreviations}
 
 %----------------------------------------------------------------------------------------
 %	PHYSICAL CONSTANTS/OTHER DEFINITIONS
@@ -234,23 +239,23 @@ I would deeply and sincerely like to thank\dots
 %	SYMBOLS
 %----------------------------------------------------------------------------------------
 
-\begin{symbols}{lll} % Include a list of Symbols (a three column table)
-
-$\phi$ & features mapping function \\
-%Symbol & Name & Unit \\
-
-%\addlinespace % Gap to separate the Roman symbols from the Greek
-
-\end{symbols}
+%\begin{symbols}{lll} % Include a list of Symbols (a three column table)
+%
+%$\phi$ & features mapping function \\
+%%Symbol & Name & Unit \\
+%
+%%\addlinespace % Gap to separate the Roman symbols from the Greek
+%
+%\end{symbols}
 
 %----------------------------------------------------------------------------------------
 %	DEDICATION
 %----------------------------------------------------------------------------------------
 
-\dedicatory{To my parents, to whom I owe this achievement.}
-{To my friends that, even though a great distance is between us most of the time,
-managed to be of invaluable help and motivation.} 
-{To you, that made me believe in my dreams again.}
+%\dedicatory{To my parents, to whom I owe this achievement.}
+%{To my friends that, even though a great distance is between us most of the time,
+%managed to be of invaluable help and motivation.} 
+%{To you, that made me believe in my dreams again.}
 
 %----------------------------------------------------------------------------------------
 %	THESIS CONTENT - CHAPTERS
@@ -273,14 +278,12 @@ managed to be of invaluable help and motivation.}
 %	THESIS CONTENT - APPENDICES
 %----------------------------------------------------------------------------------------
 
-\appendix % Cue to tell LaTeX that the following "chapters" are Appendices
+%\appendix % Cue to tell LaTeX that the following "chapters" are Appendices
 
 % Include the appendices of the thesis as separate files from the Appendices folder
 % Uncomment the lines as you write the Appendices
 
-\include{Appendices/AppendixA}
-%\include{Appendices/AppendixB}
-%\include{Appendices/AppendixC}
+%\include{Appendices/AppendixA}
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY

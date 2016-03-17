@@ -9,6 +9,8 @@ strategy.
 Then Section \ref{sec:kernel} deals with the theoretical foundations of the 
 methods that are in the scope of this thesis, while Section \ref{sec:graphkernels}
 delves in the details of the various approaches that will be covered.
+Unless otherwise noted, most of the material in this section has been derived
+from \cite{nnavarin, rtesselli}.
 
 \label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter2} 
 
@@ -569,37 +571,311 @@ For what concern the scope of this thesis we will see in the following sections
 some examples of kernels defined on trees and on graphs, all of which are instances
 of the framework proposed by Haussler.
 
-\subsection{The Framework: Convolution Kernels}
+\subsection{The framework: convolution kernels}
+\label{subsec:convolution}
+Haussler's work \cite{haussler} main result is the \emph{R-convolution} framework,
+a method for defining positive definite kernel functions on any object provided that a
+positive semidefinite kernel for some decomposition of that object is available.
+To give a brief formalization of the main idea, let $mathcal{X}$ be a space of 
+objects such that $x \in \mathcal{X}$ is associated with a finite subset
+$\mathcal{X'_x}$ of some space $\mathcal{X'}$.
+Assuming that: a kernel $k: \mathcal{X'}\times \mathcal{X'} \to \mathbb{R}$ is
+defined and a \emph{finite} relation $R \subseteq \mathcal{X'}^D \times \mathcal{X'}$
+is defined, we can now define an $R-convolution$ kernel:
+
+\begin{equation}
+    K(x,y) = \sum_{(x'_1,\dots,x'_n,x) \in R} \Bigg(\sum_{(y'_1,\dots,y'_n,y) \in R}
+    \prod_{i=1}^D k(x'_i,y'_i)\Bigg)
+\end{equation}
+
+that, with the commonly used formulation with $D=1$ becomes:
+
+\begin{equation}
+    K(x,y) = \sum_{(x',x) \in R} \sum_{(y',y) \in R} k(x'_i,y'_i)
+\end{equation}
+
+Haussler was able to demonstrate the positive semi-definiteness of any $K$ kernel
+thusly defined, provided that $k$ is also positive semi-definite.
+
+This work has later been extended and generalized \cite{shin} with the introduction
+of the \emph{mapping} kernel of which the \emph{R-convolution} kernel is a corollary.
+This more general framework defines a mapping set
+$M_{x,y} \subseteq \mathcal{X'_x} \times \mathcal{X'_y}$ and a \emph{base kernel} $k$ on it
+that will hence consider only a subset of the entire cross product $\mathcal{X'_x} \times \mathcal{X'_y}$.
+With these premises, a mapping kernel is defined as:
+    
+\begin{equation}
+    K(x,y) = \sum_{(x',y') \in M_{x,y}} k(x',y')
+\end{equation}
+
+The positive semi-definiteness of the kernel $K$ is guaranteed only if the
+mapping $\{M_{x,y}|x,y \in \mathcal{X}$ is transitive.
+In the following sections we will analyse some of the latest contributions in terms
+of kernel on structured data namely tree kernels and graph kernels.
 
 \subsection{Kernels For Trees}
-\subsubsection{Sub Tree Kernel}
-\subsubsection{Augmented Sub Tree Kernel}
+This family of kernels stems directly from the convolution kernel and each one
+works by defining a different decomposition for the input tree.
+
+\subsubsection{Subtree kernel}
+The feature space of this kernel is composed of all the proper subtrees of the
+input tree.
+Let $X$ and $Y$ be two trees, the  subtree kernel is defined as:
+\begin{equation}
+    K_{ST}(X,Y) = \sum_{x \in X} \sum_{y \in Y} \delta(x,y)w_x =
+    \sum_{s \in \mathcal{A}^*} h_s(X)h_s(Y)w_s
+\end{equation}
+
+where $x$ and $y$ are proper subtrees of $X$ and $Y$ respectively, $w_x$ is the 
+weight associated with the tree $x$, $\mathcal{A}^*$ is the set of all the possible
+subtrees, $h_s(X)$ counts the frequency with which $s$ appears in $X$ and
+$\delta$ is the Kronecker's delta function, a function that evaluates to 1 if its
+arguments matches, 0 otherwise.
+The complexity of this formulation is indeed quadratic but in practice it can be
+lowered to $O(nlogn)$, $n$ being the maximum number of nodes in either $X$ or $Y$,
+using suffix trees \cite{strings}.
+
+\subsubsection{Augmented subtree kernel}
+A more discriminative version of the previous kernel is the \emph{augmented} version
+which extends the feature space of the subtree kernel with new features.
+Usually adding more feature has an impact on the computational side of a kernel,
+in \cite{stplus} however an extension called ST+ kernel has been proposed with
+only a modest increment in computational time.
+Given a tree $T$, this kernel considers at most $\rho(v)h + 1$ features for any
+$v \in V_T$ which are:
+\begin{itemize}
+    \item the proper subtree rooted at $v$, $\overset{v}{\triangle}$;
+    \item for every $j^{th}$ child of $v$, $ch_v[j]$, and for every $l\text{ s.t. }0 \leq l < h$,
+        the subtree of $T$ composed by:
+        \begin{itemize}
+            \item $v$ as root,
+            \item $\overset{ch_v[j]}{\triangle}$,
+            \item $T_{l-1}(ch_v[i],T) \forall i \in children(v), i \ne j$.
+        \end{itemize}
+\end{itemize}
+
+An example of feature extraction is given in Figure ??.
+The formulation of this kernel is the following:
+
+\begin{equation}
+    K_{ST+}(T_1, T_2) = \sum_{s=1}^m h_s(T_1)h_s(T_2)
+\end{equation}
+
+where $m$ is the number of distinct trees corresponding to ST+ features, extracted
+from a finite set of trees, and $h_s(T)$ the number of times the feature $t_s$
+appears in $T$.
+
+The proposed implementation in \cite{stplus} has a complexity of
+$O(Hh^2\rho^2log\rho)$, with $\rho$ assumed constant, $h$ and $H$ being the limit
+of the tree visit and the number of nodes of that tree respectively.
 
 \subsection{Kernels For Graphs}
+
+As previously mentioned, defining kernels on graph is a challenging task, mainly
+because of the need to balance the trade-off between the expressiveness of the
+features space and the computational effort needed for feature extraction and
+kernel calculation.
+Expressive kernels are usually well performing in terms of predictive power but
+are also typically more expensive to compute.
+On the other hand a less discriminative kernel is usually easier to calculate
+at the expenses of some learning power.
+To further explain this point, consider the class of kernels that are able to
+distinguish between all the (non-isomorphic) graphs in the feature space.
+Being able to distinguishing between to non-isomorphic graphs that belongs to two
+different classes is essential for any machine learning approach that has to
+separate them.
+However, computing such kernel in an efficient way would equals to solve the
+graph isomorphism problem in a similarly efficient way and this is not the case
+since at the moment this problem is believed to be in the NP-hard class of problems.
+Another interesting group of kernels is the one that given a graph $X$, it decomposes
+it into the set of its subgraphs and maps it to a set of features $\phi_h$ that, for
+each graph $h$ measure how many subgraphs of $X$ are isomorphic to $h$.
+Again this class of kernels has to deal with the solution of the same NP-hard
+problem explained above, so probably no such efficient kernel exists.
+
+Recent research has focused on the study and development of less expressive
+kernels that have the major advantage of being computable in polynomial time.
+In the following sections we will briefly discuss the kernels that falls in the
+scope of the present thesis and give an overview of the recent improvements that
+have been proposed in the literature.
+
 \subsubsection{ODD kernels}
 \label{subsubsec:odd}
-% explain ordered graph decomposition kernels
-\subsubsection{Fast Subtree kernels}
-% explain FS kernels
+
+Since the good number of kernels for tree-structured data available in the
+literature, it seems a good idea to devise a framework that favors the integration
+of such kernels in a graph learning context.
+This work has recently been accomplished in \cite{odd}, with the aim of ultimately
+design an efficient graph kernel.
+The proposed framework takes advantage of a particular graph substructure i.e.
+the rooted DAG; by decomposing the graph in such subgraphs it lets a number
+of available tree kernels to be used as base kernels, once duly extended to work
+on DAGs.
+The original work presents and extension of the ST kernel to while another
+recent work \cite{stplus} instances the framework to an extension of the ST+
+kernel.
+
+The Ordered Decomposition DAG Kernels framework (ODDK) basically decomposes the
+graphs in a set of simpler trees, where it's also easier to compute the isomorphism
+using the efficient tree kernels.
+The framework consists of these steps:
+
+\begin{enumerate}
+    \item the input graph $g$ is mapped into a multiset of decomposition DAGs\\
+        $\{DD_g^{v_i}|v_i \in V_g\}$; $DD_g^{v_i}$ is obtained from its root $v_i$
+        and the edges that appear in the shortest paths from $v_i$ to any other node
+        $v_j \in V_g$;
+    \item a strict partial order on the vertices of the DAG has to be defined
+        to make an unique representation of the subtrees possible.
+    \item each obtained Ordered Decomposition DAG $ODD_g^{v_i}$ is mapped into
+        one or more trees $T(v_i,ODD_g^{v_i})$ and the kernel between two graphs
+        $g_1$ and $g_2$ is defined as:
+        \begin{equation}
+            ODDK(g_1,g_2) = \underset{OD_2 \in ODD_{g2}}{\underset{OD_1 \in ODD_{g1}}{\sum}}
+            \sum_{j=1}^h\sum_{l=1}^h
+            \underset{v_2 \in V_{OD_2}}{\underset{v_1 \in V_{OD_1}}{\sum}}
+            C(r(T_j(v_1,OD_1),r(T_l(v_2,OD_2)))
+        \end{equation}
+        where $C$ is the function defined by the chosen tree kernel.
+\end{enumerate}
+
+Considering the instantiation of the framework with the ST kernel and limiting
+the size of the tree-visits $T_j(v_1)$ and by assuming $\rho$ constant the time
+complexity of $ODDK$ with ST features is $O(|V_g|log|V_g|)$.
+
+
+\subsubsection{Fast subtree kernels}
+\label{subsubsec:fs}
+Fast subtree kernels are a family of kernels that have been proposed in \cite{fs}.
+These kernel base their discriminative power on the Weisfeiler-Lehman test of
+isomorphism.
+The main idea behind this framework is that every graph can be represented as
+a sequence of graphs, each one being generated from the previous one through
+a new labeling function that encapsulates the isomorphism test.
+Given a graph $X = (V,E,L)$, this sequence can be formally defined as:
+
+\[\{X_0,X_1,\dots,X_h\} = \{(V,E,L_0),(V,E,L_1),\dots,(V,E,L_h)\}\]
+
+where $X_0 = X$, $L_0 = L$ and $L_i$ is represents the relabeling of the graph
+$X_{i-1}$ obtained applying the Weisfeiler-Lehman test.
+
+Let $k$ be a positive semidefinite kernel for graphs the Weisfeiler-Lehman kernel
+framework can be formulated as:
+
+\begin{equation}
+    K_{WL}^h(X,Y) = k(X_0,Y_0) + k(X_1,Y_1) + \dots + k(X_h,Y_h)
+    \label{eq:fs}
+\end{equation}
+
+A first instance of this framework is the \emph{Weisfeiler-Lehman subtree kernel}
+which considers all the subtree patterns up to height $h$ and checks whether the
+neighbourhoods of two nodes match exactly.
+To define this kernel it is sufficient to define the base kernel for Equation
+\ref{eq:fs} as:
+
+\begin{equation}
+    k(X,Y) = \sum_{x \in V(X)}\sum_{y \in V(Y)} \delta(L(x),L(y))
+    \label{eq:wl}
+\end{equation}
+
+where $\delta$ is again the Kronecker's function.
+
+With the base kernel defined in Equation \ref{eq:wl}, $K_{WL}^h$ becomes the
+kernel defined in \cite{fs}.
 
 \subsection{Latest Improvements on Graph Kernel Methods}
 \label{subsec:kernel}
+In the recent years a number of improvement over the above mentioned kernel approaches
+have been proposed, mainly to try to improve the expressiveness of the feature
+spaces without incurring in major computational drawbacks.
+Among the others, and mainly because inside the scope of this thesis we will
+mention in no particular order:
+\begin{itemize}
+    \item the addition of contextual information \cite{context}
+    \item the extension of the ST kernel to be used in combination with easyMKL,
+        a recent MKL implementation.
+    \item the extension and generalization of the Weisfeiler-Lehman framework \cite{wl}
+\end{itemize}
+
+The next section will give a brief overview of the first point while in section
+\ref{subsec:gmkl} we will delve a bit more in detail in the $MKL$ approach
+with respect to graph kernel learning.
 
 \subsubsection{Kernels with contextual information}
 \label{subsec:context}
-% explain contexts
 
-\section{Kernels Combination Techniques}
-\label{sec:tech}
-%kernels SUM: descrption, pros, cons
+The kernels described in the previous section try to approximate complex
+structures by the means of decomposing them in simpler substructures on which
+define a measure of similarity.
+Even though they employ different type of substructures, they have in general
+similar predictive performances.
+A recently proposed work \cite{contexts} on graph kernels, aims to improve local
+feature expressiveness by enriching the feature space with contextual information,
+that is, a description of the topology of the graph around the extracted feature.
+This way an increase of discriminative power is expected, since two identical
+features need also to appear in the same place within two graphs to match.
+Therefore a feature contribution is built up by the contribution determined by
+its contexts, to express it more formally, given a graph $g$ and a feature $f$
+the following property holds from \cite{contexts}:
 
-\subsection{Multiple Kernel Learning}
+\begin{equation}
+    \phi_f(g) = \sum_{c \in Contexts_g(f)} \phi_{f\circ c}(g)
+\end{equation}
+
+where $\phi_f(g)$ is the frequency of the feature $f$ in the RKHS of the original
+kernel and $\phi_f\circ c(g)$ is the frequency of the it appearing within the
+context $c$.
+
+Given the parent-child relationship between contexts and features, it is
+straightforward to see that they can share the same representation, i.e. the
+context is a substructure of the graph that contains the feature.
+This leads to the useful facts that context can be feature themselves and that to
+compute contextualized features it suffices to combine features with other
+features representing contexts.
+The Tree Context Kernel can thus be defined as:
+
+\begin{gather}
+    \begin{aligned}
+        TCK(G_1,G_2) = &\underset{v_2 \in V_{G_2}}{\underset{v_1 \in V_{G_1}}{\sum}}
+        \sum_{i=1}^h\sum_{j=1}^h\\
+        &[\delta(T_i(v_1,G_1),T_j(v_2,G_2)) + 
+        \underset{\overset{u_2}{\triangle} \in T_i(v_2,G_2)}{\underset{\overset{u_1}{\triangle} \in T_i(v_1,G_1)}{\sum}}
+        \delta(\overset{u_1}{\triangle},\overset{u_2}{\triangle})
+    \sum_{l=1}^{\rho(u_1)} C_{ST}(ch_l(u_1),ch_l(u_2))]
+    \end{aligned}
+\end{gather}
+
+%where:
+%
+%\begin{equation*}
+%    C_{ST}(v_1,v_2) = 
+%        \begin{cases}
+%            \lambda \cdot K_L(v_1,v_2) & \text{if } v_1 \text{ and } v_2 \text{ are leaves} \\
+%            \lambda \cdot K_L(v_1,v_2)\,\prod_{j=1}^{\rho(v_1)} C_{ST}(ch_j(v_1),ch_j(v_2)) & \text{if } \rho(v_1)=\rho(v_2) \\
+%            0 & \text{ otherwise}
+%        \end{cases}
+%\end{equation*}
+
+where $\delta$ is the Kronecker's function, $h$ is the user defined depth limit of 
+the tree-visit and $C_{ST}$ is the function related to the ST kernel that counts the common
+subtrees of the two trees rooted at $v_1$ and $v_2$.
+
+In more simple terms the kernel will score a match in the following cases:
+\begin{itemize}
+    \item both $v_1$ and $v_2$ are root nodes of the tree visit, i.e. $u_1 = v_1$ and $u_2 = v_2$
+    \item $v_1$ and $v_2$ appear within the same context in both the trees
+\end{itemize}
+
+This kernel is provably positive semidefinite because it is a combination of positive
+semidefinite kernels (see the end of Section \ref{subsec:convolution}).
+
+\section{Multiple Kernel Learning}
 \label{subsec:mkl}
 % what is it and why it matters
 % relieve the user from careful kernel design => lots of weak kernels
 
-\subsubsection{EasyMKL}
-\label{subsubsec:easymkl}
+\subsection{EasyMKL}
+\label{subsec:easymkl}
 % principles
 % design
 

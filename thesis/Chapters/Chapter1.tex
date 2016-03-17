@@ -12,7 +12,7 @@ is given, followed by the document outline.
 \section{Relationship Between Data And Knowledge}
 
 The current amount of digital data produced daily is estimated to be in the realm of 
-ZettaBytes ($1~ZB = 10^{12}~GB$) (citation needed).
+ZettaBytes ($1~ZB = 10^{12}~GB$) \cite{datastudy}.
 Of this amount, only a small fraction sees actual processing and interpretation,
 mainly because while the flow of information is steady, the available resources
 devoted to the task are often limited (ibidem).
@@ -25,7 +25,7 @@ intent of derive \emph{knowledge} that ``we don't know we don't know''.
 This is indeed one of the many achievement of \emph{Data Mining}, a prominent field for
 professionals and scientists alike.
 Most of its techniques draw from a variety of other fields like Statistics,
-Computer Science, Information Theory and Math just to mention a few.
+Computer Science, Information Theory and Mathematics just to mention a few.
 This discipline rests its theoretical foundation upon the field of \emph{Machine Learning},
 the discipline that studies algorithms and techniques that allows a machine
 to learn a concept (or an approximation of it) from a set of examples.
@@ -66,6 +66,7 @@ implicit knowledge to the data but they remain heuristic at best.
 \subsection{Graphs}
 On the other hand we have more structured records, and since this thesis will
 focus on data encoded as graphs
+\dots
 
 \subsubsection{Examples}
 \label{subsubsec:examples}
@@ -80,25 +81,22 @@ focus on data encoded as graphs
 % mkl should be one of the approaches to combine in addition of being the combining
 %tool.
 
-Nowadays we can rely on a fast, state-of-art $MKL$ implementation \cite{easymkl}
-so we decided to exploit the inherent combining power of this approach for our
-purposes.
-By combining a number of weak kernels, derived from selected graph kernel
-learning approaches, into a single learning process we wanted to determine if an
-effective and overall performance improvement in target prediction was possible.
-
-Moreover the whole process of parameters selection has been embedded inside the
-learning phase to further improve the whole process (i.e. no need to pre-select
-some catch-all optimal parameters combination).
+%Nowadays we can rely on a fast, state-of-art $MKL$ implementation \cite{easymkl}
+%so we decided to exploit the inherent combining power of this approach for our
+%purposes.
+%By combining a number of weak kernels, derived from selected graph kernel
+%learning approaches, into a single learning process we wanted to determine if an
+%effective and overall performance improvement in target prediction was possible.
+%
+%Moreover the whole process of parameters selection has been embedded inside the
+%learning phase to further improve the whole process (i.e. no need to pre-select
+%some catch-all optimal parameters combination).
 
 \subsection{Why Combining Kernels}
 \label{sec:why}
 % relieve the burden of kernel design from the user that can mash a number of weak kernels
 % in and expect something out
 % vedi paper easymkl
-
-In the previous chapter we described a number of approaches (Section \ref{sec:graphkernels})
-and the relative improvements that has been presented in the recent years.
 
 \subsubsection{The Case For Graph Kernels}
 
