@@ -54,7 +54,7 @@ Some statistics about these datasets are gathered in table~\ref{table:datasets}.
 
 %----------------------------------------------------------------------------------------
 
-\section{Description}
+\section{Experiments description}
 
 The kernel combinations selected for this study were:
 \begin{enumerate}
@@ -80,6 +80,10 @@ values were the set $\{1,\dots,10\}$.
 During the cross-validation routine, the $\Lambda$ parameter of EasyMKL has been
 validated from the set $\{0.0, 0.1,\dots,1.0\}$.
 
+\subsection{Resources requirements}
+
+%----------------------------------------------------------------------------------------
+
 \section{Baselines}
 To assess the quality of our results we compared them with the results we got
 from testing come baseline performances against the same datasets.
@@ -90,19 +94,16 @@ Furthermore we collected the same performance measure for the $ODD_{STC}$ kernel
 with and without $ST$ features, with a 10-fold cross validation implemented
 using a SVM.
 
-\subsection{MKL without buckets}
+\subsection{MKL}
 
 \subsection{SVM}
+
 %----------------------------------------------------------------------------------------
 
 \section{Results and discussion}
 \label{subsec:results}
 
-\subsection{Resources requirements}
-
 \subsection{Models performances}
-
-\subsection{First group}
 
 \begin{landscape}
     \begin{table}[ht]
@@ -133,7 +134,7 @@ using a SVM.
             \hline
         \end{tabular}
         \label{table:results_st}
-        \caption{ROAUC measure relative to the first experiment. }
+        \caption{ROAUC measure relative to the first group of experiments.}
 
         \centering
         \begin{tabular}{|l|r|r|r|r|r|}
@@ -158,7 +159,7 @@ using a SVM.
             \hline
         \end{tabular}
         \label{table:results_stp}
-        \caption{ROAUC measure relative to the second experiment. }
+        \caption{ROAUC measure relative to the second group of experiments.}
     \end{table}
 
     \begin{table}[ht]
@@ -185,13 +186,10 @@ using a SVM.
             \hline
         \end{tabular}
         \label{table:results_wl}
-        \caption{ROAUC measure relative to the third experiment. }
+        \caption{ROAUC measure relative to the third group of experiments. }
     \end{table}
 \end{landscape}
 
-\subsection{Second group}
-\subsection{Third group}
-
-\section{Kernels Contribution Breakdown}
+\section{Kernels Contribution Analysis}
 % eventuale plot dei pesi delle matrici per gli esperimenti principali
 

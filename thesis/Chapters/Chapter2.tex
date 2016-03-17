@@ -131,14 +131,14 @@ We aim to find an optimal hypothesis $h^*$ that is, the one that minimizes the
 prediction error (often referred to as \emph{risk} or ideal error) which is
 defined as:
 
-$$R(h)=\int_{X\times Y} L(h(x),y)~dP(x,y)$$
+\[R(h)=\int_{X\times Y} L(h(x),y)~dP(x,y)\]
 
 where $L$ is a loss function; given that $P$ is unknown it follows that also
 $R(h)$ for any given $h$ is unknown, we can only give a bound on it and measure
 the loss function on the classified data we already have, with the following
 formula:
 
-$$R_e(h)=\frac{1}{N} \sum_{(x,y) \in S} L(h(x),y)$$
+\[R_e(h)=\frac{1}{N} \sum_{(x,y) \in S} L(h(x),y)\]
 
 While minimizing the empirical error $R_e(h)$ might be tempting, doing so will
 inevitably tailor our hypothesis to the data we have in our training set which
@@ -166,7 +166,7 @@ using a measure called \emph{Vapnik-Chervonenkis dimension} (VC-dimension).
 First we will introduce the concept of shattering of a set $\mathrm{X}$:
 \begin{definition}[Shattering]
     $S \subset X$ is shattered by an hypotheses space $\mathcal{H}$ iff
-    $$\forall S' \subseteq S, \exists h \in \mathcal{H} s.t. \forall x \in S, h(x)=1 \iff x \in S'$$
+    \[\forall S' \subseteq S, \exists h \in \mathcal{H} s.t. \forall x \in S, h(x)=1 \iff x \in S'\]
 \end{definition}
 i.e. $\mathcal{H}$ implements all the possible dichotomies of $S$.
 Given this definition we can now proceed to define more formally what the
@@ -175,7 +175,7 @@ VC-dimension is:
     The VC-dimension of an hypotheses space $\mathcal{H}$, defined on an sample
     space $\mathrm{X}$, is the cardinality of the largest subset of $\mathrm{X}$
     shattered by $\mathcal{H}$, or:
-    $$VC(\mathcal{H}) = \max_{S\subseteq \mathrm{X}} |S| : \mathcal{H}\text{ shatters }S$$
+    \[VC(\mathcal{H}) = \max_{S\subseteq \mathrm{X}} |S| : \mathcal{H}\text{ shatters }S\]
 \end{definition}
 and indeed $VC(\mathcal{H})=\infty$ if $S$ is infinite.
 
@@ -227,6 +227,7 @@ has been employed.
 %technique [ref].
 
 \subsubsection{Cross Validation}
+\label{subsubsec:cv}
 This technique is based on the minimization of the estimated ideal error by
 (repeatedly) splitting the whole data set into two separate sets: a training set
 and a test set.
@@ -253,7 +254,8 @@ the variance on the validation set.
 On the other hand for large values of $k$, we obtain the opposite effect.
 
 \subsubsection{Nested Cross Validation}
-An important thing to note at this point is that with the technique detailed in
+\label{subsubsec:ncv}
+An important thing to note at this point is that with the technique explained in
 the previous section we are not assessing the performance of each hypothesis
 independently from the training set since every validation set becomes at some
 point part of the training set of another fold.
@@ -345,6 +347,7 @@ Kernel are also demonstrably closed under the sum operation:
 \end{proof}
 
 \subsection{Kernel machines}
+\label{subsec:kmachines}
 
 What kernel machines try to accomplish is basically sample separation in a given
 feature space.
@@ -387,23 +390,194 @@ only implicitly and avoiding having to deal with a high number of dimensions
 altogether using what is commonly known as the \emph{kernel trick}.
 
 \subsubsection{Support Vector Machines}
+\label{subsubsec:svm}
 Here we will briefly describe one of the most tried kernel machines in the literature. 
 \emph{Support Vector Machines} or SVM [Vapnick] rest on the principle of structural risk
 minimization (section \ref{subsubsec:srm}) providing a trade-off between hypotheses
 space complexity and the performances in fitting the training data.
+It is a binary classifier but can be used to solve multi-class classification
+problems with some additional work to combine multiple instances of binary
+classifiers.
+It is also a linear classifier by default and can be easily extended to the 
+non-linear domain by using it in conjunction with (non-linear) kernel functions.
+Given a feature space, this method tries to find the optimal hyperplane that
+correctly separates the samples in such space, and separates them in the
+most general way that is, maximising the \emph{margin} between each class.
+In order to minimize the bound on true error (Section \ref{subsubsec:srm})
+this method uses hypotheses spaces of crescent VC-dimension, to minimize the
+VC-confidence while keeping a low empirical error.
+There are two main settings in which this algorithm can work: when the data
+is linearly separable in its original feature space and when it is not.
+In the first case, since the empirical risk is going to be null, finding the
+optimal hyperplane means finding the one that again minimizes the VC-dimension
+which in turn is the one that maximizes the margin between the classes i.e.
+the minimum distance between the hyperplane and the nearest sample.
+Solving this problem equals to solving the following quadratic optimization
+problem:
+
+\begin{gather}
+    \begin{aligned}
+        & min_{\vec{w},b}\frac{1}{2}||\vec{w}||^2 \\
+        & \text{s.t. } \forall i \in \{1,\dots, n\} : y_i(\vec{w}\cdot\vec{x_i} + b) - 1 \geq 0 
+        \label{eq:lsvm}
+    \end{aligned}
+\end{gather}
+
+where $\vec{w} \cdot \vec{x} + b$ defines the hyperplane.
+Since the margin we are looking to maximize is inversely proportional to the norm
+of $\vec{w}$, we want to minimize the latter while the $\frac{1}{2}$ factor stems
+from mathematical convenience.
+Equation \ref{eq:lsvm} shows the primal form of the problem, whose formulation
+has a convex cost function and constraints, hence it can be solved more easily 
+switching to its dual form that, given these premises, will have the same
+optimal solution.
+Thanks to the Kuhn-Tucker theorem [ref] we can formulate the dual form using
+Lagrange's multipliers:
+
+\begin{gather}
+    \underset{\vec{w},b}{\mathrm{min}}\,\underset{\vec{\alpha}\geq 0}{\mathrm{max}}\,L(\vec{w},b,\vec{\alpha})
+    \label{eq:ldual}
+\end{gather}
+
+where $L$ is the lagrangian function and $\vec{\alpha}$ the multipliers.
+
+\begin{equation}
+    L(\vec{w},b,\vec{\alpha}) = \frac{1}{2}||\vec{w}||^2 - \sum_{i=1}^n \alpha_i(y_i(\vec{w}\cdot\vec{x} + b) - 1)
+    \label{eq:lagrange}
+\end{equation}
+
+The optimal solution to this problem is the saddle point obtained while minimizing
+w.r.t. $\vec{w}\text{ and }b$ and maximizing w.r.t. $\vec{\alpha}$.
+
+When reaching this point the gradient of the function $L$ must be null:
+
+\begin{gather}
+    \begin{aligned}
+        & \frac{\delta L(\vec{w},b,\vec{\alpha})}{\delta\vec{w}} = 0 \iff \vec{w^*} = \sum^{n}_{i=1} y_i\alpha^*_i\vec{x_i}\\
+        & \frac{\delta L(\vec{w},b,\vec{\alpha})}{\delta b} = 0 \iff \sum_{i=1}^{n} y_i\alpha^*_i = 0\\
+        & \alpha^*_i[y_i(\vec{w^*}\cdot \vec{x_i}+b^*) - 1] = 0,\,i=1,\dots,n
+        \label{eq:lagrangedual}
+    \end{aligned}
+\end{gather}
+
+and this lets us get rid of the primal variables in the lagrangian function since
+they can be expressed using the labelled samples and the multipliers thus hence
+reducing the problem to the maximization of $L(\vec{\alpha})$.
+Those samples $X_i$ for which the $\alpha^*_i$ are greater than zero are called
+support vectors and are the ones closer to the hyperplane as can be seen in
+figure ??.
+
+The other case, that is when the data is not linearly separable, is solved in a
+similar way but with the introduction of \emph{slack variables}, one for each
+constraint:
+
+\begin{equation}
+    y_i(\vec{w}\cdot\vec{x} + b) \geq 1 - \xi_i
+\end{equation}
+
+These variables $\xi_i$, will account for the constraint violation by modifying the cost
+function:
+
+\begin{equation}
+    \frac{1}{2}||\vec{w}||^2 + C \sum_{i=1}^n \xi_i
+\end{equation}
+
+where $C$ is a regularization parameter that will balance the trade-off between
+the hypotheses space complexity and the number of non-separable samples.
+Recalling the dual form of the previous case after the elimination of the primal
+variables from the lagrangian function (Equations \ref{eq:lagrange} and \ref{eq:lagrangedual}),
+we can now formulate our problem in the following way:
+
+\begin{gather}
+    \begin{aligned}
+    & \underset{\vec{\alpha}}{\mathrm{max}} \sum_{i=1}^n \alpha_i - \frac{1}{2} \sum_{i,j=1}^n y_iy_j\alpha_i\alpha_j\vec{x_i}\vec{x_j}\\
+    & \text{s.t. } \forall i \in \{1,\dots, n\} : 0 \leq \alpha_i \leq C,\, \sum_{i=1}^n y_i\alpha_i = 0 
+    \end{aligned}
+\end{gather}
+
+This formulation differs from the previous one in that the dual variables (the $\alpha_i$s)
+have $C$ as an upper bound.
+The role of the slack variable $\xi_i$ is exemplified in figure ??.
+
+The above solution has the major downside that cannot guarantee good performances
+in highly non-separable data because of the limitation in the ways an hyperplane
+can separate any feature space, i.e. through dichotomies.
+A remedy to this fact is to use the technique exposed in Section \ref{subsec:kmachines}
+while maintaining the same formulation explained above.
+The effects of this technique on the classification task is visible in figure ??.
 
 %----------------------------------------------------------------------------------------
 
-\section{Kernels On Structured Data}
+\section{Kernels for structured data}
 \label{sec:graphkernels}
 
+In the previous section we introduced the theoretical foundations behind kernel
+functions and the related learning methods.
+The kernel learning approach is certainly convenient, the user needs to concentrate
+its effort on the selection or design of the right kernel function for the problem
+at hand, then couple it with one of the available general-purpose approaches to
+get a full-fledged learning method.
+That being said, it is clear that in this scenario the kernel function is the
+component responsible for the main source of bias.
+Nowadays a number of different kernel functions are available with varying degree
+of complexity in order to tackle a variety of problems, most of which has data
+represented in vectorial form.
+The rise of problems where data is naturally better represented with a
+structured form (Section \ref{subsubsec:examples}) has rendered necessary the
+study of new methods to tackle them.
+One way of dealing with structured data could be to actually get rid of the structure
+deriving an \emph{ad-hoc} vectorial representation, in what is called a
+\emph{structure-based} approach.
+This method is expensive and cumbersome since it force the user to have a strong
+knowledge of the task domain and to re-develop a new vectorial representation
+for each task that she may encounter.
+
+A more effective approach would be to adapt the methods to work directly on
+structured data, and in this regard kernel methods are a good fit since the
+decoupling between the kernel function and the kernel machine leaves the
+only contact point between the data and the method in the function itself.
+These methods maps the sample instances into high dimensional vectors and do it
+in a general way without any knowledge of the underlying data beside its structure.
+Furthermore this mapping is done implicitly meaning that they also have an
+advantage from a computational standpoint.
+
+Designing such kernel functions that can deal with structured data is a process
+that has to balance between designing functions that are expressive enough to
+produce some learning and the computational efficiency that it is required in
+order to effectively perform the learning process.
+As an example of this trade-off consider a kernel on graphs that counts all the
+matching subgraphs between two input graphs.
+This is certainly one of the most expressive kernel possible if not the most expressive
+at all.
+Even if such enumeration would exist, the kernel would still need to solve the
+graph isomorphism problem several times, but that is clearly infeasible since graph
+isomorphism is NP-hard.
+Algorithmic complexity for a kernel function is a major point since the kernel has
+to be computed for each pairs of samples, rendering even a quadratic complexity
+a hindering factor for its application.
+
+An theoretically sound way to design efficient and effective kernel functions for
+structured data has been proposed by Haussler \cite{haussler} and will be explained
+in the next section.
+The main concept behind his work is that we need to restrict the number and type
+of features considered for each structure.
+Again, the choice of the substructures that would become features deeply affects
+the learning outcome and is one of the major sources of bias in the whole learning
+process, possibly leading to greatly differing performances according to different
+datasets.
+For what concern the scope of this thesis we will see in the following sections
+some examples of kernels defined on trees and on graphs, all of which are instances
+of the framework proposed by Haussler.
+
 \subsection{The Framework: Convolution Kernels}
+
 \subsection{Kernels For Trees}
 \subsubsection{Sub Tree Kernel}
 \subsubsection{Augmented Sub Tree Kernel}
 
 \subsection{Kernels For Graphs}
 \subsubsection{ODD kernels}
+\label{subsubsec:odd}
 % explain ordered graph decomposition kernels
 \subsubsection{Fast Subtree kernels}
 % explain FS kernels
@@ -411,34 +585,27 @@ space complexity and the performances in fitting the training data.
 \subsection{Latest Improvements on Graph Kernel Methods}
 \label{subsec:kernel}
 
-\subsubsection{ODD kernels with contexts}
+\subsubsection{Kernels with contextual information}
 \label{subsec:context}
 % explain contexts
 
-\section{Why Combining Kernels}
-\label{sec:why}
-% relieve the burden of kernel design from the user that can mash a number of weak kernels
-% in and expect something out
-% vedi paper easymkl
-
-In the previous chapter we described a number of approaches (Section \ref{sec:graphkernels})
-and the relative improvements that has been presented in the recent years.
-
-\subsection{The Case For Graph Kernels}
-
-\section{Existing Combination Techniques}
+\section{Kernels Combination Techniques}
 \label{sec:tech}
 %kernels SUM: descrption, pros, cons
 
 \subsection{Multiple Kernel Learning}
 \label{subsec:mkl}
+% what is it and why it matters
+% relieve the user from careful kernel design => lots of weak kernels
 
 \subsubsection{EasyMKL}
 \label{subsubsec:easymkl}
+% principles
+% design
 
 \subsection{Multiple Kernel Learning On Graphs}
 \label{subsec:gmkl}
-% what is it and why it matters
+% the technique
 
 %----------------------------------------------------------------------------------------
 
