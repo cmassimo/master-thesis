@@ -21,7 +21,7 @@ The constant point here is that the set of weak kernels gets \emph{combined}, th
 making one of those methods the perfect candidate to be the foundation of our
 combining methodology.
 
-The easyMKL implementation (Section \ref{subsubsec:easymkl}) was deemed a good
+The easyMKL implementation (Section \ref{subsec:easymkl}) was deemed a good
 choice because of the promising overall performances and the empirical evidence
 that the method is not significantly affected by the number of kernels
 being combined, a major point of our method, and last but not least it was
@@ -29,7 +29,7 @@ available and easily integrated with our pre-existing kernels code base.
 
 The methodology therefore consists in a k-fold nested cross-validation with
 easyMKL as the kernel machine as detailed in Algorithm \ref{alg:method} and further in
-Figure %\ref{fig:method}.
+Figure \ref{fig:method}.
 The code is divided in two parts: first we have the kernel computation phase,
 in which we take the parameters grid and compute all the kernel matrices for each
 parameters tuple, for each kernel to be combined.
@@ -49,8 +49,9 @@ This point will be further elaborated on in the following section.
     \caption{
         High level implementation of the proposed methodology.
         The $computeKernel$ function returns a kernel matrix computed
-        according to the selected $kernel$, the hyper-parameters $tuple$ and 
-        the chosen $dataset$.
+        according to the selected $kernel$ from the $Kernels$ set which indexes
+        the kernels to be combined, the hyper-parameters $tuple$ and the chosen
+        $dataset$.
         The $split$ function takes a list of kernel matrices and returns two lists
         of kernel matrices split in two sets according to the cross-validation
         strategy and the $Folds$.
@@ -97,36 +98,42 @@ the otherwise cumbersome process of hyper-parameter optimization (Section \ref{s
 inside the learning phase in a completely transparent way, which will be hereby
 described.
 
-It is custom practice to perform hyper-parameter optimization employing a grid
+It is customary practice to perform hyper-parameter optimization employing a grid
 search technique.
 In our setting this would translate to having to compute one kernel matrix
-for all the possible combinations of values deriving from every set of values
-chosen for each parameter both from the kernel and the selected learning
-algorithm, for instance the $h$ and $\lambda$ parameters for the $ODD$ kernels
-and the $C$ parameter if using the SVM.
-Then every thusly computed set of kernels would have been fed to the $MKL$
-algorithm to be evaluated via cross-validation.
-Let $l,m,n$ be the cardinality respectively of the three sets of values above,
-the cross-validation instances would have been $l\cdot m\cdot n$.
+for all the possible combinations deriving from every set of values
+chosen for each kernel hyper-parameter, and repeat the process for every kernel
+we may have wanted to combine.
+Then a cross-validation would have been performed using a kernel matrix from each
+selected kernel, according to a combination of parameters.
+Let the kernel be the $ODDK_{ST}$, its parameters be $h$, $\lambda$ and let $\Lambda$
+be the hyper-parameter of easyMKL; if we let $l,m,n$ be the cardinalities of the three
+sets of values respectively, the cross-validation instances would have been $l\cdot m\cdot n$.
 
-A first improvement over the above scenario is to adopt a multiple kernel learning
-approach and feed the algorithm the kernels computed from the grid all at once.
-One of the advantages of this approach is that instead of selecting one combination
+A first improvement over the above scenario is to adopt another $MKL$ approach 
+and give the algorithm the kernels matrices computed from the grid all at once.
+With the above described settings we are reducing the number of needed
+cross-validation instances from $l\cdot m\cdot n$ to $n$, hence potentially
+reducing the size of the whole process by orders of magnitude.
+A visual comparison of these two approaches is given in Figure \ref{fig:comparison}.
+
+Another advantage of this approach is that instead of selecting one combination
 of parameters thus restricting the generalization power of the resulting model,
 the whole set of parameters combination concurs in the model determination hence
-increasing the chances of it being more general.
+increasing the chances of it being more general while boosting the overall performances
+of the single kernels.
 
 Given the fact that our $MKL$ implementation of choice has an algorithmic
 complexity that is not dependent on the cardinality of the input but rather on
-its dimensions, it could be easily be the case that hundreds of kernel are used
+its dimensions, it can be easily be the case that hundreds of kernel are used
 at once; this can lead to an increase of the memory consumption in a measure
 proportional to the size of the input dataset.
 
 Section \ref{sec:opt} deals with a possible algorithmic solution to this problem,
 while the following section will show how it is possible to combine the idea here
 described with another technique used in multiple kernel learning to further
-improve the feature spaces and reduce the computational burden eliminating
-one hyper-parameter.
+improve the feature spaces and reduce the computational burden and space
+requirements eliminating one hyper-parameter.
 
 \subsection{Kernels and feature spaces}
 \label{subsec:features}
@@ -142,15 +149,16 @@ in generating the parameter grid which size will directly determine the number
 of total kernels to combine.
 
 In this study we were working with graph kernels and this fact allowed us to employ
-the feature division strategy delineated in \cite{gmkl}.
-The method described there can be generalised to every kernel, given an appropriate
-subdivision rationale, keeping in mind that such partitioning introduces a strong
-bias over the learning process.
-Recalling that the $ODD$ feature space is composed of trees derived from the DAG
-decomposition of all the sub-graph present in the original graph (Section \ref{subsubsec:odd}),
+the feature division strategy delineated in \cite{gmkl} where applicable and similarly
+devise a new strategy when needed.
+Keep in mind that while the proposed method is generalizable, such partitioning
+introduces a strong bias over the learning process that has to be taken into account.
+
+The $ODDK$ feature space is composed of trees from tree-visits
+over the DAGs deriving from the DAG decomposition on the original graph (Section \ref{subsubsec:odd}),
 when dealing with this space we maintained the proposed features subdivision
 according to their size for the following reasons:
-given the hierarchical structure inherent to the $ODD$ feature space that is, if a tree
+given the hierarchical structure inherent to the $ODDK$ feature space that is, if a tree
 of size $s$ is present in the explicit feature space representation of a graph,
 also all of its proper sub-trees are \cite{gmkl},
 hence, mapping features of different size to different kernels makes it so no two
@@ -160,12 +168,17 @@ the easyMKL algorithm, because the weight assigned to a
 particular kernel by the algorithm would directly correlate with the underlying
 feature space thus rendering the $\lambda$ parameter of the $ODD$ kernel superfluous.
 
+The $Fast Subtree$ kernel space has an already orthogonally structured feature
+space since each feature extracted at iteration $i \in \{1,\dots,h\}$ (see Section \ref{subsubsec:fs})
+is independent from all the feature extracted at iteration $j \in \{1,\dots,h\}\setminus \{i\}$.
+
 The most direct consequence of the adoption of this techniques is that we reduced
-considerably the dimension of the grid and thus of the generated kernels, at
+considerably the dimension of the grid and thus the number of generated kernels at
 the expenses of a modest increase due to the newly computed kernel for each group
 of features.
 Experimental results shows also a general increase in the prediction performances
-due to the more discriminative power of the thusly generated kernels.
+due to the more discriminative power of the thusly generated kernels with respect
+to the approach described in the previous section.
 
 %----------------------------------------------------------------------------------------
 
@@ -193,9 +206,9 @@ implemented in a routine which employed a slight modification of the standard
 easyMKL algorithm \cite{easymkl} in order to keep a constant level of memory
 occupation.
 
-This approach relies on the fact that the easyMKL algorithm can be divided in two
-main different phases, namely the margin optimization problem and the weigths
-calculation phase.
+This approach relies on the fact that the easyMKL algorithm \emph{implementation}
+can be divided in two main different phases, namely the margin optimization problem
+(KOMD) and the weigths calculation phase.
 While the algorithm gets a list of kernels as its input, for the most part
 it works on a unique kernel matrix which is the trace-normalized sum of the 
 original kernels.
@@ -206,12 +219,13 @@ the memory occupation while maintaining it constant throughout the whole executi
 
 This method has obviously one major drawback which is the latency derived from
 having to either compute each kernel or load it from storage multiple times
-during the execution.
+during the execution and finally having to normalize and sum it.
 This is because we are shifting the inherent burden of the data dimensionality
-from the memory to the CPU and storage which still can be useful for some resource
-constrained applications.
-This problem is however mitigated by the fact that the dramatic decrease of memory
-consumption allows for much better parallelization.
+from space to time resources which can still be useful for some applications
+depending on the available resources or imposed constraints.
+This latter problem is however mitigated by the fact that the dramatic decrease
+of memory consumption allows in practice for much better parallelization of the
+whole process.
 
 An high level overview of this approach is given as Algorithm \ref{alg:method_me}.
 
@@ -225,7 +239,7 @@ An high level overview of this approach is given as Algorithm \ref{alg:method_me
     \label{alg:compute_sum}
     \begin{algorithmic}[1]
         \Function{computeSumKernel}{$Kernels,paramsgrid,dataset,fold$}
-            \State initialize $K$ as a zero $n\times n$ matrix
+            \State initialize $K$ as a null $n\times n$ matrix
             \Comment $n$ is the size of $dataset$
             \ForAll{$kernel \in Kernels$}
                 \ForAll{$tuple \in paramsgrid$}
@@ -297,7 +311,7 @@ significant speed-up.
 \begin{algorithm}
     \caption{The devised algorithm to incrementally compute the explicit
     features space representation for the available $ODD$ kernels, namely
-    $ODD_{ST}$, $TCK_{ST}$, $ODD_{ST+}$, $TCK_{ST+}$.
+    $ODDK_{ST}$, $TCK_{ST}$, $ODDK_{ST+}$, $TCK_{ST+}$.
     The $ReverseTopologicalOrder$ function returns a list of nodes in reverse
     order with respect to the topological order.
     The $sort$ function sorts the trees representing the explicit features
@@ -319,8 +333,8 @@ significant speed-up.
                     \If{$d=0$}
                         \State $f_{u,0} \gets \kappa(L(u))$
                         \State $size_{u,0} \gets 1$
-                        \State add $f_{u,0}$ to $\phi_{ODD_{ST}}$
-                        \State add $f_{u,0}$ to $\phi_{ODD_{ST+}}$
+                        \State add $f_{u,0}$ to $\phi_{ODDK_{ST}}$
+                        \State add $f_{u,0}$ to $\phi_{ODDK_{ST+}}$
                     \Else
                         \State $(S_1,\dots,S_{\rho(u)}) \gets \Call{Sort}{
                         f_{ch_1(u),d-1},f_{ch_2(u),d-1},\dots,f_{ch_{\rho(u)}(u),d-1}}$
@@ -332,15 +346,15 @@ significant speed-up.
                             \State add contextualized feature to $\phi_{TCK_{ST}}$
                             \State add contextualized feature to $\phi_{TCK_{ST+}}$
                         \EndFor
-                        \State add $f_{u,d}$ to $\phi_{ODD_{ST}}$
-                        \State add $f_{u,d}$ to $\phi_{ODD_{ST+}}$
+                        \State add $f_{u,d}$ to $\phi_{ODDK_{ST}}$
+                        \State add $f_{u,d}$ to $\phi_{ODDK_{ST+}}$
                     \EndIf
                     \If{$u=v$}
                         \State add $f_{u,d}\circ{}c$ to $\phi_{TCK_{ST}}$
                         \State add $f_{u,d}\circ{}c$ to $\phi_{TCK_{ST+}}$
                     \EndIf
 
-                    \State Compute $ODD_{ST+}$ and $TCK_{ST+}$ peculiar features
+                    \State Compute $ODDK_{ST+}$ and $TCK_{ST+}$ peculiar features
                     and contexts and add them to the relevant $\phi$ in a similar
                     fashion\label{line:stp}
                 \EndFor
@@ -363,7 +377,7 @@ Again, this procedures has largely been derived from the work done in \cite{nnav
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=0.5]{Figures/kernel_times_log}
-    \caption{Times in seconds required to compute the kernels $ODD_{ST}$ and 
+    \caption{Times in seconds required to compute the kernels $ODDK_{ST}$ and 
     $TCK_{ST}$ incrementally and sequentially on a selection of datasets. Time
     scale is logarithmic for the sake of presentation.}
     \label{fig:times}

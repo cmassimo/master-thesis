@@ -3,25 +3,27 @@
 \chapter{Experiments}
 \label{Chapter4}
 
-In order to assess the quality of the previously exposed ideas and approaches we
-needed to test them using the framework described in section~\ref{subsec:evaluation}. 
-Since our method has the parameter selection phase embedded in the learning
+In order to assess the quality of the proposed methodology we tested it on a
+number of datasets and against a number of baselines that will be detailed in
+the following sections.
+Since our methodology has the parameter selection phase embedded in the learning
 process (section~\ref{subsec:parameters}) the experiments structure were quite
-simple, namely consisting only in the pre-calculation of the relevant kernel
-matrices, one for each tuple of parameters combination, and then using them all
-at once in a stratified k-fold cross-validation routine.
-The $k$ parameter of the latter has been fixed at 10 since this value already
-provides good statistical significance while helping containing the bias
+straightforward, namely consisting in the pre-calculation of the relevant kernel
+matrices, and then using them all at once in a stratified k-fold cross-validation
+routine with the learning method of choice.
+The $k$ parameter of the cross-validation has been fixed at 10 since this value
+already provides good statistical significance while helping containing the bias
 skewing during the training phase.
-Moreover, this whole routine has been run ten times to mitigate the high
-variance derived during the testing phase due to the chosen value of $k$.
+Moreover, the whole routine has been run ten times with ten different split of the
+data to mitigate the high variance derived during the testing phase due to the
+chosen value of $k$.
 
 \section{Datasets}
 \label{subsec:datasets}
 
 The experiments were conducted on five real-world applications datasets, namely:
-CAS [ref], NCI1 [ref], AIDS [ref], CPDB [ref], GDD[ref]. All these datasets
-contains chemical and molecular particles encoded in graph form.
+CAS \cite{cas}, NCI1 \cite{nci1}, AIDS \cite{aids}, CPDB \cite{cpdb}, and GDD \cite{gdd}.
+All these datasets contains chemical and molecular particles encoded in graph form.
 The AIDS Antiviral Screen dataset contains chemical compounds, categorized
 into chemical groups; CAS and CPDB are dataset of mutagenic
 compounds; NCI1 consists of chemical compounds screened for activity against 
@@ -48,62 +50,173 @@ Some statistics about these datasets are gathered in table~\ref{table:datasets}.
         number of edges. It is clear from this table that the CAS and NCI1 datasets
         are the bigger ones while the GDD holds the most complex graphs either in
         terms of topography and processing. Furthermore the AIDS dataset turns out
-        to be quite unbalanced in terms of labels distribution.}
+        to be quite unbalanced in terms of labels distribution \cite{rtesselli}.}
         \label{table:datasets}
     \end{table}
 
 %----------------------------------------------------------------------------------------
 
 \section{Experiments description}
+\label{sec:description}
 
-The kernel combinations selected for this study were:
+The original kernel combinations selected for this study were:
 \begin{enumerate}
-    \item the $ODD_{ST}$ and $TCK_{ST}$ graph kernels,
-    \item the $ODD_{ST+}$ and $TCK_{ST+}$ graph kernels,
+    \item the $ODDK_{ST}$ and $TCK_{ST}$ graph kernels,
+    \item the $ODDK_{ST+}$ and $TCK_{ST+}$ graph kernels,
     \item the $WL$ fast subtree and $WLC$ graph kernels,
 \end{enumerate}
 
 for each combination a separated set of experiment was conducted, while maintaining
-the same structure, of which a detailed breakdown will now be given.
+the same structure, of which a detailed breakdown will be given in Table \ref{table:structure}.
 
-%\subsubsection[$ODD_{ST}$ and $ODD_{STC}$]{$\boldsymbol{ODD_{ST}}$ and $\boldsymbol{TCK_{ST}}$}
-The weak kernels used for this experiment were generated from the $ODD$ kernels
-in \cite{rtesselli}, namely $ODD_{ST}$, $TCK_{ST}$, $ODD_{ST+}$, and $TCK_{ST+}$.
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|}
+        \hline
+        exp. no. & method & kernels \\
+        \hline
+        1 & easyMKL & $K$ and $K'$ \\
+        \hline
+        2 & easyMKL & $K'$ \\
+        \hline
+        3 & easyMKL & $K$ \\
+        \hline
+    \end{tabular}
+    \caption{Structure of the main experiments. Kernels $K$ and $K'$ refer
+    to the version without and with contexts for each combination respectively.
+    These kernels generated a set of matrices each, according to the technique
+    described in Section \ref{subsec:features} which were concatenated as a list
+    to be given in input to easyMKL.}
+    \label{table:structure}
+\end{table}
+
 The hyper-parameter selection process for the kernels has been embedded
 into the MKL learning phase so each set of kernel matrices has been
 pre-computed for each one of the possible combination of parameters that would
 otherwise have been used in a grid-search fashion.
-Since EasyMKL takes care of weighing the individual weak kernels, the $\lambda$
+
+\subsubsection[$ODDK_{ST}$ and $TCK_{ST}$]{$\boldsymbol{ODDK_{ST}}$ and $\boldsymbol{TCK_{ST}}$}
+The kernels used for this experiment were generated from the $ODDK$ kernels
+in \cite{odd, contexts}, namely $ODDK_{ST}$, $TCK_{ST}$.
+Since EasyMKL took care of weighing the individual kernels, the $\lambda$
 parameters of the ODD kernels has been fixed to 1, while the $h$ parameter
 values were the set $\{1,\dots,10\}$.
-
-During the cross-validation routine, the $\Lambda$ parameter of EasyMKL has been
+During the cross-validation routine, the $\Lambda$ parameter of easyMKL has been
 validated from the set $\{0.0, 0.1,\dots,1.0\}$.
 
-\subsection{Resources requirements}
+\subsubsection[$ODDK_{ST+}$ and $TCK_{ST+}$]{$\boldsymbol{ODDK_{ST+}}$ and $\boldsymbol{TCK_{ST+}}$}
+The kernels used for this experiment were generated from the $ODDK$ kernels
+in \cite{stplus, rtesselli}, namely $ODDK_{ST+}$, $TCK_{ST+}$.
+Again, EasyMKL took care of weighing the individual kernels so the $\lambda$
+parameters of the ODD kernels has been fixed to 1, while the $h$ parameter
+values were the set $\{1,\dots,10\}$.
+During the cross-validation routine, the $\Lambda$ parameter of easyMKL has been
+validated from the set $\{0.0, 0.1,\dots,1.0\}$.
 
+\subsubsection[$WL$ and $WLC$]{$\boldsymbol{WL}$ and $\boldsymbol{WLC}$}
+The kernels used for this experiment were generated from the $Fast~Subtree$ kernels
+in \cite{fs, rtesselli}, namely the $WL$ kernel and the $WLC$ kernel.
+These two kernels only need one hyper-parameter to validate, that is $h$ the iterations
+limit whose chosen values were those in the set $\{1,\dots,10\}$.
+During the cross-validation routine, the $\Lambda$ parameter of easyMKL has been
+validated from the set $\{0.0, 0.1,\dots,1.0\}$.
+
+\subsubsection{The GDD dataset}
+\label{subsubsec:gdd}
+Confirming the experience reported in \cite{contexts}, while working with the GDD
+dataset and the $ODD$ kernels we had to limit the $h$ hyper-parameter to the set
+$\{1,2,3\}$ because for heights greater than 3 the computational times of the
+kernel matrices became prohibitive, due to the high complexity and magnitude
+of the data structures contained in this dataset.
+
+\subsection{Space resources requirements}
+Given the large number of kernel matrices involved in the combination exepriments
+we would like to detail the space resources requirements that these experiments
+had (Table \ref{table:space}) with our setup.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|l|l|}
+        \hline
+        exp. no. & method [kernel(s)] & AIDS & CAS & CPDB & GDD & NCI1 \\
+        \hline
+        1 & easyMKL [$K$ and $K'$] & 5 GB & 34 GB & 3 GB & 3 GB & 29 GB \\
+        \hline
+        2 & easyMKL [$K'$] & 3 GB & 19 GB & 2 GB & 1 GB & 17 GB \\
+        \hline
+        3 & easyMKL [$K$] & 3 GB & 19 GB & 2 GB & 1 GB & 17 GB \\
+        \hline
+    \end{tabular}
+    \caption{Memory occupation in GigaBytes for each dataset during the different
+    experiments. Due to the parameter grid, in experiment 1 a total of 220 matrices
+    where computed for each dataset (66 for GDD, Section \ref{subsubsec:gdd}), while
+    for experiments 2 and 3 a total of 110 matrices for each dataset where computed
+    (33 for GDD).}
+    \label{table:space}
+\end{table}
+
+Time resources requirements being a part of the proposed improvements will be given
+in Section \ref{subsec:results}.
 %----------------------------------------------------------------------------------------
 
 \section{Baselines}
-To assess the quality of our results we compared them with the results we got
-from testing come baseline performances against the same datasets.
-Beside the performance measures available in \cite{gmkl}, we tested our framework
-with only the $ODD_{ST}$ orthogonalized kernels, then with the orthogonalized
-$ODD_{STC}$ kernels alone.
-Furthermore we collected the same performance measure for the $ODD_{STC}$ kernel,
-with and without $ST$ features, with a 10-fold cross validation implemented
-using a SVM.
+To establish a benchmark we compared our methodology with the results we got
+from testing some baseline performances against the same datasets.
+Table \ref{table:baselines} describes the general structure of the experiments
+designed with this aim.
 
-\subsection{MKL}
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|}
+        \hline
+        exp. no. & method & kernels \\
+        \hline
+        4 & easyMKL & $K$ and $K'$ \\
+        \hline
+        5 & easyMKL & $K'$ \\
+        \hline
+        6 & easyMKL & $K$ \\
+        \hline
+        7 & SVC & $K'$ \\
+        \hline
+        8 & SVC & $K'+K$ \\
+        \hline
+    \end{tabular}
+    \caption{Structure of the baseline experiments. Kernels $K$ and $K'$ refer
+    to the version without and with contexts for each combination respectively.
+    These kernels generated a set of matrices each, according to the hyper-parameters
+    grid, which were concatenated as a list to be given in input to easyMKL or
+    given individually to an instance of the SVC. The expression $K + K'$ refers
+    to the fact that the two kernel were summed prior to be used.}
+    \label{table:baselines}
+\end{table}
 
-\subsection{SVM}
+\subsubsection{easyMKL baselines}
+These baselines basically replicates the three main experiments described in Section
+\ref{sec:description} but without the features subdivision strategy described in
+Section \ref{subsec:features}.
+For the kernels derived from the $ODD$ kernels we employed a parameters grid composed
+of the sets $h=\{1,\dots,10\}$ and $\lambda=\{0.1, 0.5, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.8\}$,
+both sets were taken from \cite{rtesselli}.
+The kernels derived from the $WL$ framework had their only hyper-parameter validated
+in the set $h=\{1,\dots,10\}$.
+During the cross-validation routine, the $\Lambda$ parameter of easyMKL has been
+validated from the set $\{0.0, 0.1,\dots,1.0\}$.
+
+\subsubsection{Baselines with the SVM classifier}
+
+Each one of the kernel computed for experiment 5 (Table \ref{table:baselines}) were
+individually used to train a SVM classifier whose $C$ parameter was validated
+in the set $\{10^{-4},10^{-3},\dots,10^3\}$ \cite{rtesselli}.
 
 %----------------------------------------------------------------------------------------
 
 \section{Results and discussion}
 \label{subsec:results}
 
-\subsection{Models performances}
+\subsection{Analysis of the computational times}
+
+\subsection{Analysis of the models performances}
 
 \begin{landscape}
     \begin{table}[ht]
@@ -191,5 +304,19 @@ using a SVM.
 \end{landscape}
 
 \section{Kernels Contribution Analysis}
-% eventuale plot dei pesi delle matrici per gli esperimenti principali
+\dots eventuale plot dei pesi delle matrici per gli esperimenti principali
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.8]{Figures/weightdist}
+    \caption{Kernel weight distribution for the $TCK_{ST}$ kernel
+    computed according to the full parameters grid.
+    The $x$ axis shows the kernel indexed by their hyperparameters values,
+    the $y$ axis the weight values.
+    Each plot refers to one run of the cross-validation routine relative to one
+    value for the $\Lambda$ parameter of easyMKL. The vertical lines highlight
+    the kernel with the maximum weight for each value of $\Lambda$.}
+        \label{fig:weightdist}
+\end{figure}
+
 

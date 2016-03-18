@@ -9,7 +9,7 @@ strategy.
 Then Section \ref{sec:kernel} deals with the theoretical foundations of the 
 methods that are in the scope of this thesis, while Section \ref{sec:graphkernels}
 delves in the details of the various approaches that will be covered.
-Unless otherwise noted, most of the material in this section has been derived
+Unless otherwise noted, the material in this chapter has been derived
 from \cite{nnavarin, rtesselli}.
 
 \label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter2} 
@@ -222,12 +222,6 @@ either the prediction accuracy or a more sophisticated one like the ROC AUC.
 In this thesis a variant of the technique explained in the following section
 has been employed.
 
-%seeds + 10FCV + parameter selection embedded in the validation process
-%The final results were obtained by combining a standard practice evaluation
-%technique with the parameters selection process.
-%Every experiment has been conducted employing the K-fold nested cross-validation
-%technique [ref].
-
 \subsubsection{Cross Validation}
 \label{subsubsec:cv}
 This technique is based on the minimization of the estimated ideal error by
@@ -321,14 +315,14 @@ A function $K:X\times X \to Y$ is a kernel function if it satisfies the followin
         or equivalently if all its eigenvalues are non-negative.
 \end{itemize}
 
-Being able to represent each sample $x \in X$ as $\phi(x) = \{\phi_n(x)\}_{n \geq 1}$
+If it is possible to represent each sample $x \in X$ as $\phi(x) = \{\phi_n(x)\}_{n \geq 1}$
 so that computing $K(x,y)$ is equivalent to computing the dot product $\langle
-\phi(x),\phi(y)\rangle$ then $K$ is a kernel.
+\phi(x),\phi(y)\rangle$, then $K$ is a kernel.
 The converse is always true when $X$ is a countable set for an opportune choice
 of $\phi$.
 The vector space defined by such $\phi$ is called \emph{feature space}.
 
-A useful extension, called \emph{zero extension}, is available given a kernel $K$
+An useful extension, called \emph{zero extension}, is available given a kernel $K$
 defined on a certain input space, say $S\subset X$; we can extend it to work
 on $X\times X$ thanks to it being positive-semidefinite i.e.
 $K(x,y)=0~\forall x,y \in X\setminus S$.
@@ -398,8 +392,8 @@ Here we will briefly describe one of the most tried kernel machines in the liter
 minimization (section \ref{subsubsec:srm}) providing a trade-off between hypotheses
 space complexity and the performances in fitting the training data.
 It is a binary classifier but can be used to solve multi-class classification
-problems with some additional work to combine multiple instances of binary
-classifiers.
+problems with some additional work to combine multiple instances of this binary
+classifier.
 It is also a linear classifier by default and can be easily extended to the 
 non-linear domain by using it in conjunction with (non-linear) kernel functions.
 Given a feature space, this method tries to find the optimal hyperplane that
@@ -433,7 +427,7 @@ Equation \ref{eq:lsvm} shows the primal form of the problem, whose formulation
 has a convex cost function and constraints, hence it can be solved more easily 
 switching to its dual form that, given these premises, will have the same
 optimal solution.
-Thanks to the Kuhn-Tucker theorem [ref] we can formulate the dual form using
+Thanks to the Kuhn-Tucker theorem \cite{ktth}? we can formulate the dual form using
 Lagrange's multipliers:
 
 \begin{gather}
@@ -463,11 +457,11 @@ When reaching this point the gradient of the function $L$ must be null:
 \end{gather}
 
 and this lets us get rid of the primal variables in the lagrangian function since
-they can be expressed using the labelled samples and the multipliers thus hence
+they can be expressed using the labelled samples and the multipliers hence
 reducing the problem to the maximization of $L(\vec{\alpha})$.
 Those samples $X_i$ for which the $\alpha^*_i$ are greater than zero are called
 support vectors and are the ones closer to the hyperplane as can be seen in
-figure ??.
+Figure \ref{fig:supportvecs}.
 
 The other case, that is when the data is not linearly separable, is solved in a
 similar way but with the introduction of \emph{slack variables}, one for each
@@ -477,7 +471,7 @@ constraint:
     y_i(\vec{w}\cdot\vec{x} + b) \geq 1 - \xi_i
 \end{equation}
 
-These variables $\xi_i$, will account for the constraint violation by modifying the cost
+These variables $\xi_i$, will account for the constraint violations by modifying the cost
 function:
 
 \begin{equation}
@@ -499,14 +493,16 @@ we can now formulate our problem in the following way:
 
 This formulation differs from the previous one in that the dual variables (the $\alpha_i$s)
 have $C$ as an upper bound.
-The role of the slack variable $\xi_i$ is exemplified in figure ??.
+The role of the slack variable $\xi_i$ is exemplified in Figure \ref{fig:slacks}.
 
 The above solution has the major downside that cannot guarantee good performances
 in highly non-separable data because of the limitation in the ways an hyperplane
 can separate any feature space, i.e. through dichotomies.
 A remedy to this fact is to use the technique exposed in Section \ref{subsec:kmachines}
-while maintaining the same formulation explained above.
-The effects of this technique on the classification task is visible in figure ??.
+while maintaining the same formulation explained above where the dot product between
+the samples in the (mapped) feature space is substituted with the kernel value on the
+same samples.
+The effects of this technique on the classification task is visible in Figure \ref{fig:kernsvm}.
 
 %----------------------------------------------------------------------------------------
 
@@ -522,12 +518,12 @@ get a full-fledged learning method.
 That being said, it is clear that in this scenario the kernel function is the
 component responsible for the main source of bias.
 Nowadays a number of different kernel functions are available with varying degree
-of complexity in order to tackle a variety of problems, most of which has data
+of complexity in order to deal with a variety of problems, most of which has data
 represented in vectorial form.
 The rise of problems where data is naturally better represented with a
 structured form (Section \ref{subsubsec:examples}) has rendered necessary the
 study of new methods to tackle them.
-One way of dealing with structured data could be to actually get rid of the structure
+One way of working with structured data could be to actually get rid of the structure
 deriving an \emph{ad-hoc} vectorial representation, in what is called a
 \emph{structure-based} approach.
 This method is expensive and cumbersome since it force the user to have a strong
@@ -558,7 +554,7 @@ Algorithmic complexity for a kernel function is a major point since the kernel h
 to be computed for each pairs of samples, rendering even a quadratic complexity
 a hindering factor for its application.
 
-An theoretically sound way to design efficient and effective kernel functions for
+A theoretically grounded way to design efficient and effective kernel functions for
 structured data has been proposed by Haussler \cite{haussler} and will be explained
 in the next section.
 The main concept behind his work is that we need to restrict the number and type
@@ -576,9 +572,9 @@ of the framework proposed by Haussler.
 Haussler's work \cite{haussler} main result is the \emph{R-convolution} framework,
 a method for defining positive definite kernel functions on any object provided that a
 positive semidefinite kernel for some decomposition of that object is available.
-To give a brief formalization of the main idea, let $mathcal{X}$ be a space of 
+To give a brief formalization of the main idea, let $\mathcal{X}$ be a space of 
 objects such that $x \in \mathcal{X}$ is associated with a finite subset
-$\mathcal{X'_x}$ of some space $\mathcal{X'}$.
+$\mathcal{X'_\mathit{x}}$ of some space $\mathcal{X'}$.
 Assuming that: a kernel $k: \mathcal{X'}\times \mathcal{X'} \to \mathbb{R}$ is
 defined and a \emph{finite} relation $R \subseteq \mathcal{X'}^D \times \mathcal{X'}$
 is defined, we can now define an $R-convolution$ kernel:
@@ -594,14 +590,14 @@ that, with the commonly used formulation with $D=1$ becomes:
     K(x,y) = \sum_{(x',x) \in R} \sum_{(y',y) \in R} k(x'_i,y'_i)
 \end{equation}
 
-Haussler was able to demonstrate the positive semi-definiteness of any $K$ kernel
+Haussler was able to demonstrate the positive semi-definiteness of any kernel $K$
 thusly defined, provided that $k$ is also positive semi-definite.
 
 This work has later been extended and generalized \cite{shin} with the introduction
 of the \emph{mapping} kernel of which the \emph{R-convolution} kernel is a corollary.
 This more general framework defines a mapping set
-$M_{x,y} \subseteq \mathcal{X'_x} \times \mathcal{X'_y}$ and a \emph{base kernel} $k$ on it
-that will hence consider only a subset of the entire cross product $\mathcal{X'_x} \times \mathcal{X'_y}$.
+$M_{x,y} \subseteq \mathcal{X'_\mathit{x}} \times \mathcal{X'_\mathit{y}}$ and a \emph{base kernel} $k$ on it
+that will hence consider only a subset of the entire cross product $\mathcal{X'_\mathit{x}} \times \mathcal{X'_\mathit{y}}$.
 With these premises, a mapping kernel is defined as:
     
 \begin{equation}
@@ -654,7 +650,7 @@ $v \in V_T$ which are:
         \end{itemize}
 \end{itemize}
 
-An example of feature extraction is given in Figure ??.
+An example of feature extraction is given in Figure \ref{fig:featext}.
 The formulation of this kernel is the following:
 
 \begin{equation}
@@ -791,7 +787,7 @@ spaces without incurring in major computational drawbacks.
 Among the others, and mainly because inside the scope of this thesis we will
 mention in no particular order:
 \begin{itemize}
-    \item the addition of contextual information \cite{context}
+    \item the addition of contextual information \cite{contexts}
     \item the extension of the ST kernel to be used in combination with easyMKL,
         a recent MKL implementation.
     \item the extension and generalization of the Weisfeiler-Lehman framework \cite{wl}
@@ -871,17 +867,100 @@ semidefinite kernels (see the end of Section \ref{subsec:convolution}).
 
 \section{Multiple Kernel Learning}
 \label{subsec:mkl}
-% what is it and why it matters
-% relieve the user from careful kernel design => lots of weak kernels
+Multiple Kernel Learning aims to enhance the accuracy of a target kernel machine
+by combine kernels derived from multiple sources in a data-driven way.
+The rationale behind this idea is similar to the one behind classifier combinations.
+Instead of deciding a priori which kernel to use, it is better to devise an
+algorithm that can either choose for us or better, learn a combination of the
+possible choices.
+
+Hence $MKL$ can be used to mitigate the bias deriving from a single kernel choice
+or to combine different source of information that rely on different data representation
+thus requiring a number of different kernels.
+
+Furthermore it relieves the final user from the often arduous task of designing
+a strong kernel by allowing her to implement a number of more ``weak'' kernels
+that can work in combination to perform the learning task.
+
+The available methods in the literature can be summarily divided in two categories
+\cite{mkla}: \emph{fixed rule} algorithms which as the name implies apply some fixed
+rule or heuristic to determine the combination parameters, thus being able to scale
+well with respect to the number of kernels but whose effectiveness is bounded by
+the effectiveness of the rule on the domain at hand.
+On the other hand, \emph{optimization based} approaches solve an optimization
+problem to derive their combination parameters.
+
+There are two fundamental ways to use the $MKL$ approach: combine a small set of 
+relatively strong and carefully designed kernels, a method which has shown no
+significant improvement over a simple combination like the averaging of the kernels;
+then the converse, combine a large set of weak kernels aiming at boosting their
+individual performances exploiting a data driven rather than an expert driven
+approach.
+
+In the following section we will give an overview of the $MKL$ implementation
+that we chose for the present work.
 
 \subsection{EasyMKL}
 \label{subsec:easymkl}
-% principles
-% design
+
+The method proposed in \cite{easymkl} focuses on the linear positive combination
+parameters version of $MKL$ which can be formulated as
+
+\begin{equation}
+    K = \sum_{r=1}^R \eta_rK_r,\, \eta_r \geq 0
+    \label{eq:easymkl}
+\end{equation}
+
+The goal is to learn a vector of coefficients $\vec{\eta}$ that will form the
+combined kernel according to Equation \ref{eq:easymkl}.
+The proposed algorithm can be ascribed to the category of optimization based
+techniques since in it requires the solution of an optimization problem whose
+formulation follows:
+
+\begin{equation}
+    \underset{\vec{\eta}:||\vec{\eta}||=1}{\mathrm{max}}\underset{\gamma \in \hat{\Gamma}}{\mathrm{min}}(1-\lambda)\gamma^\top\hat{Y}\Big(\boldsymbol{\sum_r^R \eta_r\hat{K_r}}\Big)\hat{Y}\gamma+\lambda||\gamma||^2
+    \label{eq:easymin}
+\end{equation}
+
+where $\hat{K_r}\text{ and }\hat{Y}$ are the weak kernel matrices computed on the training samples
+and the training labels respectively, $\lambda \in \{0,1\}$ is the regularization
+parameter and $\gamma \in \hat{\Gamma}$ is the probability distribution over the set of positive and
+negative training samples.
+
+This problem has a similar formulation to the one of the \emph{Kernel Optimization of the
+Margin Distribution} problem (KOMD) \cite{komd} where the kernel matrix has been
+substituted with the sum of the weak input kernels with important implications
+in terms of the approach space requirements.
+
+In the margin maximization step of the algorithm, the $\lambda$ parameter
+has two critical points: when $\lambda = 0$ there is no regularization so the
+problem reduces to a hard margin SVM; when $lambda = 1$ the optimal solution is
+the squared distance between the positive and negative centroids in the feature
+space.
+This will become more evident looking at the experimental results in Chapter
+\ref{Chapter4}.
 
 \subsection{Multiple Kernel Learning On Graphs}
 \label{subsec:gmkl}
-% the technique
+A recent work \cite{gmkl} has managed to integrate the algorithm explained in the
+previous section with the work on graph kernels conducted in \cite{odd}
+
+The technique proposed in the paper aims to find a generalizable way of constructing
+orthogonalized kernels starting from a single feature space, by the means of 
+dividing the features in independent sets according to some strategy.
+
+The work in \cite{gmkl} propose a simple yet theoretically backed strategy that is,
+the subdivision of the feature space of the $ODDK_{ST}$ kernel according to the
+size of the features.
+Given the inherent hierarchical structure of the tree features, dividing them by
+size (height) ensures that no two dependent features ends up in the same set.
+Every set composed in this way is then used as a separate feature space to compute
+a separate kernel and the whole list becomes the input for the easyMKL algorithm.
+An important point that emerges from this work is that, by using the MKL approach
+in combination with an orthogonal partitioning of the feature space, a reduction
+in the number of hyper-parameters to validate was obtained.
+This latter point in particular will be a considerable addition to our proposed
+methodology as explained in Section \ref{subsec:features}.
 
 %----------------------------------------------------------------------------------------
 
