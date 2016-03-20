@@ -30,20 +30,6 @@ available and easily integrated with our pre-existing kernels code base.
 The methodology therefore consists in a k-fold nested cross-validation with
 easyMKL as the kernel machine as detailed in Algorithm \ref{alg:method} and further in
 Figure \ref{fig:method}.
-The code is divided in two parts: first we have the kernel computation phase,
-in which we take the parameters grid and compute all the kernel matrices for each
-parameters tuple, for each kernel to be combined.
-The second part consist in the two loops of the nested cross-validation, see
-Section \ref{subsubsec:ncv} for details.
-
-The new idea behind an otherwise standard and tried scheme of operations is that
-the kernel list instantiated in line \ref{line:kernels}, comprises all the 
-kernels computed from the grid of parameters combinations that would otherwise
-have been individually fed to a standard single kernel machine (e.g. SVM).
-Doing so, the single kernel hyper-parameter optimization phase can be avoided in its
-entirety and the only parameters that needs validation are the ones of the chosen
-$MKL$ implementation, namely one regularization parameter ($\Lambda$) in our case.
-This point will be further elaborated on in the following section.
 
 \begin{algorithm}
     \caption{
@@ -90,6 +76,35 @@ This point will be further elaborated on in the following section.
     \end{algorithmic}
 \end{algorithm}
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.5]{Figures/nested}
+    \caption{The method illustrated. First the dataset, composed of a list of
+    kernel matrices get split into a training set and a test set (1).
+    Then a $k$-fold cross-validation is performed on the training set ($k$ was set to
+    10 in our case) (2) and the best resulting model is selected according to some
+    performance measure (3). The selected model gets re-trained on the whole initial
+    training set (4) and finally gets tested against the test set that was left out
+    during the entire process (5). At the end of the outer loop of the nested
+    cross-validation, the best model is again selected according to the chosen
+    metric (6).}
+    \label{fig:method}
+\end{figure}
+
+The code is divided in two parts: first we have the kernel computation phase,
+in which we take the parameters grid and compute all the kernel matrices for each
+parameters tuple, for each kernel to be combined.
+The second part consist in the two loops of the nested cross-validation, see
+Section \ref{subsubsec:ncv} for details.
+
+The new idea behind an otherwise standard and tried scheme of operations is that
+the kernel list instantiated in line \ref{line:kernels}, comprises all the 
+kernels computed from the grid of parameters combinations that would otherwise
+have been individually fed to a standard single kernel machine (e.g. SVM).
+Doing so, the single kernel hyper-parameter optimization phase can be avoided in its
+entirety and the only parameters that needs validation are the ones of the chosen
+$MKL$ implementation, namely one regularization parameter ($\Lambda$) in our case.
+This point will be further elaborated on in the following section.
 
 \subsection{Embedded model selection}
 \label{subsec:parameters}
@@ -116,6 +131,18 @@ With the above described settings we are reducing the number of needed
 cross-validation instances from $l\cdot m\cdot n$ to $n$, hence potentially
 reducing the size of the whole process by orders of magnitude.
 A visual comparison of these two approaches is given in Figure \ref{fig:comparison}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.6]{Figures/comparison}
+    \caption{Comparison between the standard approach (A) and the proposed one (B).
+    $K_1,\dots,K_N$ refers to the $N$ kernels computed from the $N$ combinations
+    derived from the parameters grid. In (A) each kernel is used to perform a full learning
+    cycle, $N$ in total. On the other hand in (B), the $N$ kernels all together are
+    given as input to the only one learning cycle to be performed. The kernel machines
+    in the diagrams has been instantiated to the ones chosen in this study.}
+    \label{fig:comparison}
+\end{figure}
 
 Another advantage of this approach is that instead of selecting one combination
 of parameters thus restricting the generalization power of the resulting model,
@@ -203,7 +230,7 @@ same time.
 Even with this level of optimization, the memory consumption rate can still be
 daunting for some applications so, we devised a different approach that has been
 implemented in a routine which employed a slight modification of the standard
-easyMKL algorithm \cite{easymkl} in order to keep a constant level of memory
+easyMKL algorithm \cite{aiolli2015easymkl} in order to keep a constant level of memory
 occupation.
 
 This approach relies on the fact that the easyMKL algorithm \emph{implementation}
@@ -256,7 +283,7 @@ An high level overview of this approach is given as Algorithm \ref{alg:method_me
 \end{algorithm}
 
 Having defined the auxiliary function in charge of managing the kernels computation
-and sum, we now proceed to show its use in the modified version of our method.
+and sum (Algorithm \ref{alg:compute_sum}), we now proceed to show its use in the modified version of our method.
 For each training cycle there are two calls to the \textsc{computeSumKernel}
 function, one of which is hidden inside the \textsc{easyMKLweights} function.
 

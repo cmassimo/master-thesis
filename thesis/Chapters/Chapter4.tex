@@ -6,23 +6,13 @@
 In order to assess the quality of the proposed methodology we tested it on a
 number of datasets and against a number of baselines that will be detailed in
 the following sections.
-Since our methodology has the parameter selection phase embedded in the learning
-process (section~\ref{subsec:parameters}) the experiments structure were quite
-straightforward, namely consisting in the pre-calculation of the relevant kernel
-matrices, and then using them all at once in a stratified k-fold cross-validation
-routine with the learning method of choice.
-The $k$ parameter of the cross-validation has been fixed at 10 since this value
-already provides good statistical significance while helping containing the bias
-skewing during the training phase.
-Moreover, the whole routine has been run ten times with ten different split of the
-data to mitigate the high variance derived during the testing phase due to the
-chosen value of $k$.
 
 \section{Datasets}
 \label{subsec:datasets}
 
 The experiments were conducted on five real-world applications datasets, namely:
-CAS \cite{cas}, NCI1 \cite{nci1}, AIDS \cite{aids}, CPDB \cite{cpdb}, and GDD \cite{gdd}.
+AIDS \cite{Weislow19041989}, CAS\footnote{http://cheminformatics.org/datasets/bursi/},
+CPDB \cite{journals/jcisd/HelmaCKR04}, GDD \cite{dobson2003}, and NCI1 \cite{journals/kais/WaleWK08}.
 All these datasets contains chemical and molecular particles encoded in graph form.
 The AIDS Antiviral Screen dataset contains chemical compounds, categorized
 into chemical groups; CAS and CPDB are dataset of mutagenic
@@ -59,6 +49,14 @@ Some statistics about these datasets are gathered in table~\ref{table:datasets}.
 \section{Experiments description}
 \label{sec:description}
 
+% add more motivations behind these experiments.
+The $k$ parameter of the cross-validation has been fixed at 10 since this value
+already provides good statistical significance while helping containing the bias
+skewing during the training phase.
+Moreover, the whole routine has been run ten times with ten different split of the
+data to mitigate the high variance derived during the testing phase due to the
+chosen value of $k$.
+
 The original kernel combinations selected for this study were:
 \begin{enumerate}
     \item the $ODDK_{ST}$ and $TCK_{ST}$ graph kernels,
@@ -94,45 +92,49 @@ The hyper-parameter selection process for the kernels has been embedded
 into the MKL learning phase so each set of kernel matrices has been
 pre-computed for each one of the possible combination of parameters that would
 otherwise have been used in a grid-search fashion.
+For all the following experiments, the $\Lambda$ parameter of easyMKL has been
+validated from the set $\{0.0, 0.1,\dots,1.0\}$ during the cross-validation
+routine.
 
-\subsubsection[$ODDK_{ST}$ and $TCK_{ST}$]{$\boldsymbol{ODDK_{ST}}$ and $\boldsymbol{TCK_{ST}}$}
+\paragraph{The case of the GDD dataset:}
+\label{par:gdd}
+confirming the experience reported in \cite{rtesselli}, while working with the GDD
+dataset and the $ODD$ kernels we had to limit the $h$ hyper-parameter to the set
+$\{1,2,3\}$ because for heights greater than 3 the computational times of the
+kernel matrices became prohibitive, due to the high complexity and magnitude
+of the data structures contained in this dataset.
+
+
+\subsection[$ODDK_{ST}$ and $TCK_{ST}$]{$\boldsymbol{ODDK_{ST}}$ and $\boldsymbol{TCK_{ST}}$}
 The kernels used for this experiment were generated from the $ODDK$ kernels
-in \cite{odd, contexts}, namely $ODDK_{ST}$, $TCK_{ST}$.
+in \cite{DBLP:conf/sdm/MartinoNS12, Navarin2015}, namely $ODDK_{ST}$, $TCK_{ST}$.
 Since EasyMKL took care of weighing the individual kernels, the $\lambda$
 parameters of the ODD kernels has been fixed to 1, while the $h$ parameter
 values were the set $\{1,\dots,10\}$.
-During the cross-validation routine, the $\Lambda$ parameter of easyMKL has been
-validated from the set $\{0.0, 0.1,\dots,1.0\}$.
 
-\subsubsection[$ODDK_{ST+}$ and $TCK_{ST+}$]{$\boldsymbol{ODDK_{ST+}}$ and $\boldsymbol{TCK_{ST+}}$}
+\subsection[$ODDK_{ST+}$ and $TCK_{ST+}$]{$\boldsymbol{ODDK_{ST+}}$ and $\boldsymbol{TCK_{ST+}}$}
 The kernels used for this experiment were generated from the $ODDK$ kernels
-in \cite{stplus, rtesselli}, namely $ODDK_{ST+}$, $TCK_{ST+}$.
+in \cite{dasanmartino2015exploiting, rtesselli}, namely $ODDK_{ST+}$, $TCK_{ST+}$.
 Again, EasyMKL took care of weighing the individual kernels so the $\lambda$
 parameters of the ODD kernels has been fixed to 1, while the $h$ parameter
 values were the set $\{1,\dots,10\}$.
 During the cross-validation routine, the $\Lambda$ parameter of easyMKL has been
 validated from the set $\{0.0, 0.1,\dots,1.0\}$.
 
-\subsubsection[$WL$ and $WLC$]{$\boldsymbol{WL}$ and $\boldsymbol{WLC}$}
+\subsection[$WL$ and $WLC$]{$\boldsymbol{WLK}$ and $\boldsymbol{WLCK}$}
 The kernels used for this experiment were generated from the $Fast~Subtree$ kernels
-in \cite{fs, rtesselli}, namely the $WL$ kernel and the $WLC$ kernel.
-These two kernels only need one hyper-parameter to validate, that is $h$ the iterations
-limit whose chosen values were those in the set $\{1,\dots,10\}$.
+in \cite{NIPS2009_3813, rtesselli}, namely the $WL$ kernel and the $WLC$ kernel.
+These two kernels only need to validate one hyper-parameter, that is $h$ the iterations
+limit whose values were those in the set $\{1,\dots,10\}$.
 During the cross-validation routine, the $\Lambda$ parameter of easyMKL has been
 validated from the set $\{0.0, 0.1,\dots,1.0\}$.
-
-\subsubsection{The GDD dataset}
-\label{subsubsec:gdd}
-Confirming the experience reported in \cite{contexts}, while working with the GDD
-dataset and the $ODD$ kernels we had to limit the $h$ hyper-parameter to the set
-$\{1,2,3\}$ because for heights greater than 3 the computational times of the
-kernel matrices became prohibitive, due to the high complexity and magnitude
-of the data structures contained in this dataset.
 
 \subsection{Space resources requirements}
 Given the large number of kernel matrices involved in the combination exepriments
 we would like to detail the space resources requirements that these experiments
-had (Table \ref{table:space}) with our setup.
+had (Table \ref{table:space}) with the above mentioned setup.
+Here we show only the data concerning the $ODD$ kernels since the $WL$ kernels
+generated a number of matrices an order of magnitude less than the former.
 
 \begin{table}[ht]
     \centering
@@ -149,7 +151,7 @@ had (Table \ref{table:space}) with our setup.
     \end{tabular}
     \caption{Memory occupation in GigaBytes for each dataset during the different
     experiments. Due to the parameter grid, in experiment 1 a total of 220 matrices
-    where computed for each dataset (66 for GDD, Section \ref{subsubsec:gdd}), while
+    where computed for each dataset (66 for GDD, Paragraph \ref{par:gdd}), while
     for experiments 2 and 3 a total of 110 matrices for each dataset where computed
     (33 for GDD).}
     \label{table:space}

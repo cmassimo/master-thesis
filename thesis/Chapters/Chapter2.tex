@@ -271,6 +271,7 @@ remained completely isolated from the learning phase until now.
 When used in combination with hyper-parameter optimization with the so called grid
 search technique, the performances obtained in the outer loop are usually used
 to determine the best set of parameters in what is called model selection.
+See Figure \ref{fig:method} for a schematic of the steps of this technique.
 
 \subsubsection{Grid Search}
 \label{subsubsec:grid}
@@ -372,14 +373,24 @@ that states:
 
 this result rely on the fact that projecting the data in an higher-dimensional
 space than the input one, they will become more sparse hence more easily separable
-with a linear separator.
+with a linear separator, this concept is exemplified in Figure \ref{fig:phi}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.4]{Figures/phi}
+    \caption{A visual rendition of the $\phi$ function, mapping samples from the
+    input feature space to another feature space of higher dimensionality so that
+    they could become linearly separable (from \cite{rtesselli}).}
+    \label{fig:phi}
+\end{figure}
+
 Given these premises, and a value of $M$ high enough for the mapped samples to
 be linearly separable a kernel machine looks for the optimal linear separator in
 $\mathcal{H}$ and then maps it back to the input space as a non-linear separator.
 To find this optimal separator the kernel machine has to deal with samples of
 very high (possibly infinite) dimensionality and this could quickly render the
 search for the solution to the optimization problem infeasible or too onerous.
-Given that, in the problem formulation, the function $\phi$ only appears inside
+Given that in the problem formulation the function $\phi$ only appears inside
 the computation of dot products, these values can be calculated by a kernel
 function (section~\ref{subsec:kernelfunc}) thus referring to $\mathcal{H}$
 only implicitly and avoiding having to deal with a high number of dimensions
@@ -427,7 +438,7 @@ Equation \ref{eq:lsvm} shows the primal form of the problem, whose formulation
 has a convex cost function and constraints, hence it can be solved more easily 
 switching to its dual form that, given these premises, will have the same
 optimal solution.
-Thanks to the Kuhn-Tucker theorem \cite{ktth}? we can formulate the dual form using
+Thanks to the Kuhn-Tucker theorem we can formulate the dual form using
 Lagrange's multipliers:
 
 \begin{gather}
@@ -460,8 +471,8 @@ and this lets us get rid of the primal variables in the lagrangian function sinc
 they can be expressed using the labelled samples and the multipliers hence
 reducing the problem to the maximization of $L(\vec{\alpha})$.
 Those samples $X_i$ for which the $\alpha^*_i$ are greater than zero are called
-support vectors and are the ones closer to the hyperplane as can be seen in
-Figure \ref{fig:supportvecs}.
+support vectors and are the ones closer to the hyperplane, determining the margin,
+as can be seen in Figure \ref{fig:slacks}.
 
 The other case, that is when the data is not linearly separable, is solved in a
 similar way but with the introduction of \emph{slack variables}, one for each
@@ -495,6 +506,14 @@ This formulation differs from the previous one in that the dual variables (the $
 have $C$ as an upper bound.
 The role of the slack variable $\xi_i$ is exemplified in Figure \ref{fig:slacks}.
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.4]{Figures/slacks2}
+    \caption{Effect of the introduction of \emph{slack variables} ($\xi$) in the SVM
+    formulation variant known as \emph{soft margin} SVM.}
+    \label{fig:slacks}
+\end{figure}
+
 The above solution has the major downside that cannot guarantee good performances
 in highly non-separable data because of the limitation in the ways an hyperplane
 can separate any feature space, i.e. through dichotomies.
@@ -503,6 +522,16 @@ while maintaining the same formulation explained above where the dot product bet
 the samples in the (mapped) feature space is substituted with the kernel value on the
 same samples.
 The effects of this technique on the classification task is visible in Figure \ref{fig:kernsvm}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.3]{Figures/kernsvm}
+    \caption{Different effects on the decision surfaces generated on the input
+        feature space without (first and third pictures) and with kernel (second and last pictures)
+        in the two cases where data is linearly (first two pictures) and non-linearly separable (last two pictures)
+        [ref lecture slides].}
+    \label{fig:kernsvm}
+\end{figure}
 
 %----------------------------------------------------------------------------------------
 
@@ -555,7 +584,7 @@ to be computed for each pairs of samples, rendering even a quadratic complexity
 a hindering factor for its application.
 
 A theoretically grounded way to design efficient and effective kernel functions for
-structured data has been proposed by Haussler \cite{haussler} and will be explained
+structured data has been proposed by Haussler \cite{haussler99convolution} and will be explained
 in the next section.
 The main concept behind his work is that we need to restrict the number and type
 of features considered for each structure.
@@ -569,7 +598,7 @@ of the framework proposed by Haussler.
 
 \subsection{The framework: convolution kernels}
 \label{subsec:convolution}
-Haussler's work \cite{haussler} main result is the \emph{R-convolution} framework,
+Haussler's work \cite{haussler99convolution} main result is the \emph{R-convolution} framework,
 a method for defining positive definite kernel functions on any object provided that a
 positive semidefinite kernel for some decomposition of that object is available.
 To give a brief formalization of the main idea, let $\mathcal{X}$ be a space of 
@@ -593,7 +622,7 @@ that, with the commonly used formulation with $D=1$ becomes:
 Haussler was able to demonstrate the positive semi-definiteness of any kernel $K$
 thusly defined, provided that $k$ is also positive semi-definite.
 
-This work has later been extended and generalized \cite{shin} with the introduction
+This work has later been extended and generalized \cite{Shin2010} with the introduction
 of the \emph{mapping} kernel of which the \emph{R-convolution} kernel is a corollary.
 This more general framework defines a mapping set
 $M_{x,y} \subseteq \mathcal{X'_\mathit{x}} \times \mathcal{X'_\mathit{y}}$ and a \emph{base kernel} $k$ on it
@@ -629,13 +658,13 @@ $\delta$ is the Kronecker's delta function, a function that evaluates to 1 if it
 arguments matches, 0 otherwise.
 The complexity of this formulation is indeed quadratic but in practice it can be
 lowered to $O(nlogn)$, $n$ being the maximum number of nodes in either $X$ or $Y$,
-using suffix trees \cite{strings}.
+using suffix trees \cite{viswanathan04fastkernels}.
 
 \subsubsection{Augmented subtree kernel}
 A more discriminative version of the previous kernel is the \emph{augmented} version
 which extends the feature space of the subtree kernel with new features.
 Usually adding more feature has an impact on the computational side of a kernel,
-in \cite{stplus} however an extension called ST+ kernel has been proposed with
+in \cite{dasanmartino2015exploiting} however an extension called ST+ kernel has been proposed with
 only a modest increment in computational time.
 Given a tree $T$, this kernel considers at most $\rho(v)h + 1$ features for any
 $v \in V_T$ which are:
@@ -651,6 +680,16 @@ $v \in V_T$ which are:
 \end{itemize}
 
 An example of feature extraction is given in Figure \ref{fig:featext}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.4]{Figures/featext}
+    \caption{Feature space representation related to the kernel ST+ for an example
+    tree: a) the input tree; b) the proper subtree rooted at the node labelled as $v$;
+    c)-e) given the child $x$ of $v$, the features related to visits limited to $l$ levels (from \cite{dasanmartino2015exploiting}).} 
+    \label{fig:featext}
+\end{figure}
+
 The formulation of this kernel is the following:
 
 \begin{equation}
@@ -661,7 +700,7 @@ where $m$ is the number of distinct trees corresponding to ST+ features, extract
 from a finite set of trees, and $h_s(T)$ the number of times the feature $t_s$
 appears in $T$.
 
-The proposed implementation in \cite{stplus} has a complexity of
+The proposed implementation in \cite{dasanmartino2015exploiting} has a complexity of
 $O(Hh^2\rho^2log\rho)$, with $\rho$ assumed constant, $h$ and $H$ being the limit
 of the tree visit and the number of nodes of that tree respectively.
 
@@ -701,14 +740,14 @@ have been proposed in the literature.
 Since the good number of kernels for tree-structured data available in the
 literature, it seems a good idea to devise a framework that favors the integration
 of such kernels in a graph learning context.
-This work has recently been accomplished in \cite{odd}, with the aim of ultimately
+This work has recently been accomplished in \cite{DBLP:conf/sdm/MartinoNS12}, with the aim of ultimately
 design an efficient graph kernel.
 The proposed framework takes advantage of a particular graph substructure i.e.
 the rooted DAG; by decomposing the graph in such subgraphs it lets a number
 of available tree kernels to be used as base kernels, once duly extended to work
 on DAGs.
 The original work presents and extension of the ST kernel to while another
-recent work \cite{stplus} instances the framework to an extension of the ST+
+recent work \cite{dasanmartino2015exploiting} instances the framework to an extension of the ST+
 kernel.
 
 The Ordered Decomposition DAG Kernels framework (ODDK) basically decomposes the
@@ -742,7 +781,7 @@ complexity of $ODDK$ with ST features is $O(|V_g|log|V_g|)$.
 
 \subsubsection{Fast subtree kernels}
 \label{subsubsec:fs}
-Fast subtree kernels are a family of kernels that have been proposed in \cite{fs}.
+Fast subtree kernels are a family of kernels that have been proposed in \cite{NIPS2009_3813}.
 These kernel base their discriminative power on the Weisfeiler-Lehman test of
 isomorphism.
 The main idea behind this framework is that every graph can be represented as
@@ -777,7 +816,7 @@ To define this kernel it is sufficient to define the base kernel for Equation
 where $\delta$ is again the Kronecker's function.
 
 With the base kernel defined in Equation \ref{eq:wl}, $K_{WL}^h$ becomes the
-kernel defined in \cite{fs}.
+kernel defined in \cite{NIPS2009_3813}.
 
 \subsection{Latest Improvements on Graph Kernel Methods}
 \label{subsec:kernel}
@@ -787,10 +826,10 @@ spaces without incurring in major computational drawbacks.
 Among the others, and mainly because inside the scope of this thesis we will
 mention in no particular order:
 \begin{itemize}
-    \item the addition of contextual information \cite{contexts}
+    \item the addition of contextual information \cite{Navarin2015},
     \item the extension of the ST kernel to be used in combination with easyMKL,
-        a recent MKL implementation.
-    \item the extension and generalization of the Weisfeiler-Lehman framework \cite{wl}
+        a recent MKL implementation,
+    \item the extension and generalization of the Weisfeiler-Lehman framework \cite{SanMartino2014}.
 \end{itemize}
 
 The next section will give a brief overview of the first point while in section
@@ -805,14 +844,14 @@ structures by the means of decomposing them in simpler substructures on which
 define a measure of similarity.
 Even though they employ different type of substructures, they have in general
 similar predictive performances.
-A recently proposed work \cite{contexts} on graph kernels, aims to improve local
+A recently proposed work \cite{Navarin2015} on graph kernels, aims to improve local
 feature expressiveness by enriching the feature space with contextual information,
 that is, a description of the topology of the graph around the extracted feature.
 This way an increase of discriminative power is expected, since two identical
 features need also to appear in the same place within two graphs to match.
 Therefore a feature contribution is built up by the contribution determined by
 its contexts, to express it more formally, given a graph $g$ and a feature $f$
-the following property holds from \cite{contexts}:
+the following property holds from \cite{Navarin2015}:
 
 \begin{equation}
     \phi_f(g) = \sum_{c \in Contexts_g(f)} \phi_{f\circ c}(g)
@@ -883,7 +922,7 @@ a strong kernel by allowing her to implement a number of more ``weak'' kernels
 that can work in combination to perform the learning task.
 
 The available methods in the literature can be summarily divided in two categories
-\cite{mkla}: \emph{fixed rule} algorithms which as the name implies apply some fixed
+\cite{journals/jmlr/GonenA11}: \emph{fixed rule} algorithms which as the name implies apply some fixed
 rule or heuristic to determine the combination parameters, thus being able to scale
 well with respect to the number of kernels but whose effectiveness is bounded by
 the effectiveness of the rule on the domain at hand.
@@ -903,7 +942,7 @@ that we chose for the present work.
 \subsection{EasyMKL}
 \label{subsec:easymkl}
 
-The method proposed in \cite{easymkl} focuses on the linear positive combination
+The method proposed in \cite{aiolli2015easymkl} focuses on the linear positive combination
 parameters version of $MKL$ which can be formulated as
 
 \begin{equation}
@@ -928,7 +967,7 @@ parameter and $\gamma \in \hat{\Gamma}$ is the probability distribution over the
 negative training samples.
 
 This problem has a similar formulation to the one of the \emph{Kernel Optimization of the
-Margin Distribution} problem (KOMD) \cite{komd} where the kernel matrix has been
+Margin Distribution} problem (KOMD) \cite{Aiolli2008} where the kernel matrix has been
 substituted with the sum of the weak input kernels with important implications
 in terms of the approach space requirements.
 
@@ -943,7 +982,7 @@ This will become more evident looking at the experimental results in Chapter
 \subsection{Multiple Kernel Learning On Graphs}
 \label{subsec:gmkl}
 A recent work \cite{gmkl} has managed to integrate the algorithm explained in the
-previous section with the work on graph kernels conducted in \cite{odd}
+previous section with the work on graph kernels conducted in \cite{DBLP:conf/sdm/MartinoNS12}.
 
 The technique proposed in the paper aims to find a generalizable way of constructing
 orthogonalized kernels starting from a single feature space, by the means of 

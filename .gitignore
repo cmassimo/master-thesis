@@ -58,7 +58,6 @@ target/
 
 *.txt
 
-*.bib
 *.aux
 *.bbl
 *.bcf

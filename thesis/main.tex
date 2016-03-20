@@ -41,7 +41,7 @@ headsepline, % Uncomment to get a line under the header
 
 \usepackage{lmodern} % Use the Palatino font by default
 
-\usepackage[backend=biber,style=numeric,natbib=true]{biblatex} % User the bibtex backend with the authoryear citation style (which resembles APA)
+\usepackage[sorting=none,backend=biber,style=numeric,natbib=true]{biblatex} % User the bibtex backend with the authoryear citation style (which resembles APA)
 
 \addbibresource{thesis.bib} % The filename of the bibliography
 
@@ -108,11 +108,11 @@ headsepline, % Uncomment to get a line under the header
 \begin{center}
 
 \textsc{\LARGE \univname}\\[1.5cm] % University name
-%\textsc{\Large Doctoral Thesis}\\[0.5cm] % Thesis type
+\textsc{\large \deptname}\\[0.5cm] % Thesis type
 
  
-\textsc{\Large Corso di Laurea Magistrale in Informatica}\\[0.5cm] % Thesis type
-\textsc{\large Anno Accademico 2015-2016}\\[2.5cm] % Thesis type
+\textsc{ Corso di Laurea Magistrale in Informatica}\\[0.5cm] % Thesis type
+\textsc{\small Anno Accademico 2015-2016}\\[2.5cm] % Thesis type
 
 \HRule \\[0.4cm] % Horizontal line
 {\huge \bfseries \ttitle}\\[0.4cm] % Thesis title
@@ -278,12 +278,13 @@ proposed baselines.
 %	THESIS CONTENT - APPENDICES
 %----------------------------------------------------------------------------------------
 
-%\appendix % Cue to tell LaTeX that the following "chapters" are Appendices
+\appendix % Cue to tell LaTeX that the following "chapters" are Appendices
 
 % Include the appendices of the thesis as separate files from the Appendices folder
 % Uncomment the lines as you write the Appendices
 
-%\include{Appendices/AppendixA}
+\include{Appendices/AppendixA}
+\include{Appendices/AppendixB}
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
