@@ -1,16 +1,19 @@
 import glob
 import sys
 from math import sqrt
+import re
 import numpy as np
 
 if len(sys.argv)<2:
-    sys.exit("python performance_significance.py directory keys")
+    sys.exit("python performance_significance.py directory mfiles")
 
 dirtocheck = sys.argv[1]
-keys_file = sys.argv[2]
-size = int(sys.argv[3])
-
-keys = np.loadtxt(keys_file, dtype='str')[0:110]
+wdict = {re.search('r\d+\.l\d\.\d', w[0]).group(0):np.array(w[1:], dtype='float64') for w in weights_raw}
+# no buckets
+keys = map(lambda x: re.search("[A-Z]*.r\d+\.l\d\.\d", x).group(0), sys.argv[2])
+# buckets
+keys = map(lambda x: ".".join(re.search("([A-Z]*).*(r\d\.depth\d+)", asd).groups()), sys.argv[2])
+print keys
 
 wd = {key:np.zeros(11) for key in keys}
 
