@@ -166,6 +166,8 @@ To establish a benchmark we compared our methodology with the results we got
 from testing some baseline performances against the same datasets.
 Table \ref{table:baselines} describes the general structure of the experiments
 designed with this aim.
+Moreover, for the first combination of the list ($ODDK_{ST}$ and $TCK_{ST}$)
+we compared our results against those in \cite{gmkl}.
 
 \begin{table}[ht]
     \centering
@@ -214,110 +216,145 @@ in the set $\{10^{-4},10^{-3},\dots,10^3\}$ \cite{rtesselli}.
 %----------------------------------------------------------------------------------------
 
 \section{Results and discussion}
-\label{subsec:results}
+\label{sec:results}
 
 \subsection{Analysis of the computational times}
+\label{subsec:time_results}
+
+We now present an analysis of the computational time performances of our methodology
+compared to the two baselines. To keep the results comparable we are here considering
+only the results obtained by experiments 2, 6, and 8 (cfr. Table \ref{table:structure} and \ref{table:baselines});
+this choice stem from the fact
+that these experiments employ the same kernel function with three different methods.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.8]{Figures/3datasetstimes}
+    \caption{(DRAFT: this plot will be done ex-novo and replicated for each one of the kernels combination)
+        plot of the times require to compute a full nested
+        10-fold cross-validation on the shown datasets.
+        The data shown here refers to experiments 2 (blue), 6 (orange) and 8 (yellow).
+        (DRAFT: partial results from the other two datasets seem to agree with this plot)
+    }
+        \label{fig:datasetstimes}
+\end{figure}
+
+As one can see from Figure \ref{fig:datasetstimes}, our method performs generally
+better or has comparable performances with respect to the single-kernel approach.
+The only case where our method fares worse is with the GDD dataset and this can be
+ascribed to the particular case which it represents, that is, due to the parameters
+set limitation in this case we had way less matrices than we should have had and
+this positively affects the single kernel method while being of no relevance for
+easyMKL, way less influenced by the number of input matrices.
+From this data we can finally conclude that our methodology is more susceptible
+to dataset dimension variation (i.e. the number of records) while the single-kernel
+method is ideed influenced by the same measure but it is even more influenced by
+the dimensions of the parameters grid.
 
 \subsection{Analysis of the models performances}
 
+Here we present the empirical results we got from the devised experiments described
+in the previous sections.
+Data is divided in three tables, one for each of the three combinations we chose.
+Each table reports the ROAUC measure with the standard deviation measured with
+a nested 10-fold cross validation. (DRAFT: should we substitute it with a 95\% confindence interval?)
+ROAUC was chosen over accuracy to be able to compare the results obtained in \cite{gmkl}.
+
+Looking at Table \ref{table:results_st}, it is immediately evident how the results
+obtained by our methodology are alwasy comparable when not even better with respect
+to the baselines except in when considering the GDD dataset which, as mentioned in
+Section \ref{subsec:time_results} is a rather peculiar case given the smaller dimensions
+of the parameters grid considered.
+While the results for experiment 2 seem in accordance with the results in \cite{gmkl},
+the $TCK_{ST}$ (experiment 3) performs significantly worse with our $MKL$ method than with
+the $SVM$.
+(DRAFT: experiments 4 and 6 have unexpected high performancs though.)
+
 \begin{landscape}
+%    \begin{table}[ht]
+%        \label{table:times}
+%        \caption{(DRAFT) Times}
+%    \end{table}
+
     \begin{table}[ht]
-        \centering
-        \begin{tabular}{|l|r|r|r|r|r|}
+        \begin{tabular}{|l|l|r|r|r|r|r|}
             \hline
-            method&CAS&NCI1&AIDS&CPDB&GDD\\
+            n. &method&CAS&NCI1&AIDS&CPDB&GDD\\
             \hline
-            MKL (ODD\_ST, TCK\_ST)* &&&0.8632 $\pm$ 0.0034&0.8632 $\pm$ 0.0033&\\
+            1& $MKL~(ODDK_{ST}, TCK_{ST})^*$&&&0.8632 $\pm$ 0.0034&\textbf{0.8632 $\pm$ 0.0038}&0.8528 $\pm$ 0.0022\\
+            2& $MKL~(ODDK_{ST})^*$&&&0.8627 $\pm$ 0.0035&\textbf{0.8632 $\pm$  0.0029}&0.8543 $\pm$ 0.0024\\
+            3& $MKL~(TCK_{ST})^*$&&&\textbf{0.8634 $\pm$ 0.0034}&0.8625 $\pm$ 0.0032&0.8458 $\pm$ 0.0021\\
             \hline
-            MKL (ODD\_ST)*&&&&&\\
-            \hline
-            MKL (TCK\_ST)*&&&&&\\
-            \hline
-            MKL (ODDS\_ST, TCK\_ST)&&&0.8468 $\pm$ 0.0041&0.8517 $\pm$ 0.0033&0.8611 $\pm$ 0.0017\\
-            \hline
-            MKL (ODD\_ST)&&&0.8387 $\pm$ 0.0043&0.8400 $\pm$ 0.0032&0.8012$\pm$ 0.0018\\
-            \hline
-            MKL (TCK\_ST)&0.8953 $\pm$ 0.0013&0.9095 $\pm$ 0.0006&0.8486 $\pm$ 0.0040&0.8525 $\pm$ 0.0029&0.8617 $\pm$ 0.0021\\
-            \hline
-            MKL (MKL-ODD)** &0.9049 $\pm$ 0.0008&0.9144 $\pm$ 0.0008&0.8515 $\pm$ 0.0031&0.8564 $\pm$ 0.0056&0.8498 $\pm$ 0.0026\\
-            \hline
-            SVM (ODD\_ST)** &0.8982 $\pm$ 0.0017&0.9069 $\pm$ 0.0010&0.8262 $\pm$ 0.0052&0.8442 $\pm$ 0.0067&0.8473 $\pm$ 0.0038\\
-            \hline
-            SVM (TCK\_ST +ODD\_ST)&0.9009 $\pm$ 0.0010&0.9110 $\pm$ 0.0011&0.8322 $\pm$ 0.0065&0.8497 $\pm$ 0.0072&0.8626 $\pm$ 0.0018\\
-            \hline
-            SVM (TCK\_ST)&0.9006 $\pm$ 0.0013&0.9149 $\pm$ 0.0010&0.8225 $\pm$ 0.0066&0.8421 $\pm$ 0.0080&0.8674 $\pm$ 0.0026\\
+            4& $MKL~(ODDK_{ST}, TCK_{ST})$&0.8960 $\pm$  0.0012&0.9076 $\pm$ 0.0007&0.8468 $\pm$ 0.0042&0.8517 $\pm$ 0.0034&0.8612 $\pm$ 0.0018\\
+            5& $MKL~(ODDK_{ST})$&&0.8976 $\pm$ 0.0010 &0.8388 $\pm$ 0.0044&0.8401 $\pm$ 0.0033&0.8013 $\pm$ 0.0019\\
+            6& $MKL~(TCK_{ST})$&0.8954 $\pm$ 0.0013&0.9095 $\pm$ 0.0006&0.8487 $\pm$ 0.0040&0.8525 $\pm$ 0.0030&0.8617 $\pm$ 0.0022\\
+             & $MKL~(ODDK_{ST})^{**}$&\textbf{0.9049 $\pm$ 0.0008}&0.9144 $\pm$ 0.0008&0.8515 $\pm$ 0.0031&0.8564 $\pm$ 0.0056&0.8498 $\pm$ 0.0026\\
+             & $SVM~(ODDK_{ST})^{**}$&0.8982 $\pm$ 0.0017&0.9069 $\pm$ 0.0010&0.8262 $\pm$ 0.0052&0.8442 $\pm$ 0.0067&0.8473 $\pm$ 0.0038\\
+            7& $SVM~(TCK_{ST} + ODDK_{ST})$&0.9010 $\pm$ 0.0011&0.9110 $\pm$ 0.0011&0.8323 $\pm$ 0.0065&0.8497 $\pm$ 0.0072&0.8627 $\pm$ 0.0018\\
+            8& $SVM~(TCK_{ST})$&0.9006 $\pm$ 0.0013&\textbf{0.9150 $\pm$ 0.0011}&0.8225 $\pm$ 0.0067&0.8422 $\pm$ 0.0080&\textbf{0.8674 $\pm$ 0.0026}\\
             \hline
         \end{tabular}
+        \caption{ROAUC results ($\pm$ standard deviation) relative to the combination
+            of the $ODD_{ST}$ kernel with the $TCK_{ST}$ kernel. Results are
+            obtained from a nested 10-fold cross validation. The first column is
+            given as a reference to the experiment description given in Section
+            \ref{sec:description}.
+            The top part of the table contains the results of the main experiments
+            while the bottom part those of the baselines.
+            Lines marked with $^*$ refer to kernels whose feature space was split
+            according to the technique exposed in \ref{subsec:features}.
+            Lines marked with $^{**}$ refer to results obtained in \cite{gmkl}.
+        }
         \label{table:results_st}
-        \caption{ROAUC measure relative to the first group of experiments.}
+        \medskip
 
-        \centering
-        \begin{tabular}{|l|r|r|r|r|r|}
+        \begin{tabular}{|l|l|r|r|r|r|r|}
             \hline
-            method&CAS&NCI1&AIDS&CPDB&GDD\\
+            n. & metodo&CAS&NCI1&AIDS&CPDB&GDD\\
             \hline
-            MKL ($ODD_{ST+}, TCK_{ST+}$)*&&&0.8632 $\pm$ 0.0034&0.8632 $\pm$ 0.0033&\\
+            1& $MKL (ODDK_{ST+}, TCK_{ST+})^*$&&&0.8632 $\pm$  0.0034&0.8632 $\pm$  0.0038&0.8528 $\pm$ 0.0022\\
+            2& $MKL (ODDK_{ST+})^*$&&&0.8628 $\pm$  0.0036&0.8652 $\pm$ 0.0030&\textbf{0.8720 $\pm$ 0.0021}\\
+            3& $MKL (TCK_{ST+})^*$&&&\textbf{0.8649 $\pm$  0.0030}&\textbf{0.8666 $\pm$  0.0038}&0.8711 $\pm$ 0.0018 \\
             \hline
-            ODD\_ST con MKL*&&&&&\\
-            \hline
-            TCK\_ST con MKL*&&&&&\\
-            \hline
-            TCK\_ST (+ODD\_ST) con SVM&0.9009 $\pm$ 0.0010&0.9110 $\pm$ 0.0011&0.8322 $\pm$ 0.0065&0.8497 $\pm$ 0.0072&0.8626 $\pm$ 0.0018\\
-            \hline
-            TCK\_ST con SVM&0.9006 $\pm$ 0.0013&0.9149 $\pm$ 0.0010&0.8225 $\pm$ 0.0066&0.8421 $\pm$ 0.0080&0.8674 $\pm$ 0.0026\\
-            \hline
-            ODDS\_ST, TCK\_ST con MKL&&&0.8468 $\pm$ 0.0041&0.8517 $\pm$ 0.0033&0.8611 $\pm$ 0.0017\\
-            \hline
-            ODD\_ST con MKL&&&0.8387 $\pm$ 0.0043&0.8400 $\pm$ 0.0032&0.8012$\pm$ 0.0018\\
-            \hline
-            TCK\_ST con MKL&0.8953 $\pm$ 0.0013&0.9095 $\pm$ 0.0006&0.8486 $\pm$ 0.0040&0.8525 $\pm$ 0.0029&0.8617 $\pm$ 0.0021\\
+            4& $MKL (ODDK_{ST+}, TCK_{ST+})$&&&0.8468 $\pm$ 0.0042&0.8517 $\pm$ 0.0034&0.8612 $\pm$ 0.0018\\
+            5& $MKL (ODDK_{ST+})$&&&0.8489 $\pm$  0.0039&0.8461 $\pm$ 0.0036&0.8178 $\pm$ 0.0022\\
+            6& $MKL (TCK_{ST+})$&&&0.8503 $\pm$  0.0038&0.8528 $\pm$ 0.0039&0.8645 $\pm$ 0.0018\\
+            7& $SVM (TCK_{ST+} + ODDK_{ST+})$&0.9022 $\pm$ 0.0015 &0.9163 $\pm$ 0.0011&0.8256 $\pm$ 0.0068&0.8521 $\pm$ 0.0038&0.8570 $\pm$ 0.0043\\
+            8& $SVM (TCK_{ST+})$&0.9008 $\pm$ 0.0017&0.9165 $\pm$ 0.0013&0.8222 $\pm$ 0.0067&0.8462 $\pm$ 0.0048&0.8588 $\pm$ 0.0028\\
             \hline
         \end{tabular}
+        \caption{ROAUC results ($\pm$ standard deviation) relative to the combination
+                of the $ODD_{ST+}$ kernel with the $TCK_{ST+}$ kernel. Results are
+                obtained from a nested 10-fold cross validation. The nomenclature and
+            results disposition is analogue to the one of Table \ref{table:results_st}.}
         \label{table:results_stp}
-        \caption{ROAUC measure relative to the second group of experiments.}
     \end{table}
 
-    \begin{table}[ht]
-        \centering
-        \begin{tabular}{|l|r|r|r|r|r|}
-            \hline
-            method&CAS&NCI1&AIDS&CPDB&GDD\\
-            \hline
-            ODD\_ST, TCK\_ST con MKL*&&&0.8632 $\pm$ 0.0034&0.8632 $\pm$ 0.0033&\\
-            \hline
-            ODD\_ST con MKL*&&&&&\\
-            \hline
-            TCK\_ST con MKL*&&&&&\\
-            \hline
-            TCK\_ST (+ODD\_ST) con SVM&0.9009 $\pm$ 0.0010&0.9110 $\pm$ 0.0011&0.8322 $\pm$ 0.0065&0.8497 $\pm$ 0.0072&0.8626 $\pm$ 0.0018\\
-            \hline
-            TCK\_ST con SVM&0.9006 $\pm$ 0.0013&0.9149 $\pm$ 0.0010&0.8225 $\pm$ 0.0066&0.8421 $\pm$ 0.0080&0.8674 $\pm$ 0.0026\\
-            \hline
-            ODDS\_ST, TCK\_ST con MKL&&&0.8468 $\pm$ 0.0041&0.8517 $\pm$ 0.0033&0.8611 $\pm$ 0.0017\\
-            \hline
-            ODD\_ST con MKL&&&0.8387 $\pm$ 0.0043&0.8400 $\pm$ 0.0032&0.8012$\pm$ 0.0018\\
-            \hline
-            TCK\_ST con MKL&0.8953 $\pm$ 0.0013&0.9095 $\pm$ 0.0006&0.8486 $\pm$ 0.0040&0.8525 $\pm$ 0.0029&0.8617 $\pm$ 0.0021\\
-            \hline
-        \end{tabular}
-        \label{table:results_wl}
-        \caption{ROAUC measure relative to the third group of experiments. }
-    \end{table}
+%    \begin{table}[ht]
+%        \label{table:results_wl}
+%        \caption{ROAUC results ($\pm$ standard deviation) relative to the combination
+%                of the $WL$ kernel with the $WLC$ kernel. Results are
+%                obtained from a nested 10-fold cross validation. The nomenclature and
+%            results disposition is analogue to the one of Table \ref{table:results_st}.}
+%        \label{table:results_wl}
+%    \end{table}
 \end{landscape}
 
 \section{Kernels Contribution Analysis}
-\dots eventuale plot dei pesi delle matrici per gli esperimenti principali
 
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=0.8]{Figures/weightdist}
-    \caption{Kernel weight distribution for the $TCK_{ST}$ kernel
-    computed according to the full parameters grid.
-    The $x$ axis shows the kernel indexed by their hyperparameters values,
-    the $y$ axis the weight values.
-    Each plot refers to one run of the cross-validation routine relative to one
-    value for the $\Lambda$ parameter of easyMKL. The vertical lines highlight
-    the kernel with the maximum weight for each value of $\Lambda$.}
+    \caption{(DRAFT: this plot is just an example of the available data for furhter analisys.
+        I think we may be mainly interested in the experiments were two kernels are combined
+        either with or without bucketization of the feature space.)
+        Kernel weight distributions for the $TCK_{ST}$ kernel
+    computed according to the full parameters grid, on the NCI1 dataset.
+    The $x$ axis shows all the employed kernel matrices indexed by their hyperparameters
+    values (ascending values left to right), the $y$ axis the weight values.
+    Each plot refers to one run of the nested 10-fold cross-validation routine relative to one
+    value for the $\Lambda$ parameter of easyMKL. Weight values are the means between each of the inner
+    cross-validation runs. The vertical lines highlight the kernel with the maximum weight for each value of $\Lambda$.}
         \label{fig:weightdist}
 \end{figure}
 

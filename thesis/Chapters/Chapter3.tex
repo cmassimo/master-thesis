@@ -17,7 +17,7 @@ the present work.
 As discussed in Section \ref{subsec:mkl}, $MKL$ methods generally provide a consistent
 way of using different, possibly weak, kernels to build a model which is the result
 of their composition in some way that vary from implementation to implementation.
-The constant point here is that the set of weak kernels gets \emph{combined}, thus
+The constant point here is that the set of kernels gets \emph{combined}, thus
 making one of those methods the perfect candidate to be the foundation of our
 combining methodology.
 
@@ -25,7 +25,7 @@ The easyMKL implementation (Section \ref{subsec:easymkl}) was deemed a good
 choice because of the promising overall performances and the empirical evidence
 that the method is not significantly affected by the number of kernels
 being combined, a major point of our method, and last but not least it was
-available and easily integrated with our pre-existing kernels code base.
+available and easily integrated with our pre-existing kernel functions code base.
 
 The methodology therefore consists in a k-fold nested cross-validation with
 easyMKL as the kernel machine as detailed in Algorithm \ref{alg:method} and further in
@@ -36,7 +36,7 @@ Figure \ref{fig:method}.
         High level implementation of the proposed methodology.
         The $computeKernel$ function returns a kernel matrix computed
         according to the selected $kernel$ from the $Kernels$ set which indexes
-        the kernels to be combined, the hyper-parameters $tuple$ and the chosen
+        the kernel functions to be combined, the hyper-parameters $tuple$ and the chosen
         $dataset$.
         The $split$ function takes a list of kernel matrices and returns two lists
         of kernel matrices split in two sets according to the cross-validation
@@ -106,7 +106,7 @@ entirety and the only parameters that needs validation are the ones of the chose
 $MKL$ implementation, namely one regularization parameter ($\Lambda$) in our case.
 This point will be further elaborated on in the following section.
 
-\subsection{Embedded model selection}
+\subsection{Implicit model selection}
 \label{subsec:parameters}
 One of the main advantages of the proposed method is that it permits to embed
 the otherwise cumbersome process of hyper-parameter optimization (Section \ref{subsubsec:grid})
@@ -117,7 +117,7 @@ It is customary practice to perform hyper-parameter optimization employing a gri
 search technique.
 In our setting this would translate to having to compute one kernel matrix
 for all the possible combinations deriving from every set of values
-chosen for each kernel hyper-parameter, and repeat the process for every kernel
+chosen for each kernel hyper-parameter, and repeat the process for every kernel 
 we may have wanted to combine.
 Then a cross-validation would have been performed using a kernel matrix from each
 selected kernel, according to a combination of parameters.
@@ -196,7 +196,7 @@ particular kernel by the algorithm would directly correlate with the underlying
 feature space thus rendering the $\lambda$ parameter of the $ODD$ kernel superfluous.
 
 The $Fast Subtree$ kernel space has an already orthogonally structured feature
-space since each feature extracted at iteration $i \in \{1,\dots,h\}$ (see Section \ref{subsubsec:fs})
+space since each feature extracted at iteration $i \in \{0,\dots,h\}$ (see Section \ref{subsubsec:fs})
 is independent from all the feature extracted at iteration $j \in \{1,\dots,h\}\setminus \{i\}$.
 
 The most direct consequence of the adoption of this techniques is that we reduced
@@ -224,8 +224,8 @@ of kernel matrices (line \ref{line:kernels}) thus giving the $m\cdot n^2$ part,
 and at least one list of subset of all the full matrices (lines \ref{line:osubsets}
 and \ref{line:isubsets}), the latter being needed by the inner cross-validation
 loop and the final model training.  Our final implementation has been devised in
-such a way that there are never more than two list of matrices in memory at the
-same time.  
+such a way that there are never more than two copies of the list of matrices in
+memory at the same time.  
 
 Even with this level of optimization, the memory consumption rate can still be
 daunting for some applications so, we devised a different approach that has been
