@@ -8,7 +8,7 @@ principal aspects of the general approach such as risk minimization and evaluati
 strategy.
 Then Section \ref{sec:kernel} deals with the theoretical foundations of the 
 methods that are in the scope of this thesis, while Section \ref{sec:graphkernels}
-delves in the details of the various approaches that will be covered.
+delves in the details of the various approaches that are here covered.
 Unless otherwise noted, the material in this chapter has been derived
 from \cite{nnavarin, rtesselli}.
 
@@ -25,7 +25,7 @@ mainly in finding an approximation good enough for the task at hand.
 The learning process is carried on by an algorithm which builds an hypothesis
 on the available data and uses that hypothesis, let's say $h()$,  to approximate
 $c()$.
-One of the main goal of such an algorithm is to use the given data to constantly
+One of the main goals of such an algorithm is to use the given data to constantly
 improve the hypothesis $h()$ up to a certain performance measure, depending
 on the task, the paradigm considered or other external factors such as available
 resources.
@@ -33,7 +33,7 @@ resources.
 This approach is better exploited in scenarios where either an exact
 algorithmic solution to the problem (learning $c()$) would be infeasible, when
 there is too much uncertainty in the data or when the problem definition itself
-is too difficult to formally define or too vague.
+is too difficult to be formally defined or too vague.
 Since a machine learning algorithm is often looking for an approximation of the 
 optimal solution, the first problem can be solved settling with a suboptimal
 solution that is more easily obtainable; given the iterative fashion in which
@@ -46,10 +46,10 @@ classification of so-called spam emails.
 This problem states that an email can either be ``spam'' or not but the definition
 of ``being spam'' is not unique or universally accepted, so we need to be guided
 in the initial definition by a human counterpart: we submit a set of emails to a
-human supervisor that labels them for us then, from this initial evidence, a
+human supervisor that labels them for us; then, from this initial evidence, a
 machine learning algorithm tries to ``learn'' this particular concept of spam
-and uses this knowledge to label future incoming emails which if confirmed by the
-supervisor go to increase the algorithm's knowledge and possibly meliorate it in
+and uses this knowledge to label future incoming emails which, if confirmed by the
+supervisor, go to increase the knowledge base and possibly meliorate it in
 a continuing iterative fashion.
 
 This iterative process of learning from experience, incorporating the new one
@@ -61,7 +61,7 @@ be summed by the following definition:
     A computer program is said to learn from experience \emph{E} with
     respect to some class of tasks \emph{T} and performance measure \emph{P},
     if its performance at tasks in \emph{T}, as measured by \emph{P}, improves
-    with experience \emph{E} [Mitchell].
+    with experience \emph{E} \cite{ML}.
 \end{definition}
 
 Learning in this context can be divided in three main paradigms, of which this
@@ -94,10 +94,10 @@ available data, of which again this thesis covers only the first one:
 \end{description}
 
 \subsection{Supervised Learning}
+\label{subsec:sup}
 
-This work uses a supervised learning approach, in that the dataset
-used in the experiments consists in previously and correctly labelled records with
-reasonable certainty.
+This work considers a supervised learning, where each input example has been
+previously labelled correctly with reasonable certainty.
 We are then facing a \emph{classification} problem, one in which we need to learn
 a decision function that will classify each new record with the correct label.
 In this paradigm we are given a set of tuples (i.e. examples) called \emph{training set}:
@@ -127,7 +127,7 @@ hypothesis from $\mathcal{H}$ that could fit any given data.
 \subsection{Overfitting}
 The kind of bias that we apply to our learning process affects the resulting
 hypothesis in ways that can be counter-productive.
-Generally is assumed that the data in the training set is generated according
+Generally it is assumed that the data in the training set is generated according
 to an unknown probability distribution $P$ on $X$.
 We aim to find an optimal hypothesis $h^*$ that is, the one that minimizes the
 prediction error (often referred to as \emph{risk} or ideal error) which is
@@ -159,11 +159,11 @@ The contrary is called \emph{underfitting} and negatively affects the
 generalization power of an hypothesis by making it fail to learn much from the
 sample data.
 
-\subsubsection{Structural Risk Minimization}
-\label{subsubsec:srm}
+\subsection{Structural Risk Minimization}
+\label{subsec:srm}
 To avoid the scenarios depicted in the previous section we need a way to determine
 how powerful an hypothesis can be, i.e. its expressiveness.
-This is achieved by measuring the complexity of the originating hypotheses space,
+This can be achieved by measuring the complexity of the originating hypotheses space,
 using a measure called \emph{Vapnik-Chervonenkis dimension} (VC-dimension).
 First we will introduce the concept of shattering of a set $\mathrm{X}$:
 \begin{definition}[Shattering]
@@ -218,7 +218,8 @@ maximize the learning performance since the cardinality of the training set is
 inversely proportional to the bound on the ideal error.
 However we cannot rely on the learning phase alone but we also need a way to
 assess the goodness of a given hypothesis with respect to a given metric, be it 
-either the prediction accuracy or a more sophisticated one like the ROC AUC.
+either the prediction accuracy or a more sophisticated one like the ROC AUC
+and because there are parameters to adjust.
 In this thesis a variant of the technique explained in the following section
 has been employed.
 
@@ -232,7 +233,7 @@ is tested on the test set.
 The point of this process is to simulate the situation in which the hypothesis
 face prediction on previously completely unseen samples thus mimicking the real
 world scenario.
-A considerable drawback that needs to be weighed in during this phase is the 
+A considerable drawback that needs to be considered during this phase is the 
 possibly consistent reduction of the cardinality of the training set which as 
 previously noted will likely lead to increase the bound on true risk.
 
@@ -242,16 +243,17 @@ determines the number of slices the training set will be split into, each one to
 be used as the validation set during the relative fold, while the remaining $k-1$
 become the new training set.
 After $k$ folds have returned $k$ different hypothesis, the one with the best
-performance on its validation set is returned as the best one.
+performance on its validation determines the parameters to train another model,
+this time on the whole training set, which will be the final model returned.
 The variation of $k$ can dramatically affect the overall learning outcome.
-For $k=1$ the technique is called \emph{leave-one-out} and has the peculiarity
+For $k=n$ the technique is called \emph{leave-one-out} and has the peculiarity
 of decreasing the model bias (outliers will not affect the model) but increasing
 the variance on the validation set.
 On the other hand for large values of $k$, we obtain the opposite effect.
 
 \subsubsection{Nested Cross Validation}
 \label{subsubsec:ncv}
-An important thing to note at this point is that with the technique explained in
+An important thing to notice at this point is that with the technique explained in
 the previous section we are not assessing the performance of each hypothesis
 independently from the training set since every validation set becomes at some
 point part of the training set of another fold.
@@ -262,16 +264,15 @@ process and used exclusively for performance assessment purposes.
 The scheme consists of two nested loops, in the first loop, the training set
 is split into $k$ subsets, $k-1$ of which become the training set for the
 $i^{th}$ iteration of training while the $k^{th}$ set becomes the test set.
-This subset of the original training set is then split again in $k$ subsets
+The subset of the original training set thus generated is then split again in $k$ subsets
 which again are used for training and validation with the usual cross validation
 technique.
 Once the best hypothesis has been selected in the innermost loop, it is trained
 with the whole outer loop training set and tested against the test set, which has
 remained completely isolated from the learning phase until now.
-When used in combination with hyper-parameter optimization with the so called grid
-search technique, the performances obtained in the outer loop are usually used
+When used in combination with hyper-parameter optimization with the so-called grid
+search technique (see Section \ref{subsubsec:grid}), the performances obtained in the outer loop are usually used
 to determine the best set of parameters in what is called model selection.
-See Figure \ref{fig:method} for a schematic of the steps of this technique.
 
 \subsubsection{Grid Search}
 \label{subsubsec:grid}
@@ -280,7 +281,7 @@ search on a hand-picked sub-space of the hyper-parameters space that is, selecti
 a set of value for each parameter then evaluating every possible combination
 deriving from the cartesian product of these sets by the means of cross-validation.
 This approach is potentially doomed by the curse of dimensionality, a solution
-for which could be a limited randomized search, but is also clearly very easily
+for which could be a limited randomized or local search, but is also clearly very easily
 parallelizable.
 
 %----------------------------------------------------------------------------------------
@@ -321,6 +322,18 @@ so that computing $K(x,y)$ is equivalent to computing the dot product $\langle
 \phi(x),\phi(y)\rangle$, then $K$ is a kernel.
 The converse is always true when $X$ is a countable set for an opportune choice
 of $\phi$.
+In this case the kernel is called a reproducing kernel and it is associated with a \emph{Reproducing
+    Kernel Hilbert Space} (RHKS) on $X$ i.e. a set $\mathcal{K}$ that satisfies the following properties:
+\begin{enumerate}
+    \item elements of $\mathcal{K}$ are real functions defined on $X$;
+    \item $\mathcal{K}$ is a vectorial space w.r.t. the usual operations between
+    functions like sum and multiplication by a scalar;
+    \item the inner product $\langle\cdot,\cdot\rangle_\mathcal{K}$ is 
+        defined on $\mathcal{K}$, making it an Hilbert space
+    \item (reproducing property) $\forall x \in X~\exists K_x \in \mathcal{K}$
+        s.t. $\forall f \in \mathcal{K}$ the following holds:
+        \[ f(x) = \langle f,K_x\rangle_\mathcal{K} \]
+\end{enumerate}
 The vector space defined by such $\phi$ is called \emph{feature space}.
 
 An useful extension, called \emph{zero extension}, is available given a kernel $K$
@@ -334,8 +347,8 @@ Kernel are also demonstrably closed under the sum operation:
     c_2K_2(x,x'), c_1,c_2 \geq 0$, is a valid kernel.
 \end{theorem}
 \begin{proof}
-    Given any final set of instances $\{x_1,\dots,x+n\}$, let $K_1$ and $K_2$ be
-    the kernel matrices of the kernel mentioned above. Then the kernel matrix
+    Given any final set of instances $\{x_1,\dots,x_n\}$, let $K_1$ and $K_2$ be
+    two kernel matrices. Then the kernel matrix
     associated to $c_1K_1(x,x') + c_2K_2(x,x')$ is $K=c_1K_1+c_2K_2$ which is
     postive-semidefinite because for any $v\in\mathbb{R}^n, v^\top(c_1K_1+c_2K_2)v
     = c_1(v^\top K_1v)+c_2(v^\top K_2v) \geq 0$, as both addends are greater or
@@ -348,19 +361,19 @@ Kernel are also demonstrably closed under the sum operation:
 
 What kernel machines try to accomplish is basically sample separation in a given
 feature space.
-This is achieved exploiting the information contained in the kernel matrix about
+This is achieved exploiting the information encoded by the kernel function about
 sample pairwise similarity, by defining the separation problem as an optimization
-problem, constrained on those very similarity values, we are guaranteed to find
+problem, constrained on those similarity values, we are guaranteed to find
 a global optimum by the properties of the kernel function, as detailed in
-section~\ref{subsec:kernelfunc}.
+Section~\ref{subsec:kernelfunc}.
 Taking as an example setting non-linearly separable data in a binary classification
 context, we will now go through the whole technique.
 Being non linearly separable means that the data cannot be separated by a single
 hyperplane in the input space, that is, the space in which the samples are defined.
-A solution to this problem is to define a function $\phi$ that will map each
+A solution to this problem is to define a non-linear function $\phi$ that maps each
 sample from the input space $X$ with $n$ dimensions, to another space $\mathcal{H}$
 of much higher dimensionality, let's say $M >> n$, i.e. $\phi:X\to \mathcal{H}$.
-Given a sample $x \in X$, the $j^{th}$ feature of $\phi(x)$ will be then be
+Given a sample $x \in X$, the $j^{th}$ feature of $\phi(x)$ will then be
 computed by another non-linear function $\phi_j$, $\forall j \in \{1,\dots,M\}$.
 This technique is employed because of the result brought on by Cover's Theorem
 that states:
@@ -371,8 +384,8 @@ that states:
     space, provided that the space is not densely populated.
 \end{theorem}
 
-this result rely on the fact that projecting the data in an higher-dimensional
-space than the input one, they will become more sparse hence more easily separable
+This result rely on the fact that projecting the data in an higher-dimensional
+space than the input one, it will become more sparse hence more easily separable
 with a linear separator, this concept is exemplified in Figure \ref{fig:phi}.
 
 \begin{figure}[ht]
@@ -385,37 +398,37 @@ with a linear separator, this concept is exemplified in Figure \ref{fig:phi}.
 \end{figure}
 
 Given these premises, and a value of $M$ high enough for the mapped samples to
-be linearly separable a kernel machine looks for the optimal linear separator in
-$\mathcal{H}$ and then maps it back to the input space as a non-linear separator.
+be linearly separable, a kernel machine looks for the optimal linear separator in
+$\mathcal{H}$ that corresponds to a non-linear separator in the input space.
 To find this optimal separator the kernel machine has to deal with samples of
 very high (possibly infinite) dimensionality and this could quickly render the
 search for the solution to the optimization problem infeasible or too onerous.
 Given that in the problem formulation the function $\phi$ only appears inside
-the computation of dot products, these values can be calculated by a kernel
+the computation of dot products, values can be calculated by a kernel
 function (section~\ref{subsec:kernelfunc}) thus referring to $\mathcal{H}$
-only implicitly and avoiding having to deal with a high number of dimensions
+only implicitly and avoiding to deal with a high number of dimensions
 altogether using what is commonly known as the \emph{kernel trick}.
 
 \subsubsection{Support Vector Machines}
 \label{subsubsec:svm}
 Here we will briefly describe one of the most tried kernel machines in the literature. 
-\emph{Support Vector Machines} or SVM [Vapnick] rest on the principle of structural risk
-minimization (section \ref{subsubsec:srm}) providing a trade-off between hypotheses
+\emph{Support Vector Machines} or SVM \cite{Cortes&Vapnik:1995} rest on the principle of structural risk
+minimization (Section \ref{subsec:srm}) providing a trade-off between hypotheses
 space complexity and the performances in fitting the training data.
 It is a binary classifier but can be used to solve multi-class classification
 problems with some additional work to combine multiple instances of this binary
 classifier.
-It is also a linear classifier by default and can be easily extended to the 
+It is also a linear classifier and can be easily extended to the 
 non-linear domain by using it in conjunction with (non-linear) kernel functions.
 Given a feature space, this method tries to find the optimal hyperplane that
 correctly separates the samples in such space, and separates them in the
 most general way that is, maximising the \emph{margin} between each class.
-In order to minimize the bound on true error (Section \ref{subsubsec:srm})
+In order to minimize the bound on true error (Section \ref{subsec:srm})
 this method uses hypotheses spaces of crescent VC-dimension, to minimize the
 VC-confidence while keeping a low empirical error.
 There are two main settings in which this algorithm can work: when the data
 is linearly separable in its original feature space and when it is not.
-In the first case, since the empirical risk is going to be null, finding the
+In the first case, since the empirical risk is going to be zero, finding the
 optimal hyperplane means finding the one that again minimizes the VC-dimension
 which in turn is the one that maximizes the margin between the classes i.e.
 the minimum distance between the hyperplane and the nearest sample.
@@ -453,7 +466,7 @@ where $L$ is the lagrangian function and $\vec{\alpha}$ the multipliers.
     \label{eq:lagrange}
 \end{equation}
 
-The optimal solution to this problem is the saddle point obtained while minimizing
+The optimal solution of this problem is the saddle point obtained while minimizing
 w.r.t. $\vec{w}\text{ and }b$ and maximizing w.r.t. $\vec{\alpha}$.
 
 When reaching this point the gradient of the function $L$ must be null:
@@ -514,7 +527,7 @@ The role of the slack variable $\xi_i$ is exemplified in Figure \ref{fig:slacks}
     \label{fig:slacks}
 \end{figure}
 
-The above solution has the major downside that cannot guarantee good performances
+The above approach has the major drawback that cannot guarantee good performances
 in highly non-separable data because of the limitation in the ways an hyperplane
 can separate any feature space, i.e. through dichotomies.
 A remedy to this fact is to use the technique exposed in Section \ref{subsec:kmachines}
@@ -542,7 +555,7 @@ In the previous section we introduced the theoretical foundations behind kernel
 functions and the related learning methods.
 The kernel learning approach is certainly convenient, the user needs to concentrate
 its effort on the selection or design of the right kernel function for the problem
-at hand, then couple it with one of the available general-purpose approaches to
+at hand, then couple it with one of the available general-purpose learning algorithms to
 get a full-fledged learning method.
 That being said, it is clear that in this scenario the kernel function is the
 component responsible for the main source of bias.
@@ -555,7 +568,7 @@ study of new methods to tackle them.
 One way of working with structured data could be to actually get rid of the structure
 deriving an \emph{ad-hoc} vectorial representation, in what is called a
 \emph{structure-based} approach.
-This method is expensive and cumbersome since it force the user to have a strong
+This method is expensive and cumbersome since it forces the user to have a strong
 knowledge of the task domain and to re-develop a new vectorial representation
 for each task that she may encounter.
 
@@ -574,18 +587,18 @@ produce some learning and the computational efficiency that it is required in
 order to effectively perform the learning process.
 As an example of this trade-off consider a kernel on graphs that counts all the
 matching subgraphs between two input graphs.
-This is certainly one of the most expressive kernel possible if not the most expressive
+This is certainly one of the most expressive possible kernels if not the most expressive
 at all.
 Even if such enumeration would exist, the kernel would still need to solve the
-graph isomorphism problem several times, but that is clearly infeasible since graph
+subgraph isomorphism problem several times, but that is clearly infeasible since subgraph
 isomorphism is NP-hard.
 Algorithmic complexity for a kernel function is a major point since the kernel has
-to be computed for each pairs of samples, rendering even a quadratic complexity
+to be computed for each pair of samples, rendering even a quadratic complexity
 a hindering factor for its application.
 
 A theoretically grounded way to design efficient and effective kernel functions for
-structured data has been proposed by Haussler \cite{haussler99convolution} and will be explained
-in the next section.
+structured data has been proposed by Haussler \cite{haussler99convolution} and
+it is explained in the next section.
 The main concept behind his work is that we need to restrict the number and type
 of features considered for each structure.
 Again, the choice of the substructures that would become features deeply affects
@@ -634,7 +647,7 @@ With these premises, a mapping kernel is defined as:
 \end{equation}
 
 The positive semi-definiteness of the kernel $K$ is guaranteed only if the
-mapping $\{M_{x,y}|x,y \in \mathcal{X}$ is transitive.
+mapping $\{M_{x,y}|x,y \in \mathcal{X}\}$ is transitive.
 In the following sections we will analyse some of the latest contributions in terms
 of kernel on structured data namely tree kernels and graph kernels.
 
@@ -643,6 +656,7 @@ This family of kernels stems directly from the convolution kernel and each one
 works by defining a different decomposition for the input tree.
 
 \subsubsection{Subtree kernel}
+\label{subsubsec:st}
 The feature space of this kernel is composed of all the proper subtrees of the
 input tree.
 Let $X$ and $Y$ be two trees, the  subtree kernel is defined as:
@@ -701,14 +715,14 @@ from a finite set of trees, and $h_s(T)$ the number of times the feature $t_s$
 appears in $T$.
 
 The proposed implementation in \cite{dasanmartino2015exploiting} has a complexity of
-$O(Hh^2\rho^2log\rho)$, with $\rho$ assumed constant, $h$ and $H$ being the limit
+$O(Hh^2\rho^2log\rho)$ with $h$ and $H$ being the limit
 of the tree visit and the number of nodes of that tree respectively.
 
 \subsection{Kernels For Graphs}
 
 As previously mentioned, defining kernels on graph is a challenging task, mainly
 because of the need to balance the trade-off between the expressiveness of the
-features space and the computational effort needed for feature extraction and
+feature space and the computational effort needed for feature extraction and
 kernel calculation.
 Expressive kernels are usually well performing in terms of predictive power but
 are also typically more expensive to compute.
@@ -716,12 +730,11 @@ On the other hand a less discriminative kernel is usually easier to calculate
 at the expenses of some learning power.
 To further explain this point, consider the class of kernels that are able to
 distinguish between all the (non-isomorphic) graphs in the feature space.
-Being able to distinguishing between to non-isomorphic graphs that belongs to two
-different classes is essential for any machine learning approach that has to
-separate them.
+Being able to distinguishing between two non-isomorphic graphs that belongs to two
+different classes is essential for any machine learning approach.
 However, computing such kernel in an efficient way would equals to solve the
 graph isomorphism problem in a similarly efficient way and this is not the case
-since at the moment this problem is believed to be in the NP-hard class of problems.
+since at the moment there are no polynomial time algorithms for solving the graph isomorphism problem.
 Another interesting group of kernels is the one that given a graph $X$, it decomposes
 it into the set of its subgraphs and maps it to a set of features $\phi_h$ that, for
 each graph $h$ measure how many subgraphs of $X$ are isomorphic to $h$.
@@ -731,28 +744,28 @@ problem explained above, so probably no such efficient kernel exists.
 Recent research has focused on the study and development of less expressive
 kernels that have the major advantage of being computable in polynomial time.
 In the following sections we will briefly discuss the kernels that falls in the
-scope of the present thesis and give an overview of the recent improvements that
+scope of the present thesis, and give an overview of the recent improvements that
 have been proposed in the literature.
 
 \subsubsection{ODD kernels}
 \label{subsubsec:odd}
 
-Since the good number of kernels for tree-structured data available in the
-literature, it seems a good idea to devise a framework that favors the integration
-of such kernels in a graph learning context.
-This work has recently been accomplished in \cite{DBLP:conf/sdm/MartinoNS12}, with the aim of ultimately
-design an efficient graph kernel.
-The proposed framework takes advantage of a particular graph substructure i.e.
-the rooted DAG; by decomposing the graph in such subgraphs it lets a number
-of available tree kernels to be used as base kernels, once duly extended to work
-on DAGs.
-The original work presents and extension of the ST kernel to while another
-recent work \cite{dasanmartino2015exploiting} instances the framework to an extension of the ST+
-kernel.
+Before the introduction of the ODD kernel framework, a number of graph kernels
+could already be found in literature, such as the \emph{random walk kernels} \cite{Gaertner04mlj},
+the \emph{subtree pattern kernel} \cite{ramon03graphkernels}, and the \emph{shortest path kernel}
+\cite{borgwardt05graphkernel}, but they remained computationally very onerous, with
+the first family having polynomial complexity only on undirected graphs, the second one
+having exponential complexity and the last one being more than quadratic.
+The \emph{ODD kernel framework} proposed in \cite{DBLP:conf/sdm/MartinoNS12} aims
+to be a kernel framework that can be instantiated with the right trade-off between
+expressiveness and efficiency for different tasks.
+The original work presents an instantiation with the ST kernel, while another
+recent work \cite{dasanmartino2015exploiting} instances the framework to an adaption
+of the ST+ kernel.
 
 The Ordered Decomposition DAG Kernels framework (ODDK) basically decomposes the
 graphs in a set of simpler trees, where it is easier to compute the isomorphism
-using the efficient tree kernels.
+using efficient tree kernels.
 The framework consists of these steps:
 
 \begin{enumerate}
@@ -762,9 +775,13 @@ The framework consists of these steps:
         $v_j \in V_g$;
     \item a strict partial order on the vertices of the DAG has to be defined
         to make an unique representation of the subtrees possible.
-    \item each obtained Ordered Decomposition DAG $ODD_g^{v_i}$ is mapped into
-        one or more trees $T(v_i,ODD_g^{v_i})$ and the kernel between two graphs
-        $g_1$ and $g_2$ is defined as:
+    \item each Ordered Decomposition DAG $ODD_g^{v_i}$ thus obtained that is, each
+        decomposition DAG with the nodes ordered according to the partial
+        order relation defined above, is then mapped into
+        one or more trees $T(v_i,ODD_g^{v_i})$, where $T(\cdot,\cdot)$ is the function
+        that returns the tree resulting from the tree visit on $ODD_g^{v_i}$ starting
+        from node $v_i$, and the kernel between two graphs $g_1$ and $g_2$ is
+        defined as:
         \begin{equation}
             ODDK(g_1,g_2) = \underset{OD_2 \in ODD_{g2}}{\underset{OD_1 \in ODD_{g1}}{\sum}}
             \sum_{j=1}^h\sum_{l=1}^h
@@ -775,15 +792,15 @@ The framework consists of these steps:
 \end{enumerate}
 
 Considering the instantiation of the framework with the ST kernel and limiting
-the size of the tree-visits $T_j(v_1)$ and by assuming $\rho$ constant the time
-complexity of $ODDK$ with ST features is $O(|V_g|log|V_g|)$.
-
+the size of the tree-visits $T_j(v_1)$, with the $h$ parameter that regulates the
+maximum height of the considered substructures, and by assuming $\rho$ constant
+the time complexity of $ODDK$ with ST features is $O(|V_g|log|V_g|)$.
 
 \subsubsection{Fast subtree kernels}
 \label{subsubsec:fs}
-Fast subtree kernels are a family of kernels that have been proposed in \cite{NIPS2009_3813}.
-These kernel base their discriminative power on the Weisfeiler-Lehman test of
-isomorphism.
+The fast subtree kernel \cite{NIPS2009_3813} belongs to family of kernels defined
+as instances of the Weisfeiler-Lehman kernel framework which bases its discriminative
+power on the Weisfeiler-Lehman test of isomorphism.
 The main idea behind this framework is that every graph can be represented as
 a sequence of graphs, each one being generated from the previous one through
 a new labeling function that encapsulates the isomorphism test.
@@ -803,7 +820,7 @@ framework can be formulated as:
 \end{equation}
 
 A first instance of this framework is the \emph{Weisfeiler-Lehman subtree kernel}
-which considers all the subtree patterns up to height $h$ and checks whether the
+($WL$) which considers all the subtree patterns up to height $h$ and checks whether the
 neighbourhoods of two nodes match exactly.
 To define this kernel it is sufficient to define the base kernel for Equation
 \ref{eq:fs} as:
@@ -827,13 +844,12 @@ Among the others, and mainly because inside the scope of this thesis we will
 mention in no particular order:
 \begin{itemize}
     \item the addition of contextual information \cite{Navarin2015},
-    \item the extension of the ST kernel to be used in combination with easyMKL,
-        a recent MKL implementation,
+    \item the extension of the $ODD_{ST}$ kernel to employ an MKL approach,
     \item the extension and generalization of the Weisfeiler-Lehman framework \cite{SanMartino2014}.
 \end{itemize}
 
 The next section will give a brief overview of the first point while in section
-\ref{subsec:gmkl} we will delve a bit more in detail in the $MKL$ approach
+\ref{subsec:gmkl} we will delve a bit more in detail in the MKL approach
 with respect to graph kernel learning.
 
 \subsubsection{Kernels with contextual information}
@@ -847,10 +863,13 @@ similar predictive performances.
 A recently proposed work \cite{Navarin2015} on graph kernels, aims to improve local
 feature expressiveness by enriching the feature space with contextual information,
 that is, a description of the topology of the graph around the extracted feature.
-This way an increase of discriminative power is expected, since two identical
-features need also to appear in the same place within two graphs to match.
+The cited work proposes an extension of the $ODD_{ST}$ kernel, derived from
+\cite{rtesselli} where extensions of the $ODD_{ST+}$ kernel ($TCK_{ST+})$ and of the $WL$
+kernel ($WLC$) are proposed.
+In this way an increase of discriminative power is expected, since two identical
+features need also to appear in the same context within two graphs to match.
 Therefore a feature contribution is built up by the contribution determined by
-its contexts, to express it more formally, given a graph $g$ and a feature $f$
+its contexts. To express it more formally, given a graph $g$ and a feature $f$
 the following property holds from \cite{Navarin2015}:
 
 \begin{equation}
@@ -871,10 +890,10 @@ The Tree Context Kernel can thus be defined as:
 
 \begin{gather}
     \begin{aligned}
-        TCK(G_1,G_2) = &\underset{v_2 \in V_{G_2}}{\underset{v_1 \in V_{G_1}}{\sum}}
-        \sum_{i=1}^h\sum_{j=1}^h\\
-        &[\delta(T_i(v_1,G_1),T_j(v_2,G_2)) + 
-        \underset{\overset{u_2}{\triangle} \in T_i(v_2,G_2)}{\underset{\overset{u_1}{\triangle} \in T_i(v_1,G_1)}{\sum}}
+        TCK(G_1,G_2) &= \underset{v_2 \in V_{G_2}}{\underset{v_1 \in V_{G_1}}{\sum}}
+        \sum_{i=1}^h\sum_{j=1}^h
+        ~[\delta(T_i(v_1,G_1),T_j(v_2,G_2))\\
+            &+\underset{\overset{u_2}{\triangle} \in T_i(v_2,G_2)}{\underset{\overset{u_1}{\triangle} \in T_i(v_1,G_1)}{\sum}}
         \delta(\overset{u_1}{\triangle},\overset{u_2}{\triangle})
     \sum_{l=1}^{\rho(u_1)} C_{ST}(ch_l(u_1),ch_l(u_2))]
     \end{aligned}
@@ -892,7 +911,7 @@ The Tree Context Kernel can thus be defined as:
 %\end{equation*}
 
 where $\delta$ is the Kronecker's function, $h$ is the user defined depth limit of 
-the tree-visit and $C_{ST}$ is the function related to the ST kernel that counts the common
+the tree-visit and $C_{ST}$ is the function related to the ST kernel (see Section \ref{subsubsec:st}) that counts the common
 subtrees of the two trees rooted at $v_1$ and $v_2$.
 
 In more simple terms the kernel will score a match in the following cases:
@@ -907,13 +926,13 @@ semidefinite kernels (see the end of Section \ref{subsec:convolution}).
 \section{Multiple Kernel Learning}
 \label{subsec:mkl}
 Multiple Kernel Learning aims to enhance the accuracy of a target kernel machine
-by combine kernels derived from multiple sources in a data-driven way.
+combining kernels derived from multiple sources in a data-driven way.
 The rationale behind this idea is similar to the one behind classifier combinations.
 Instead of deciding a priori which kernel to use, it is better to devise an
 algorithm that can either choose for us or better, learn a combination of the
 possible choices.
 
-Hence $MKL$ can be used to mitigate the bias deriving from a single kernel choice
+Hence MKL can be used to mitigate the bias deriving from a single kernel choice
 or to combine different source of information that rely on different data representation
 thus requiring a number of different kernels.
 
@@ -922,61 +941,62 @@ a strong kernel by allowing her to implement a number of more ``weak'' kernels
 that can work in combination to perform the learning task.
 
 The available methods in the literature can be summarily divided in two categories
-\cite{journals/jmlr/GonenA11}: \emph{fixed rule} algorithms which as the name implies apply some fixed
+\cite{journals/jmlr/GonenA11}: on one hand \emph{fixed rule} algorithms which as the name implies apply some fixed
 rule or heuristic to determine the combination parameters, thus being able to scale
 well with respect to the number of kernels but whose effectiveness is bounded by
-the effectiveness of the rule on the domain at hand.
-On the other hand, \emph{optimization based} approaches solve an optimization
+the effectiveness of the rule on the domain being considered,
+on the other hand, \emph{optimization based} approaches solve an optimization
 problem to derive their combination parameters.
 
-There are two fundamental ways to use the $MKL$ approach: combine a small set of 
+There are two fundamental ways to use the MKL approach: combine a small set of 
 relatively strong and carefully designed kernels, a method which has shown no
 significant improvement over a simple combination like the averaging of the kernels;
 then the converse, combine a large set of weak kernels aiming at boosting their
 individual performances exploiting a data driven rather than an expert driven
 approach.
 
-In the following section we will give an overview of the $MKL$ implementation
+In the following section we will give an overview of the MKL implementation
 that we chose for the present work.
 
 \subsection{EasyMKL}
 \label{subsec:easymkl}
 
 The method proposed in \cite{aiolli2015easymkl} focuses on the linear positive combination
-parameters version of $MKL$ which can be formulated as
+parameters version of MKL which can be formulated as
 
 \begin{equation}
     K = \sum_{r=1}^R \eta_rK_r,\, \eta_r \geq 0
     \label{eq:easymkl}
 \end{equation}
 
-The goal is to learn a vector of coefficients $\vec{\eta}$ that will form the
+The goal is to learn a vector of coefficients $\vec{\eta}=\{\eta_r\}_{1\leq r \leq R}$ that will form the
 combined kernel according to Equation \ref{eq:easymkl}.
 The proposed algorithm can be ascribed to the category of optimization based
 techniques since in it requires the solution of an optimization problem whose
 formulation follows:
 
 \begin{equation}
-    \underset{\vec{\eta}:||\vec{\eta}||=1}{\mathrm{max}}\underset{\gamma \in \hat{\Gamma}}{\mathrm{min}}(1-\lambda)\gamma^\top\hat{Y}\Big(\boldsymbol{\sum_r^R \eta_r\hat{K_r}}\Big)\hat{Y}\gamma+\lambda||\gamma||^2
+    \underset{\vec{\eta}:||\vec{\eta}||=1}{\mathrm{max}}\underset{\gamma \in \hat{\Gamma}}{\mathrm{min}}(1-\Lambda)\gamma^\top\hat{Y}\Big(\boldsymbol{\sum_r^R \eta_r\hat{K_r}}\Big)\hat{Y}\gamma+\Lambda||\gamma||^2
     \label{eq:easymin}
 \end{equation}
 
-where $\hat{K_r}\text{ and }\hat{Y}$ are the weak kernel matrices computed on the training samples
-and the training labels respectively, $\lambda \in \{0,1\}$ is the regularization
+where $\hat{K_r}\text{ and }\hat{Y}$ are the weak kernel computed on the training samples
+and the training labels respectively, $\Lambda \in \{0,1\}$ is the regularization
 parameter and $\gamma \in \hat{\Gamma}$ is the probability distribution over the set of positive and
-negative training samples.
+negative training samples, $\hat{\Gamma}$ being the domain of probability distributions defined as:
+\[ \hat{\Gamma} = \Big\{ \gamma \in \mathbb{R}^l_+ | \sum_{i \in \oplus} \gamma_i = 1, \sum_{i \in \ominus} \gamma_i = 1 \Big\} \]
 
-This problem has a similar formulation to the one of the \emph{Kernel Optimization of the
-Margin Distribution} problem (KOMD) \cite{Aiolli2008} where the kernel matrix has been
-substituted with the sum of the weak input kernels with important implications
-in terms of the approach space requirements.
+This problem has a formulation similar to the one of the \emph{Kernel Optimization of the
+Margin Distribution} algorithm (KOMD) \cite{Aiolli2008} where the kernel has been
+substituted with the sum of the weak input kernels with the important implication
+that the space requirements remain linear w.r.t. $R$.
 
-In the margin maximization step of the algorithm, the $\lambda$ parameter
-has two critical points: when $\lambda = 0$ there is no regularization so the
-problem reduces to a hard margin SVM; when $lambda = 1$ the optimal solution is
+In the margin maximization step of the algorithm, the $\Lambda$ parameter
+has two critical points: when $\Lambda = 0$ there is no regularization so the
+problem reduces to a hard margin SVM; when $\Lambda = 1$ the optimal solution is
 the squared distance between the positive and negative centroids in the feature
 space.
-This will become more evident looking at the experimental results in Chapter
+This is more evident looking at the experimental results in Chapter
 \ref{Chapter4}.
 
 \subsection{Multiple Kernel Learning On Graphs}
@@ -988,17 +1008,17 @@ The technique proposed in the paper aims to find a generalizable way of construc
 orthogonalized kernels starting from a single feature space, by the means of 
 dividing the features in independent sets according to some strategy.
 
-The work in \cite{gmkl} propose a simple yet theoretically backed strategy that is,
+The work in \cite{gmkl} proposes a simple yet theoretically backed strategy that is,
 the subdivision of the feature space of the $ODDK_{ST}$ kernel according to the
 size of the features.
 Given the inherent hierarchical structure of the tree features, dividing them by
-size (height) ensures that no two dependent features ends up in the same set.
+height ensures that no two dependent features ends up in the same set.
 Every set composed in this way is then used as a separate feature space to compute
-a separate kernel and the whole list becomes the input for the easyMKL algorithm.
+a separate kernel and the whole list becomes the input for the EasyMKL algorithm.
 An important point that emerges from this work is that, by using the MKL approach
 in combination with an orthogonal partitioning of the feature space, a reduction
 in the number of hyper-parameters to validate was obtained.
-This latter point in particular will be a considerable addition to our proposed
+This latter point in particular it is a considerable addition to our proposed
 methodology as explained in Section \ref{subsec:features}.
 
 %----------------------------------------------------------------------------------------

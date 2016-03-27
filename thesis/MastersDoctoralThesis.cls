@@ -151,7 +151,8 @@
 
 \RequirePackage{booktabs} % Required for better table rules
 
-\RequirePackage[centerlast,small,sc]{caption} % Required for customising the captions
+%\RequirePackage[centerlast,small,sc]{caption} % Required for customising the captions
+\RequirePackage[centerlast,small]{caption} % Required for customising the captions
 \setlength{\captionmargin}{50pt}
 
 %----------------------------------------------------------------------------------------
@@ -243,6 +244,7 @@ KOMA-script documentation for details.}]{fancyhdr}
 \def\authorname{}
 \def\ttitle{}
 \newcommand*{\supervisor}[1]{\def\supname{#1}}
+\newcommand*{\cosupervisor}[1]{\def\cosupname{#1}}
 \newcommand*{\thesistitle}[1]{\def\@title{#1}\def\ttitle{#1}}
 \newcommand*{\examiner}[1]{\def\examname{#1}}
 \newcommand*{\degree}[1]{\def\degreename{#1}}
@@ -395,15 +397,16 @@ KOMA-script documentation for details.}]{fancyhdr}
 
 \ifbool{hyperrefsupport}{% If the nohyperref class option has not been specified
 \AfterPackage{biblatex}{ % Load the hyperref package after the biblatex package for compatibility 
-\RequirePackage[hidelinks]{hyperref} % Required for customising links and the PDF
+%\RequirePackage[hidelinks]{hyperref} % Required for customising links and the PDF
+\RequirePackage{hyperref} % Required for customising links and the PDF
 \hypersetup{pdfpagemode={UseOutlines},
 bookmarksopen=true,
 bookmarksopenlevel=0,
 hypertexnames=false,
-colorlinks=false, % Set to false to disable coloring links
+colorlinks=true, % Set to false to disable coloring links
 citecolor=magenta, % The color of citations
-linkcolor=red, % The color of references to document elements (sections, figures, etc)
-urlcolor=magenta, % The color of hyperlinks (URLs)
+linkcolor=black, % The color of references to document elements (sections, figures, etc)
+urlcolor=cyan, % The color of hyperlinks (URLs)
 pdfstartview={FitV},
 unicode,
 breaklinks=true,

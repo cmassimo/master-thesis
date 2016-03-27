@@ -78,6 +78,7 @@ headsepline, % Uncomment to get a line under the header
 
 \thesistitle{A New Methodology For Combining Graph Kernels} % Your thesis title, this is used in the title and abstract, print it elsewhere with \ttitle
 \supervisor{Prof. Alessandro \textsc{Sperduti}} % Your supervisor's name, this is used in the title page, print it elsewhere with \supname
+\cosupervisor{Dott. Nicol\`o \textsc{Navarin}} % Your supervisor's name, this is used in the title page, print it elsewhere with \supname
 \examiner{} % Your examiner's name, this is not currently used anywhere in the template, print it elsewhere with \examname
 \degree{Laurea Magistrale} % Your degree name, this is used in the title page and abstract, print it elsewhere with \degreename
 \author{Carlo Maria \textsc{Massimo}} % Your name, this is used in the title page and abstract, print it elsewhere with \authorname
@@ -117,20 +118,22 @@ headsepline, % Uncomment to get a line under the header
 \HRule \\[0.4cm] % Horizontal line
 {\huge \bfseries \ttitle}\\[0.4cm] % Thesis title
 \HRule \\[1.5cm] % Horizontal line
- 
-\begin{minipage}{0.4\textwidth}
+
+\begin{minipage}[t]{0.4\textwidth}
 \begin{flushleft} \large
 \emph{Studente:}\\
 \authorname\\1058513 % Author name - remove the \href bracket to remove the link
 \end{flushleft}
 \end{minipage}
-\begin{minipage}{0.4\textwidth}
+\begin{minipage}[t]{0.5\textwidth}
 \begin{flushright} \large
 \emph{Relatore:} \\
-\supname % Supervisor name - remove the \href bracket to remove the link  
+\supname\\ % Supervisor name - remove the \href bracket to remove the link  
+\emph{Co-relatore:} \\
+\cosupname % Supervisor name - remove the \href bracket to remove the link  
 \end{flushright}
 \end{minipage}\\[3cm]
- 
+
 %{\large \today}\\[4cm] % Date
 %\includegraphics{Logo} % University/department logo - uncomment to place it
  
@@ -210,16 +213,16 @@ and in some cases exceed those of the proposed baselines.
 %	ABBREVIATIONS
 %----------------------------------------------------------------------------------------
 
-%\begin{abbreviations}{ll} % Include a list of abbreviations (a table of two columns)
-%
-%\textbf{MKL} & \textbf{M}ultiple \textbf{K}ernel \textbf{L}earning\\
-%\textbf{ODD} & \textbf{O}rdered \textbf{D}AG \textbf{D}ecomposition\\
-%\textbf{ST} & \textbf{S}ub \textbf{T}ree\\
-%\textbf{TCK} & \textbf{T}ree \textbf{C}ontext \textbf{K}ernel\\
-%\textbf{ROC} & \textbf{R}eceiver \textbf{O}perator \textbf{C}urve\\
-%\textbf{AUC} & \textbf{A}rea \textbf{U}nder \textbf{C}urve\\
-%
-%\end{abbreviations}
+\begin{abbreviations}{ll} % Include a list of abbreviations (a table of two columns)
+
+\textbf{MKL} & \textbf{M}ultiple \textbf{K}ernel \textbf{L}earning\\
+\textbf{ST} & \textbf{S}ub \textbf{T}ree\\
+\textbf{WL} & \textbf{W}eisfeiler-\textbf{L}ehman\\
+\textbf{ODD} & \textbf{O}rdered \textbf{D}AG \textbf{D}ecomposition\\
+\textbf{TCK} & \textbf{T}ree \textbf{C}ontext \textbf{K}ernel\\
+\textbf{AUROC} & \textbf{A}rea \textbf{U}nder the \textbf{R}eceiver \textbf{O}perator \textbf{C}urve\\
+
+\end{abbreviations}
 
 %----------------------------------------------------------------------------------------
 %	PHYSICAL CONSTANTS/OTHER DEFINITIONS
@@ -282,7 +285,7 @@ and in some cases exceed those of the proposed baselines.
 % Include the appendices of the thesis as separate files from the Appendices folder
 % Uncomment the lines as you write the Appendices
 
-\include{Appendices/AppendixA}
+%\include{Appendices/AppendixA}
 \include{Appendices/AppendixB}
 
 %----------------------------------------------------------------------------------------

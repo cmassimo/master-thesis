@@ -1,181 +1,221 @@
-\chapter{Combining Graph Kernels Efficiently}
+\chapter{An alternative to hyper-parameter selection}
 \label{Chapter3}
 
-This chapter details the contribution of the present work.
-We discuss in detail the proposed methodology (Section \ref{sec:meth}) and
-finally give an overview of the main optimization choices (Sections
-\ref{sec:opt}, and \ref{sec:inc})
+This chapter details the contribution of the present thesis.
+We discuss the current state of the art in Section \ref{sec:hyper}, then we detail
+the proposed methodology (Section \ref{sec:method}) and finally an overview
+of the main optimization choices (Sections \ref{sec:opt}, and \ref{sec:inc}) is
+given.
+
+\section{Hyper-parameter selection}
+\label{sec:hyper}
+% what is it and why is it done
+% methods need parameter tuning.
+Machine learning methods perform a non-exhaustive search on the hypothesis space
+(Section \ref{subsec:sup}), therefore they have a set of parameters to influence
+and direct their search strategy, in order to find optimal solutions in reasonable time.
+The method tuning process refers to a parameter space defined by the parameters
+of each method that is the set of all possible combinations of values for all the
+different parameters.
+The size of a particular parameter space is given by the product of the cardinality
+of the domain associated with each parameter hence, an exhaustive search would
+prove to be too onerous if not infeasible.
+
+% this can be accomplished in several ways: searches, optimization, etc, thus
+% all are computationally demanding since you have to visit a lot of the parameter
+% space which grows exponentially.
+
+Often this problem can be avoided considering a subset of the space (see Section
+\ref{subsubsec:grid}), thus reducing the computational complexity of an exhaustive
+search, or performing a limited random search on the full space.
+All these approaches aim to minimize the generalization error of a given method,
+so they need to perform an adequate scan of the parameter space, which usually
+remains computationally heavy.
+Another way of accomplish this task is to devise algorithm-specific parameter
+optimization techniques as is the case for \cite{chappelle}.
+
+Kernel methods in particular have two types of hyper-parameters.
+Kernel functions have parameters that shape the feature space associated with them
+to balance the trade-off between expressiveness and computational efficiency.
+Kernel machines have parameters that usually play the role of regularization
+factors i.e. to keep overfitting under control.
+In this case it is clear how much the parameter selection process for the kernel function
+can affect the overall learning process, more so if the kernel function has to be
+selected as well.
+
+% kernel methods have two types of params
+% kernel params (needed to shape the feature space and balance the trade-off between expressiveness and efficiency)
+% methods params (needed to regularize the machine behaviour)
+% kernel params greaty affect the overall performance in case one need to validate
+
+% different kernels
+% Eg:
+To give a quick example, consider a kernel derived from the $ODD$ framework, say
+the $ODDK_{ST}$, let $l,m$ be the cardinalities of the value sets on which its parameters
+$h$ and $\lambda$ need to be validated; Let the SVM be the kernel machine of choice and
+$n$ the cardinality of the value set for its parameter $C$.
+Employing a grid search technique, i.e. an exhaustive search over the subset
+of the parameter space thus defined, parameter selection would require $l\cdot m\cdot n$
+searches.
+
+A first improvement over this scenario is to adopt a kernels combination approach 
+and use all the kernel computed from the parameter grid at once.
+With the above described settings the number of needed cross-validation instances
+shrinks from $l\cdot m\cdot n$ to $n$, hence potentially reducing the size of the
+whole process by orders of magnitude.
+A visual comparison of these two approaches is given in Figure \ref{fig:comparison}.
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{.4\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/comp1}
+        \caption{Single kernel approach}
+        \label{fig:comp1}
+    \end{subfigure}\qquad
+    \begin{subfigure}{.315\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/comp2}
+        \caption{MKL approach}
+        \label{fig:comp2}
+    \end{subfigure}
+    \caption{Comparison between the standard single kernel approach (a) and the MKL one (b).
+    $K_1,\dots,K_N$ refers to the $N$ kernels computed from the $N$ combinations
+    derived from the parameters grid. In (a) each kernel is used to perform a full learning
+    cycle, $N$ in total. In (b) all the $N$ kernels are used together
+    as the input of the learning algorithm.}
+    \label{fig:comparison}
+\end{figure}
+
+%----------------------------------------------------------------------------------------
 
 \section{Proposed methodology}
-\label{sec:meth}
-%thorough description
-
-Having discussed the need for kernels combination and the possible techniques
-available in the literature, we now proceed to illustrate the main idea behind
-the present work.
-
-As discussed in Section \ref{subsec:mkl}, $MKL$ methods generally provide a consistent
+\label{sec:method}
+% given the scheme proposed in the previous section:
+% intro MKL
+% combination of the grid
+% orthogonalization
+The idea we propose here takes a cue from the scheme in Figure \ref{fig:comp2}.
+As discussed in Section \ref{subsec:mkl}, MKL methods generally provide a consistent
 way of using different, possibly weak, kernels to build a model which is the result
-of their composition in some way that vary from implementation to implementation.
-The constant point here is that the set of kernels gets \emph{combined}, thus
-making one of those methods the perfect candidate to be the foundation of our
-combining methodology.
+of their composition.
+FIX HERE
+The EasyMKL implementation (Section \ref{subsec:easymkl}) was deemed a good
+choice because of its state-of-the-art performances and linear complexity
+bound on the input size.
 
-The easyMKL implementation (Section \ref{subsec:easymkl}) was deemed a good
-choice because of the promising overall performances and the empirical evidence
-that the method is not significantly affected by the number of kernels
-being combined, a major point of our method, and last but not least it was
-available and easily integrated with our pre-existing kernel functions code base.
-
-The methodology therefore consists in a k-fold nested cross-validation with
-easyMKL as the kernel machine as detailed in Algorithm \ref{alg:method} and further in
-Figure \ref{fig:method}.
+We therefore propose a novel way of performing the \emph{whole} learning process
+that consists in avoiding the kernel hyper-parameter selection process entirely pre-computing
+all the kernels according to the considered subset of the parameter space and composing
+them together to perform the learning task employing EasyMKL capabilities as the kernel
+machine.
+Algorithm \ref{alg:method} presents the pseudo-code for the methodology.
 
 \begin{algorithm}
     \caption{
         High level implementation of the proposed methodology.
-        The $computeKernel$ function returns a kernel matrix computed
-        according to the selected $kernel$ from the $Kernels$ set which indexes
-        the kernel functions to be combined, the hyper-parameters $tuple$ and the chosen
-        $dataset$.
-        The $split$ function takes a list of kernel matrices and returns two lists
-        of kernel matrices split in two sets according to the cross-validation
-        strategy and the $Folds$.
-        The $easyMKL$ function takes a $\Lambda$ parameter and a list of kernel
-        matrices to return a $model$.
+        The \textsc{computeKernel} function computes a kernel according to the
+        selected kernel function $k$ and one hyper-parameters tuple from the
+        parameter grid $kernelparams$ on the given $data$.
+        \textsc{validationRoutine} represent a generic validation framework which
+        takes $EasyMKL$ as the chosen kernel machine, the vector $hyperparams$
+        as its associated hyper-parameters to be validated and the computed kernels
+        in $M$ as the new data (see Section \ref{sec:kernel}).
     }
     \label{alg:method}
     \begin{algorithmic}[1]
-        \State $K \gets []$
-        \Comment{K is the list of kernel matrices}
+        \State $M \gets \{\}$
+        \Comment{$M$ is list of the input kernels}
         \label{line:kernels}
-        \ForAll{$kernel \in Kernels$}
-            \ForAll{$tuple \in paramsgrid$}
-                \State $K_{kernel} \gets \Call{computeKernel}{kernel, tuple, dataset}$
+        \ForAll{$k \in Kernels$}
+            \ForAll{$i \in \{1,\dots,n\}$}
+            \Comment{$n$ is the size of the parameter grid}
+            \State $M_{k,i} \gets \Call{computeKernel}{kernel,~kernelparams[i],~data}$
             \EndFor
         \EndFor
 
-        \ForAll{$outerfold \in Folds$}
-            \State $trainingset, testset \gets \Call{split}{K, outerfold}$
-            \label{line:osubsets}
-            \ForAll{$\Lambda \in params$}
-                \ForAll{$innerfold \in Folds$}
-                    \State $trset, validationset \gets \Call{split}{trainingset, innerfold}$
-                    \label{line:isubsets}
-                    \State $model \gets \Call{easyMKL}{\Lambda,trset}$
-                    \State validate $model$ with $validationset$
-                \EndFor
-            \EndFor
-            
-            \State select the best $(model,\Lambda)$ resulting from the inner loop
-            \State $finalmodel \gets \Call{easyMKL}{\Lambda,trainingset}$
-            \State test $finalmodel$ with $testset$
-        \EndFor
+        \State $performances \gets \Call{validationRoutine}{EasyMKL,~hyperparams,~M}$
 
-        \State \Return $finalmodel$ with best average among the $Folds$
+%        \ForAll{$i \in \{1,\dots,\mathit{numfolds}\}$}
+%        \State $\mathit{trainingset}, \mathit{testset} \gets \Call{split}{M, i}$
+%            \label{line:osubsets}
+%            \ForAll{$\Lambda \in params$}
+%                \ForAll{$j \in \{1,\dots,\mathit{numfolds}\}$}
+%                \State $\mathit{innertrainingset}, \mathit{validationset} \gets \Call{split}{\mathit{trainingset}, j}$
+%                    \label{line:isubsets}
+%                    \State $model \gets \Call{easyMKL}{\Lambda,\mathit{innertrainingset}}$
+%                    \State validate $model$ with $\mathit{validationset}$
+%                \EndFor
+%            \EndFor
+%            
+%            \State select the best $(model,\Lambda)$ resulting from the inner loop
+%            \State $\mathit{finalmodel} \gets \Call{easyMKL}{\Lambda,\mathit{trainingset}}$
+%            \State test $\mathit{finalmodel}$ with $\mathit{testset}$
+%        \EndFor
+
+        \State \Return $performances$
+        \Comment an unbiased performance estimation.
     \end{algorithmic}
 \end{algorithm}
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[scale=0.5]{Figures/nested}
-    \caption{The method illustrated. First the dataset, composed of a list of
-    kernel matrices get split into a training set and a test set (1).
-    Then a $k$-fold cross-validation is performed on the training set ($k$ was set to
-    10 in our case) (2) and the best resulting model is selected according to some
-    performance measure (3). The selected model gets re-trained on the whole initial
-    training set (4) and finally gets tested against the test set that was left out
-    during the entire process (5). At the end of the outer loop of the nested
-    cross-validation, the best model is again selected according to the chosen
-    metric (6).}
-    \label{fig:method}
-\end{figure}
+%\begin{figure}[ht]
+%    \centering
+%    \includegraphics[scale=0.5]{Figures/nested}
+%    \caption{The method illustrated. First the dataset, composed of a list of
+%    kernel matrices get split into a training set and a test set (1).
+%    Then a $k$-fold cross-validation is performed on the training set ($k$ was set to
+%    10 in our case) (2) and the best resulting model is selected according to some
+%    performance measure (3). The selected model gets re-trained on the whole initial
+%    training set (4) and finally gets tested against the test set that was left out
+%    during the entire process (5). At the end of the outer loop of the nested
+%    cross-validation, the best model is again selected according to the chosen
+%    metric (6).}
+%    \label{fig:method}
+%\end{figure}
 
-The code is divided in two parts: first we have the kernel computation phase,
-in which we take the parameters grid and compute all the kernel matrices for each
-parameters tuple, for each kernel to be combined.
-The second part consist in the two loops of the nested cross-validation, see
-Section \ref{subsubsec:ncv} for details.
-
+REWRITE?
+% the only params that needs validation are the machine params
 The new idea behind an otherwise standard and tried scheme of operations is that
 the kernel list instantiated in line \ref{line:kernels}, comprises all the 
 kernels computed from the grid of parameters combinations that would otherwise
 have been individually fed to a standard single kernel machine (e.g. SVM).
 Doing so, the single kernel hyper-parameter optimization phase can be avoided in its
 entirety and the only parameters that needs validation are the ones of the chosen
-$MKL$ implementation, namely one regularization parameter ($\Lambda$) in our case.
+MKL implementation, namely one regularization parameter ($\Lambda$) in our case.
 This point will be further elaborated on in the following section.
 
-\subsection{Implicit model selection}
-\label{subsec:parameters}
-One of the main advantages of the proposed method is that it permits to embed
-the otherwise cumbersome process of hyper-parameter optimization (Section \ref{subsubsec:grid})
-inside the learning phase in a completely transparent way, which will be hereby
-described.
-
-It is customary practice to perform hyper-parameter optimization employing a grid
-search technique.
-In our setting this would translate to having to compute one kernel matrix
-for all the possible combinations deriving from every set of values
-chosen for each kernel hyper-parameter, and repeat the process for every kernel 
-we may have wanted to combine.
-Then a cross-validation would have been performed using a kernel matrix from each
-selected kernel, according to a combination of parameters.
-Let the kernel be the $ODDK_{ST}$, its parameters be $h$, $\lambda$ and let $\Lambda$
-be the hyper-parameter of easyMKL; if we let $l,m,n$ be the cardinalities of the three
-sets of values respectively, the cross-validation instances would have been $l\cdot m\cdot n$.
-
-A first improvement over the above scenario is to adopt another $MKL$ approach 
-and give the algorithm the kernels matrices computed from the grid all at once.
-With the above described settings we are reducing the number of needed
-cross-validation instances from $l\cdot m\cdot n$ to $n$, hence potentially
-reducing the size of the whole process by orders of magnitude.
-A visual comparison of these two approaches is given in Figure \ref{fig:comparison}.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[scale=0.6]{Figures/comparison}
-    \caption{Comparison between the standard approach (A) and the proposed one (B).
-    $K_1,\dots,K_N$ refers to the $N$ kernels computed from the $N$ combinations
-    derived from the parameters grid. In (A) each kernel is used to perform a full learning
-    cycle, $N$ in total. On the other hand in (B), the $N$ kernels all together are
-    given as input to the only one learning cycle to be performed. The kernel machines
-    in the diagrams has been instantiated to the ones chosen in this study.}
-    \label{fig:comparison}
-\end{figure}
-
-Another advantage of this approach is that instead of selecting one combination
+% kernel machine select the model 
+% overfitting reductiooooonnnnnn
+Collapsing the kernel hyper-parameter selection process leaves the responsibility
+of model selection to the kernel machine which can take advantage of the different
+information brought on by the single kernels to 
 of parameters thus restricting the generalization power of the resulting model,
-the whole set of parameters combination concurs in the model determination hence
+the whole set of parameter combinations concurs in the model determination hence
 increasing the chances of it being more general while boosting the overall performances
 of the single kernels.
 
-Given the fact that our $MKL$ implementation of choice has an algorithmic
-complexity that is not dependent on the cardinality of the input but rather on
-its dimensions, it can be easily be the case that hundreds of kernel are used
-at once; this can lead to an increase of the memory consumption in a measure
-proportional to the size of the input dataset.
+%Even if the memory consumption of the adopted MKL algorithm is linear w.r.t.
+%the number of considered matrices, in our scenario where hundreds of matrices
+%have to be combined it is still possible that the matrices will not physically
+%fit into memory.
+%
+%Section \ref{sec:opt} deals with a possible algorithmic solution to this problem,
+%while in Section \ref{subsec:features} we will show how it is possible to combine the idea here
+%described with another technique used in multiple kernel learning to further
+%improve the feature spaces and reduce the computational burden and space
+%requirements eliminating one hyper-parameter.
 
-Section \ref{sec:opt} deals with a possible algorithmic solution to this problem,
-while the following section will show how it is possible to combine the idea here
-described with another technique used in multiple kernel learning to further
-improve the feature spaces and reduce the computational burden and space
-requirements eliminating one hyper-parameter.
+%Even if in principle MKL algorithms can deal with large number of kernels, the
+%memory consumption problem previously described will manifest itself even for
+%datasets of modest dimensions, because it mainly depends on the parameters grid size,
+%i.e. on the number of kernels to combine.
+%
+%Beside adopting a sampling strategy on the dataset sacrificing some learning
+%potential, a solution consists in reducing the number of hyper-parameters
+%thus reducing the dimensionality of the parameter space obtaining a consequent
+%reduction in the number of kernels to be computed
 
-\subsection{Kernels and feature spaces}
-\label{subsec:features}
-
-Even if in principle $MKL$ algorithms can deal with large number of kernels, the
-memory consumption problem previously described will manifest itself even for
-datasets of modest dimension, depending on the parameters grid.
-
-Beside adopting a sampling strategy on the dataset, thus reducing the dimension
-of the kernel matrices while sacrificing some learning potential, another
-solution consist in reducing the number of hyper-parameters that concur
-in generating the parameter grid which size will directly determine the number
-of total kernels to combine.
-
-In this study we were working with graph kernels and this fact allowed us to employ
+In this study we consider graph kernels and this fact allows us to employ
 the feature division strategy delineated in \cite{gmkl} where applicable and similarly
 devise a new strategy when needed.
 Keep in mind that while the proposed method is generalizable, such partitioning
@@ -184,27 +224,27 @@ introduces a strong bias over the learning process that has to be taken into acc
 The $ODDK$ feature space is composed of trees from tree-visits
 over the DAGs deriving from the DAG decomposition on the original graph (Section \ref{subsubsec:odd}),
 when dealing with this space we maintained the proposed features subdivision
-according to their size for the following reasons:
+according to their height for the following reasons:
 given the hierarchical structure inherent to the $ODDK$ feature space that is, if a tree
-of size $s$ is present in the explicit feature space representation of a graph,
+of height $s$ is present in the explicit feature space representation of a graph,
 also all of its proper sub-trees are \cite{gmkl},
 hence, mapping features of different size to different kernels makes it so no two
 dependent features end up contributing to the same kernel.
 Moreover the standard weighing scheme of the $ODD$ kernel can be delegated to
-the easyMKL algorithm, because the weight assigned to a
+the EasyMKL algorithm, because the weight assigned to a
 particular kernel by the algorithm would directly correlate with the underlying
 feature space thus rendering the $\lambda$ parameter of the $ODD$ kernel superfluous.
 
-The $Fast Subtree$ kernel space has an already orthogonally structured feature
+The fast subtree (WL) kernel has an already orthogonally structured feature
 space since each feature extracted at iteration $i \in \{0,\dots,h\}$ (see Section \ref{subsubsec:fs})
 is independent from all the feature extracted at iteration $j \in \{1,\dots,h\}\setminus \{i\}$.
 
-The most direct consequence of the adoption of this techniques is that we reduced
-considerably the dimension of the grid and thus the number of generated kernels at
+The most direct consequence of the adoption of this techniques is that we
+considerably reduced the dimension of the grid and thus the number of generated kernels at
 the expenses of a modest increase due to the newly computed kernel for each group
 of features.
-Experimental results shows also a general increase in the prediction performances
-due to the more discriminative power of the thusly generated kernels with respect
+Experimental results shows also a general increase in the predictive performances
+due to the more discriminative power of the generated kernels with respect
 to the approach described in the previous section.
 
 %----------------------------------------------------------------------------------------
@@ -212,49 +252,86 @@ to the approach described in the previous section.
 \section{Method optimization}
 \label{sec:opt}
 
-While implementing the methodology, a good effort has been focused toward the
-optimization of the code in terms of execution time and memory occupation.
+Implementing our methodology as it has been defined in Algorithm \ref{alg:method},
+results in a memory consumption bound of $O(c \cdot (R\cdot m^2))$ with $c$ being
+the multiplicative constant that accounts for the number of copies of the kernels
+a specific implementation may need to instantiate, $R$ the number of kernels and
+$m$ the number of samples in the dataset, although we empirically determined that
+it can be kept below $2\cdot (R\cdot m^2)$.
+This complexity measure can be extrapolated from  Algorithm \ref{alg:method}:
+at any given point during its execution, the kernels vector () is in
+memory with a size equal to $R\cdot m^2$ (line \ref{line:kernels});
+the validation routine of choice will then have to make a copy of the kernels vector
+for each step of the parameter selection phase concerning the kernel machine.
+Our final implementation memory consumption reflects this bound, however this
+memory consumption rate can still be daunting for some applications,
+for this reason we designed a different approach that employs a slight modification
+of the standard EasyMKL algorithm \cite{aiolli2015easymkl} in order to keep a
+constant level of memory occupation.
 
-Implementing our methodology as is results in a memory consumption bound to
-$O(c \cdot (m\cdot n^2))$ with $m$ being the number of kernels and $n$ the number of samples,
-although we empirically determined it to be strictly $O(2\cdot (m\cdot n^2))$.
-This complexity measure can be extrapolated from  Algorithm \ref{alg:method},
-it any given point during its execution, the memory contains the whole list
-of kernel matrices (line \ref{line:kernels}) thus giving the $m\cdot n^2$ part,
-and at least one list of subset of all the full matrices (lines \ref{line:osubsets}
-and \ref{line:isubsets}), the latter being needed by the inner cross-validation
-loop and the final model training.  Our final implementation has been devised in
-such a way that there are never more than two copies of the list of matrices in
-memory at the same time.  
-
-Even with this level of optimization, the memory consumption rate can still be
-daunting for some applications so, we devised a different approach that has been
-implemented in a routine which employed a slight modification of the standard
-easyMKL algorithm \cite{aiolli2015easymkl} in order to keep a constant level of memory
-occupation.
-
-This approach relies on the fact that the easyMKL algorithm \emph{implementation}
-can be divided in two main different phases, namely the margin optimization problem
-(KOMD) and the weigths calculation phase.
-While the algorithm gets a list of kernels as its input, for the most part
-it works on a unique kernel matrix which is the trace-normalized sum of the 
-original kernels.
-That being said we divided the algorithm in two different functions and did
-the kernel calculation, normalization and summation in a single pass, therefore
-being able to feed each phase with only one kernel matrix, dramatically decreasing
-the memory occupation while maintaining it constant throughout the whole execution.
+This approach relies on the fact that the EasyMKL algorithm \emph{implementation}
+can be divided in two main phases, namely the margin optimization problem (KOMD)
+solution and the weights calculation phase (Section \ref{subsec:easymkl}).
+Moreover during these phases the algorithm mostly works on a unique kernel which is
+the normalized sum of the input kernels.
+Hence we divided the original algorithm in two different functions and did
+the kernel calculation, normalization and summation in a single pass before each phase,
+therefore maintaining only one kernel in memory at one time thus achieving constant
+space occupation.
 
 This method has obviously one major drawback which is the latency derived from
 having to either compute each kernel or load it from storage multiple times
 during the execution and finally having to normalize and sum it.
-This is because we are shifting the inherent burden of the data dimensionality
-from space to time resources which can still be useful for some applications
+This is inevitable because we are shifting the inherent burden of the data dimensionality
+from space to time which can still be useful for some applications
 depending on the available resources or imposed constraints.
 This latter problem is however mitigated by the fact that the dramatic decrease
 of memory consumption allows in practice for much better parallelization of the
 whole process.
 
 An high level overview of this approach is given as Algorithm \ref{alg:method_me}.
+\begin{algorithm}
+    \caption{
+        High level implementation of the constant space implementation.
+        The \textsc{easyMKLopt} and \textsc{easyMKLweights} functions implement
+        the two phases of the EasyMKL algorithm as discussed in Section \ref{sec:opt}.
+        The \textsc{computeSumKernel} function is defined in the next part
+        (Algorithm \ref{alg:compute_sum}).
+    }
+
+    \label{alg:method_me}
+    \begin{algorithmic}[1]
+%        \ForAll{$i \in \{1,\dots,\mathit{numfolds}\}$}
+%            \ForAll{$\Lambda \in params$}
+%                \ForAll{$j \in \{1,\dots,\mathit{numfolds}\}$}
+                    %\State $tset \gets \Call{computeSumKernel}{Ks,grid,data,innerfold}[0]$
+                    \State $M \gets \Call{computeSumKernel}{Ks,kernelparams,data}$
+                    \State $\Call{easyMKLopt}{\Lambda,M}$
+                    \Comment first phase of EasyMKL
+                    \State $model \gets \Call{easyMKLweights}{\Lambda,M}$
+                    \Comment second phase of EasyMKL
+                    \State \Return model
+%                    \State validate $model$ with $vset$
+%                \EndFor
+%            \EndFor
+%            
+%            \State select the best $model,\Lambda$ resulting from the inner loop
+%            %\State $training\_set \gets \Call{computeSumKernel}{Ks,grid,data,outer\_fold}[0]$
+%            \State $trainingset,testset \gets \Call{computeSumKernel}{Ks,grid,data,i}$
+%            \State $\Call{easyMKLopt}{\Lambda,trainingset}$
+%            \State $finalmodel \gets \Call{easyMKLweights}{\Lambda,trainingset}$
+%            \State test $finalmodel$ with $testset$
+%        \EndFor
+
+%        \State \Return an unbiased performance estimation.
+        \algstore{mme}
+    \end{algorithmic}
+\end{algorithm}
+
+For each learning phase there are two calls to the \textsc{computeSumKernel}
+function, one of which is hidden inside the \textsc{easyMKLweights} function.
+Algorithm \ref{alg:compute_sum} defines the auxiliary function \textsc{computeSumKernel},
+in charge of managing the kernels computation and sum in Algorithm \ref{alg:method_me}.
 
 \begin{algorithm}
     \caption{
@@ -265,64 +342,20 @@ An high level overview of this approach is given as Algorithm \ref{alg:method_me
     }
     \label{alg:compute_sum}
     \begin{algorithmic}[1]
-        \Function{computeSumKernel}{$Kernels,paramsgrid,dataset,fold$}
-            \State initialize $K$ as a null $n\times n$ matrix
-            \Comment $n$ is the size of $dataset$
+        \algrestore{mme}
+        \Function{computeSumKernel}{$Kernels,~kernelparams,~dataset$}
+            \State initialize $K$ as a null $m\times m$ matrix
+            \Comment $m$ is the size of $dataset$
             \ForAll{$kernel \in Kernels$}
-                \ForAll{$tuple \in paramsgrid$}
-                    \State $k \gets \Call{computeKernel}{kernel, tuple, dataset}$
+            \ForAll{$i \in \{1,\dots,n\}$}
+            \Comment $n$ is the size of the parameter grid
+            \State $k \gets \Call{computeKernel}{kernel,~kernelparams[i],~dataset}$
                     \State $\Call{traceNormalize}{k}$
                     \State $K \gets K+k$
                 \EndFor
             \EndFor
-            \State $trainingset, testset \gets \Call{split}{K,fold}$
-            \State \Return $trainingset, testset$
+            \State \Return $K$
         \EndFunction
-        \algstore{mme}
-    \end{algorithmic}
-\end{algorithm}
-
-Having defined the auxiliary function in charge of managing the kernels computation
-and sum (Algorithm \ref{alg:compute_sum}), we now proceed to show its use in the modified version of our method.
-For each training cycle there are two calls to the \textsc{computeSumKernel}
-function, one of which is hidden inside the \textsc{easyMKLweights} function.
-
-\begin{algorithm}
-    \caption{
-        High level implementation of the constant-memory implementation.
-        The \textsc{easyMKLopt} and \textsc{easyMKLweights} functions implement
-        the two phases of the easyMKL algorithm as discussed in Section \ref{sec:opt}.
-        The \textsc{computeSumKernel} function is defined in the previous part
-        (Algorithm \ref{alg:compute_sum}).
-        As is the case for the original algorithm, $Folds$ is the data structure
-        that manages the cross validation loops.
-    }
-
-    \label{alg:method_me}
-    \begin{algorithmic}[1]
-        \algrestore{mme}
-        \ForAll{$outerfold \in Folds$}
-            \ForAll{$\Lambda \in params$}
-                \ForAll{$innerfold \in Folds$}
-                    %\State $tset \gets \Call{computeSumKernel}{Ks,grid,data,innerfold}[0]$
-                    \State $tset,vset \gets \Call{computeSumKernel}{Ks,grid,data,innerfold}$
-                    \State $\Call{easyMKLopt}{\Lambda,tset}$
-                    \Comment first phase of easyMKL
-                    \State $model \gets \Call{easyMKLweights}{\Lambda,tset}$
-                    \Comment second phase of easyMKL
-                    \State validate $model$ with $vset$
-                \EndFor
-            \EndFor
-            
-            \State select the best $model,\Lambda$ resulting from the inner loop
-            %\State $training\_set \gets \Call{computeSumKernel}{Ks,grid,data,outer\_fold}[0]$
-            \State $trainingset,testset \gets \Call{computeSumKernel}{Ks,grid,data,outerfold}$
-            \State $\Call{easyMKLopt}{\Lambda,trainingset}$
-            \State $finalmodel \gets \Call{easyMKLweights}{\Lambda,trainingset}$
-            \State test $finalmodel$ with $testset$
-        \EndFor
-
-        \State \Return $finalmodel$ with best average among the $Folds$
     \end{algorithmic}
 \end{algorithm}
 
@@ -400,19 +433,7 @@ kernels being computed.
 A similar version of this algorithm has been implemented for the computation
 of the kernels discussed in Section \ref{subsec:features}.
 Again, this procedures has largely been derived from the work done in \cite{nnavarin, rtesselli}.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[scale=0.5]{Figures/kernel_times_log}
-    \caption{Times in seconds required to compute the kernels $ODDK_{ST}$ and 
-    $TCK_{ST}$ incrementally and sequentially on a selection of datasets. Time
-    scale is logarithmic for the sake of presentation.}
-    \label{fig:times}
-\end{figure}
-
-The plot in figure~\ref{fig:times} shows the relation between the computation times
-on a variety of datasets, see Section~\ref{subsec:datasets} for further details on
-the composition of each dataset.
+An analysis if the computation times will be provided in Section \ref{subsec:time_results}.
 
 %----------------------------------------------------------------------------------------
 

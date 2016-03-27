@@ -3,11 +3,10 @@
 \chapter{Introduction} % Main chapter title
 \label{Chapter1} % For referencing the chapter elsewhere, use \ref{Chapter1} 
 
-This chapter presents a panoramic view of the field of study on which this thesis
-bases itself.
-First we introduce the fundamental concepts of machine learning, followed by
-some more topic-specific discussion, then an overview of the main contribution
-is given, followed by the document outline.
+This chapter presents a brief overview of the present thesis.
+First we introduce some basic concept about data and knowledge along with some examples,
+then the main contribution is explained with some more in-depth topic discussion,
+followed by the document outline.
 
 \section{Relationship between data and knowledge}
 
@@ -19,11 +18,9 @@ devoted to the task are often limited \cite{idc}.
 Moreover in some cases the rapidity at which a meaningful interpretation of the 
 raw data has to be produced is critical.
 Hence, just the plain fact of owning the data does not implies that some useful 
-meaning can be derived from it; in fact a whole discipline was born with the
-intent of derive \emph{knowledge} that ``we don't know we don't know''.
+meaning can be derived from it; in fact the whole discipline of \emph{Data Mining}
+was born with the intent of derive \emph{knowledge} that ``we don't know we don't know''.
 
-This is indeed one of the many achievement of \emph{Data Mining}, a prominent field for
-professionals and scientists alike.
 Most of its techniques draw from a variety of other fields like Statistics,
 Computer Science, Information Theory and Mathematics just to mention a few.
 This discipline rests its theoretical foundation upon the field of \emph{Machine Learning},
@@ -41,12 +38,12 @@ For the most part, data is collected and stored in vectorial form (think of
 a database rows for instance) and a lot of machine learning techniques are
 tailored to this ubiquitous representation.
 A vector is just a tuple of values with some kind of identifier for each of them
-and represent little to no other information per se hence data that comes in
+and represents little to no other information per se hence, data that comes in
 this format is considered unstructured data.
 
-In the last decades some approaches tried to address tasks whose data could
-not be represented in vectorial form or whose representation this way would cause
-a great deal of information loss.
+In the last decades some approaches tried to address tasks whose data cannot
+be represented in vectorial form or whose representation in this form would cause
+information loss.
 More specifically some work has been done to devise methods that could learn
 directly from graphs, a very useful kind of \emph{structured data} that sees many
 important real-world applications nowadays, especially in Biology and Chemistry.
@@ -54,14 +51,17 @@ important real-world applications nowadays, especially in Biology and Chemistry.
 %----------------------------------------------------------------------------------------
 
 \section{Why structured data}
-As previously mentioned, data in vectorial form retain practically no inherent
+As previously mentioned, data in pure vectorial form retain practically no inherent
 information about the record it represent, it's just a collection of values with
 no other relation between themselves but to be in the same tuple.
 Looking at a vector for instance, it is not immediately clear if the values share
 some dependency, if they are correlated and in which measure, and what is the
 individual relevancy to the prediction task at hand, if any.
-To overcome these question a number of analyses exist, which aim to add some
-implicit knowledge to the data but they remain heuristic at best.
+Meta-data can be added to the vector to try and answer these questions, also a
+number of analyses exist, which aim to add some implicit knowledge to the data
+but they remain heuristic at best.
+Some data is naturally structured, e.g. chemical compound, and representing them
+as vectors will inevitably cause a loss of information about their structure.
 
 \subsection{Graph representation}
 On the other hand we have graphs, a structured data form that can represent
@@ -79,10 +79,8 @@ viewed like an extended relationship level, and finally the information that can
 be derived or inferred by looking at the shape of the graph such that notions
 of connectivity, density etc.
 
-Since this thesis will focus on data encoded as graphs we will now introduce
-some examples of learning tasks on graphs.  
-
 \subsubsection{Examples}
+\label{subsubsec:examples}
 
 Graph structured data has proven useful in the classification of non-coding RNA
 molecules, modeled as shown in Figure \ref{fig:bio} \cite{nnavarin, conf/psb/KarklinMH05},
@@ -103,7 +101,7 @@ molecules of some sort in form of graphs.
         \label{fig:ldg}
         \caption{}
     \end{subfigure}
-    \caption{A) RNA molecule graph representation and B) the same molecule represented
+    \caption{a) RNA molecule graph representation and b) the same molecule represented
         as a labeled dual graph \cite{conf/psb/KarklinMH05}.}
     \label{fig:bio}
 \end{figure}
@@ -115,13 +113,13 @@ lexicon from users review \cite{10.1371/journal.pone.0079294}, see Figure \ref{f
 \begin{figure}[ht]
     \centering
     \includegraphics[width=.6\linewidth]{Figures/wordrel}
+    \caption{Example of graph representation of words relationships in a multilingual
+    context \cite{10.1371/journal.pone.0079294}.}
     \label{fig:wordrel}
-    \caption{Example of mutual-reinforcement label propagation using a graph
-    representation of words relationships in a multilingual context \cite{10.1371/journal.pone.0079294}.}
 \end{figure}
 
 In computer vision a prominent application of the graph representation concerns
-the so called scene understanding or scene modelling task, where a scene is divided
+the so-called scene understanding or scene modelling task, where a scene is divided
 into semantically meaningful areas which can be seen as nodes of a graph whose
 edges are the adjacency relations between the areas \cite{journals/corr/abs-1108-4079},
 an exemplification of which is given in Figure \ref{fig:scene}.
@@ -139,7 +137,7 @@ an exemplification of which is given in Figure \ref{fig:scene}.
         \caption{}
         \label{fig:network}
     \end{subfigure}
-\caption{A) Scene understanding via graph decomposition in computer vision. B)
+\caption{a) Scene understanding via graph decomposition in computer vision. b)
         LinkedIn's social maps show how a social network graph representation
         can quickly become very complex.}
 \end{figure}
@@ -152,110 +150,122 @@ application.
 
 %----------------------------------------------------------------------------------------
 
-\section{Kernel methods}
-Graph mining and in general machine learning approaches that deal with data
-structured as graphs are still an active area of research for a number of reason
-detailed in Chapter \ref{Chapter2}, here we will just mention the trade-off
-associated with devising methods that are effective while remaining feasible.
-Some of the recently proposed works \cite{DBLP:conf/sdm/MartinoNS12, NIPS2009_3813}
-try to embed graph specific knowledge and theories into well established methods,
-in particular kernel methods that, given the inherent decoupling between the kernel
-function and the learning machine that employs it, have seen a wealth of proposal
-to address several applications among which there are some of those described in
-the previous section.
-
-Nowadays a scientist that wants to address a particular classification task
-typically has to first determine which is the best approach to choose given a number
-of factors including data representation, amount of samples, and type of prediction.
-Again, the outcome of the experiments conducted with the method of choice has 
-to go a rigorous path of validation and testing to ensure significance not to
-mention correctness.
-In particular this last point can quickly become a cumbersome and onerous process if
-it is unclear which one of the available alternative methods is the most indicated
-for the task at hand, and this becomes even more true if the choice concerns a 
-kernel function.
-
-To address this latter point in the recent years some algorithms have been developed
-\cite{journals/jmlr/GonenA11} that consent to combine different kernel functions into a single learning
-process, trying in some way to ease the burden of choice that affects the user.
-In the following section we will describe our proposal, which tries to improve on
-the existing technique by extending the notion of kernel combination in a way which
-to the author's knowledge has yet to be done.
-
-%----------------------------------------------------------------------------------------
-
 \section{Thesis contribution}
 
-The scenario described in the previous section prompted us to try and devise a way to
-overcome some of the weak points in the general kernel learning methodology, namely
-the overall efficiency, in particular when graph kernel learning is involved.
-We tried furthermore to prove the generalizability of this methodology via empirical
-testing, see Chapter \ref{Chapter4}.
+Given these premises, how can we learn from graphs? A first \emph{structure-based}
+approach consist in designing an \emph{ad-hoc} vectorial representation for the
+particular kind of graphs being considered.
+This approach has one major downside which is that a renewed effort for the 
+design of a new representation is needed every time a new type of data
+is encountered.
 
-\subsection{Why combining kernels}
+Instead of focusing on the data, another approach is to adapt the existing methods
+to work directly on graphs, thus permitting the exploitation of existing techniques.
+Some recently proposed works \cite{DBLP:conf/sdm/MartinoNS12, NIPS2009_3813}
+embed graph specific knowledge into well established \emph{kernel methods}
+that, given the inherent decoupling between the data representation and the learning
+algorithm that they provide (more on Section \ref{subsec:introkm}), make the
+perfect fit for a more general approach.
+
+\subsection{Kernel methods}
+\label{subsec:introkm}
+
+Kernel methods are a collection of techniques that rely on an implicit representation
+of the data and a well defined measure of similarity between samples to perform
+the learning task.
+These methods have two main components: a domain specific function to compute the
+samples pairwise similarity, called \emph{kernel function}, and a general purpose
+learning algorithm, often called \emph{kernel machines}, to combine the information provided by the
+kernel function in order to separate the samples.
+
+Kernel functions are associated with a \emph{feature space} and define the similarity
+score according to a set of features extracted from the samples.
+Specific domain knowledge gets embedded in the learning process through the design of these
+feature spaces and once the kernel function is defined, it becomes the only interface between the data
+and the learning algorithm that never accesses its explicit representation.
+
+Kernel machines are learning algorithms that employ the similarity measure defined
+by kernel function to obtain sample separation in the implicit feature space and
+map it back to the original input space from where the data was generated.
+One of the most tried methods is the Support Vector Machine (SVM) \cite{Cortes&Vapnik:1995}
+which is a binary classifier that tries to maximize the \emph{margin} between
+two sets of labelled samples referring to their pairwise distance as their
+similarity measure.
+
+Graph kernel learning exploits this approach defining suitable kernel functions,
+i.e. similarity measures, for graphs; a major challenge doing this is maintaining
+an acceptable trade-off between expressiveness and efficiency.
+
+\subsection{Hyper-parameter selection}
 \label{sec:why}
-% relieve the burden of kernel design from the user that can mash a number of weak kernels
-% in and expect something out
-% vedi paper easymkl
 
-Kernel combination can stem from multiple needs, here we will briefly mention the main ones.
+Most learning methods have parameters that need tuning, i.e. in order to achieve
+good generalization performances each value has to be selected from a set of
+possible choices according to a performance measure.
 
-\paragraph{Relieve the user from deep domain specific knowledge:} in order to be able to design
-adequate kernels for the problem at hand a user needs to to delve into the details of the data
-and the concept it is trying to approximate, making the choice of a kernel a hindering task.
-Combining multiple, possibly weaker, kernels will in principle overcome this difficulty with
-a null or modest loss in performances.
-\paragraph{Combine heterogeneous sources of information:} one kernel means one mapping function
-toward a particular high dimensional space, thus inducing a whole new feature set.
-Different data sources for the same task could have different notions of similarity,
-thus requiring the employment of a different kernel.
-Having the possibility to combine different kernels in one learning process equals
-to combine different feature sets from (possibly) different sources.
-\paragraph{Features selection:} depending on the chosen method of combination, it could be
-possible in principle to still measure the performance of the single kernel according
-to some metrics hence being able to assess the goodness of the underling input feature space.
-\paragraph{The case for graph kernels:} graph kernels typically suffer a performance
-degradation the more expressive they get. By combining a number of more efficient although
-less expressive kernels could lead to a boost in performance due to the inherent enrichment
-of the feature set while maintaining acceptable performances.
+The selection procedure often involves a limited search on the parameter space
+that is, a set of values for each parameter is fixed and all the combinations
+are tested to find the best one.
+However, in order to be useful the sampling on the parameter space needs to be adequate:
+the complexity of this search can still be daunting because it depends from the
+number of parameters and the cardinality of each values set.
+
+In the context of kernel learning hyper-parameters can be found on two levels:
+parameters relative to the kernel function and parameters that belongs to the
+kernel machine (solver).
+The parameters of the former typically influence the feature space being generated,
+directly affecting the expressiveness of the similarity measure, i.e. the ability
+to discern between different samples.
+The parameters of the solver are usually employed as regularization factors,
+as is the case for SVMs, where it is used to balance the trade-off between a good
+(generalizing) separator and empirical error.
+Once the solver has been chosen, the parameter space is determined by the kernel
+hyper-parameters hence, the kernel choice can greatly affect the computational
+performances of the whole approach.
+Moreover, often the kernel selection has to be validated too, thus increasing the
+computational burden even more.
 
 \subsection{Proposed solution}
 
-The solution proposed here consists in combining the kernels that would be
-generated according to a grid search technique (see Section \ref{subsubsec:grid})
-all at once, thus extending the notion of combination to kernels generated by the same
-function but from different parameters, while employing a specific technique to
-improve the feature space of each kernel and reduce the overall number of computed
-matrices.
-We had available a fast, state-of-art $MKL$ implementation \cite{aiolli2015easymkl}
-so we decided to exploit the inherent combining power of this approach for our
-purposes.
+To address this last point a different approach to kernel learning has been developed,
+called \emph{multiple kernel learning} (MKL), which allows to combine different
+kernel functions into a single learning process.
+From the plethora of implementations available in literature \cite{journals/jmlr/GonenA11},
+we selected EasyMKL, a recently proposed state-of-the-art MKL implementation
+\cite{aiolli2015easymkl} with a linear complexity bound w.r.t. the input size.
+This algorithm effectively finds the best possible linear combination of the
+input kernels as a weighed sum.
 
-By combining a large number of kernels, derived from selected graph kernel
-learning approaches, into a single learning process we wanted to determine if an
-effective and overall performance improvement both in computational times and 
-in target prediction was possible.
+Furthermore, graph kernels typically become more computationally expensive the
+more expressive they get.
+Combining a number of more efficient although less expressive kernels could
+lead to a boost in performance due to the inherent enrichment of the feature set
+while maintaining acceptable performances.
 
-Moreover in this way the whole process of parameters selection has been streamlined and
+We here propose a methodology to avoid the cumbersome process of kernel
+hyper-parameter selection, employing at once all the kernels that would have been calculated
+according to the parameter space search (e.g. grid search, see Section \ref{subsubsec:grid})
+with EasyMKL.
+We discuss also how a process of kernel orthogonalization can improve the algorithm space
+consumption while boosting the performances.
+
+With this approach the whole process of hyper-parameter selection has been streamlined and
 lifted from the kernels to the learning machine, effectively eliminating the need to test each
 kernel in isolation.
 
 %----------------------------------------------------------------------------------------
 
 \section{Thesis outline}
-This document is organized in five chapters which are: the present one of introduction,
-where we explained some of the motives behind this work and the proposed ideas.
-In Chapter \ref{Chapter2} we will delve into the background details that will be
-necessary to fully understand the later concepts; we will cover the basics of
-machine learning and kernel methods and see some examples of kernel combination
-techniques.
+This document is organized as follows: in Chapter \ref{Chapter2} we delve into
+the background details that are necessary to fully understand the proposed idea;
+we cover the basics of machine learning and kernel methods and see some examples
+of kernel combination techniques.
 The main ideas behind this work are exposed in Chapter \ref{Chapter3} where we
 discuss in detail our approach, the conceptual steps involved and the solutions
 to the problems encountered.
 Chapter \ref{Chapter4} covers the experimental part of the thesis, where we present
-our results and finally Chapter \ref{Chapter5} wraps it up and contains some of the
-ideas that we were not able to include in the present work because of time constraints.
-
+our results and finally in Chapter \ref{Chapter5} we draw conclusions and explain
+how some ideas proposed here can be further explored.
 
 %----------------------------------------------------------------------------------------
 

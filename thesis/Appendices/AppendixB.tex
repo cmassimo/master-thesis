@@ -4,5 +4,48 @@
 \section{Language}
 \label{sec:language}
 
+The main language used throughout the implementation phase of this work was
+Python.
+The language has been chosen for the good tradeoff between ease of use and
+performances and because most of the available code in terms of kernel functions 
+and learning methods was written in Python.
+In the recent year the language has established itself as a valuable tool for
+scientific computing, especially for machine learning, thanks to a wealth
+of libraries specifically devoted to the task.
+A brief overview of the libraries that were employed to implement the methodology
+and the experiments is given in the following section.
+
 \section{Libraries}
 \label{sec:libraries}
+The main third-party libraries used in this work were:
+\begin{itemize}
+    \item scikit-learn (\url{http://scikit-learn.org/stable/index.html}) for the
+        SVM implementation and matrices I/O;
+    \item EasyMKL (\url{https://github.com/jmikko/EasyMKL/}) for the chosen $MKL$
+        implementation;
+    \item cvxopt (\url{http://cvxopt.org/}) for dataset processing since they are
+        a pre-requisite of EasyMKL;
+    \item numpy (\url{http://www.numpy.org/}) for everything else.
+\end{itemize}
+
+\subsection{Original code, and data repositories}
+\label{subsec:repos}
+Some of the original code produced during this work is available as a branch of the 
+very useful scikit-learn-graph library (\url{https://github.com/nickgentoo/scikit-learn-graph})
+put together by Nicol\`o Navarin which contained most of the methods and kernel
+functions on which this work has been based.
+The code can be viewed and downloaded here: \url{https://github.com/nickgentoo/scikit-learn-graph/tree/thesis-cmassimo}.
+This repository contains mainly integrated and revised versions of the kernel functions from \cite{rtesselli},
+plus all the novel implementations proposed in this study.
+The repository also contains the kernel functions proposed in \cite{SanMartino2014}
+as well as the integration of the weighing scheme from \cite{DaSanMartino2016} for all the $ODD$ kernels,
+both of which did not make it past the initial exploratory phase.
+
+The code for the experiments and the actual scripts with the methodology implementations
+can be browsed and downloaded here: \url{https://github.com/cmassimo/master-thesis}.
+
+The datasets used in this work are publicly available and can be downloaded from:
+\begin{itemize}
+    \item \url{https://sites.google.com/site/nicknavarin/software/datasets}
+    \item \url{http://www.math.unipd.it/~nnavarin/datasets/}
+\end{itemize}
