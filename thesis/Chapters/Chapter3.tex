@@ -4,7 +4,7 @@
 This chapter details the contribution of the present thesis.
 We discuss the current state of the art in Section \ref{sec:hyper}, then we detail
 the proposed methodology (Section \ref{sec:method}) and finally an overview
-of the main optimization choices (Sections \ref{sec:opt}, and \ref{sec:inc}) is
+of the main optimization choices (Sections \ref{subsec:opt}, and \ref{subsec:inc}) is
 given.
 
 \section{Hyper-parameter selection}
@@ -51,7 +51,7 @@ selected as well.
 % different kernels
 % Eg:
 To give a quick example, consider a kernel derived from the $ODD$ framework, say
-the $ODDK_{ST}$, let $l,m$ be the cardinalities of the value sets on which its parameters
+the $ODDK_{ST}$ (Section \ref{subsubsec:odd}), let $l,m$ be the cardinalities of the value sets on which its parameters
 $h$ and $\lambda$ need to be validated; Let the SVM be the kernel machine of choice and
 $n$ the cardinality of the value set for its parameter $C$.
 Employing a grid search technique, i.e. an exhaustive search over the subset
@@ -67,23 +67,24 @@ A visual comparison of these two approaches is given in Figure \ref{fig:comparis
 
 \begin{figure}[h]
     \centering
-    \begin{subfigure}{.4\textwidth}
+    \begin{subfigure}{.391\textwidth}
         \centering
         \includegraphics[width=\linewidth]{Figures/comp1}
         \caption{Single kernel approach}
         \label{fig:comp1}
     \end{subfigure}\qquad
-    \begin{subfigure}{.315\textwidth}
+    \begin{subfigure}{.4\textwidth}
         \centering
         \includegraphics[width=\linewidth]{Figures/comp2}
         \caption{MKL approach}
         \label{fig:comp2}
     \end{subfigure}
     \caption{Comparison between the standard single kernel approach (a) and the MKL one (b).
-    $K_1,\dots,K_N$ refers to the $N$ kernels computed from the $N$ combinations
+    $K_1,\dots,K_R$ refers to the kernels computed from the $R$ combinations
     derived from the parameters grid. In (a) each kernel is used to perform a full learning
-    cycle, $N$ in total. In (b) all the $N$ kernels are used together
-    as the input of the learning algorithm.}
+    cycle, $R$ in total. In (b) all the $R$ kernels are used together
+    as the input of the learning algorithm.
+    In the settings described above $R=l\cdot m$.}
     \label{fig:comparison}
 \end{figure}
 
@@ -99,27 +100,30 @@ The idea we propose here takes a cue from the scheme in Figure \ref{fig:comp2}.
 As discussed in Section \ref{subsec:mkl}, MKL methods generally provide a consistent
 way of using different, possibly weak, kernels to build a model which is the result
 of their composition.
-FIX HERE
+While these methods are usually employed to boost the performance of the single
+kernels, we approach the combination technique from a different perspective.
+The main requisite of our idea is the possibility to combine a potentially
+large number of kernels without a significant loss of computational performances.
 The EasyMKL implementation (Section \ref{subsec:easymkl}) was deemed a good
 choice because of its state-of-the-art performances and linear complexity
-bound on the input size.
+bound on the input size both in time and space.
 
-We therefore propose a novel way of performing the \emph{whole} learning process
-that consists in avoiding the kernel hyper-parameter selection process entirely pre-computing
-all the kernels according to the considered subset of the parameter space and composing
-them together to perform the learning task employing EasyMKL capabilities as the kernel
+We therefore propose a novel way of performing the \emph{whole} learning phase.
+This consists in avoiding the kernel hyper-parameter selection process entirely by considering
+all the kernels according to a finite subset of the kernel parameter space and composing
+them together to perform the learning task, employing EasyMKL capabilities as the kernel
 machine.
 Algorithm \ref{alg:method} presents the pseudo-code for the methodology.
 
 \begin{algorithm}
     \caption{
         High level implementation of the proposed methodology.
-        The \textsc{computeKernel} function computes a kernel according to the
+        The \textsc{computeKernel} function returns a kernel according to the
         selected kernel function $k$ and one hyper-parameters tuple from the
         parameter grid $kernelparams$ on the given $data$.
         \textsc{validationRoutine} represent a generic validation framework which
         takes $EasyMKL$ as the chosen kernel machine, the vector $hyperparams$
-        as its associated hyper-parameters to be validated and the computed kernels
+        as its associated hyper-parameters to be validated and the kernels
         in $M$ as the new data (see Section \ref{sec:kernel}).
     }
     \label{alg:method}
@@ -173,26 +177,19 @@ Algorithm \ref{alg:method} presents the pseudo-code for the methodology.
 %    \label{fig:method}
 %\end{figure}
 
-REWRITE?
-% the only params that needs validation are the machine params
-The new idea behind an otherwise standard and tried scheme of operations is that
-the kernel list instantiated in line \ref{line:kernels}, comprises all the 
-kernels computed from the grid of parameters combinations that would otherwise
-have been individually fed to a standard single kernel machine (e.g. SVM).
-Doing so, the single kernel hyper-parameter optimization phase can be avoided in its
-entirety and the only parameters that needs validation are the ones of the chosen
-MKL implementation, namely one regularization parameter ($\Lambda$) in our case.
-This point will be further elaborated on in the following section.
-
 % kernel machine select the model 
+% bias reduction
 % overfitting reductiooooonnnnnn
-Collapsing the kernel hyper-parameter selection process leaves the responsibility
-of model selection to the kernel machine which can take advantage of the different
-information brought on by the single kernels to 
-of parameters thus restricting the generalization power of the resulting model,
-the whole set of parameter combinations concurs in the model determination hence
-increasing the chances of it being more general while boosting the overall performances
-of the single kernels.
+By combining all the kernels in one learning phase, we let the kernel machine
+take advantage of the whole information brought on by the single kernels.
+This in turn results in bias reduction since the algorithm does not rely on a single
+measure of similarity but rather collects a contribution from each kernel thus
+in the end employing a more expressive measure defined on the composition of all
+the underlying feature spaces.
+
+The reduction in the number of hyper-parameters to validate has also the effect
+of reducing the overall chance of overfitting given the reduction of degrees of
+freedom in the hypothesis approximation.
 
 %Even if the memory consumption of the adopted MKL algorithm is linear w.r.t.
 %the number of considered matrices, in our scenario where hundreds of matrices
@@ -215,42 +212,68 @@ of the single kernels.
 %thus reducing the dimensionality of the parameter space obtaining a consequent
 %reduction in the number of kernels to be computed
 
-In this study we consider graph kernels and this fact allows us to employ
-the feature division strategy delineated in \cite{gmkl} where applicable and similarly
-devise a new strategy when needed.
-Keep in mind that while the proposed method is generalizable, such partitioning
-introduces a strong bias over the learning process that has to be taken into account.
+% ok to combine all kernel but it will work better if the information provided
+% is orthogonal
+% recently proposed work devise a general method of orthogonalizing graph kernels
+% even if in principle this orthogonalization is a source of bias the fact that 
+% we can use more than one kernel at once mitigate it since our methodology can
+% can deal with multiple kernel functions (i.e. multiple feature subdivision
+% strategies)
 
-The $ODDK$ feature space is composed of trees from tree-visits
-over the DAGs deriving from the DAG decomposition on the original graph (Section \ref{subsubsec:odd}),
-when dealing with this space we maintained the proposed features subdivision
-according to their height for the following reasons:
-given the hierarchical structure inherent to the $ODDK$ feature space that is, if a tree
-of height $s$ is present in the explicit feature space representation of a graph,
-also all of its proper sub-trees are \cite{gmkl},
-hence, mapping features of different size to different kernels makes it so no two
-dependent features end up contributing to the same kernel.
-Moreover the standard weighing scheme of the $ODD$ kernel can be delegated to
-the EasyMKL algorithm, because the weight assigned to a
-particular kernel by the algorithm would directly correlate with the underlying
-feature space thus rendering the $\lambda$ parameter of the $ODD$ kernel superfluous.
+\subsection{Feature space improvement}
+\label{subsec:features}
+
+MKL algorithms perform better when the information provided by each kernel is
+orthogonal with respect to each others \cite{gmkl}.
+Combining kernels with the above described methodology do not satisfy this property
+in general, since they are computed by the same function thus representing very similar feature
+spaces.
+Recently some works has been done to further orthogonalize the information
+provided by graph kernels \cite{gmkl}.
+The technique consists in partitioning the feature space of a given kernel in such
+a way that the resulting subsets define features that are independent from each others.
+This is equivalent to decompose the original feature space in a set of non-overlapping
+sub-spaces.
+The approach has therefore been integrated in the kernel computation phase of
+the proposed methodology.
+
+It is clear how in principle the way in which this decomposition is carried on can be a
+strong source of bias since once again the similarity measure between the samples
+is being affected.
+Resting the proposed methodology on a MKL approach partly remedy this problem since
+kernels computed by different functions, i.e. according to different partitioning
+strategies, can be combined at once so that each one can contribute to the final
+outcome.
+
+% join these two parts
+A brief description of the orthogonalization techniques adopted for the graph
+kernels considered in this study follows.
+
+The $ODDK$ feature space is composed of trees from tree-visits over the DAGs
+deriving from the DAG decomposition on the original graph (Section \ref{subsubsec:odd}).
+This space has an inherent hierarchical structure that is, if a tree of a given
+height is present in the explicit representation of a graph, also all of its proper
+sub-trees are \cite{gmkl}.
+Hence, grouping features of different height to different sub-spaces makes it so
+two dependent features never end up contributing to the same kernel.
+Moreover in this way the standard weighing scheme of the $ODD$ kernel can be
+delegated to the EasyMKL algorithm, because the weight assigned to a particular
+kernel by the algorithm would directly correlate with the underlying feature
+sub-space thus rendering the $\lambda$ parameter of the $ODD$ kernel superfluous.
 
 The fast subtree (WL) kernel has an already orthogonally structured feature
 space since each feature extracted at iteration $i \in \{0,\dots,h\}$ (see Section \ref{subsubsec:fs})
-is independent from all the feature extracted at iteration $j \in \{1,\dots,h\}\setminus \{i\}$.
+is independent from all the feature extracted at iteration $j \in \{1,\dots,h\}\setminus \{i\}$,
+hence the partition technique consists in considering each iteration as a different
+feature space.
 
-The most direct consequence of the adoption of this techniques is that we
-considerably reduced the dimension of the grid and thus the number of generated kernels at
-the expenses of a modest increase due to the newly computed kernel for each group
-of features.
-Experimental results shows also a general increase in the predictive performances
-due to the more discriminative power of the generated kernels with respect
-to the approach described in the previous section.
+The most direct consequence of the adoption of this techniques is that it is
+possible to remove some hyper-parameter thus typically reducing the
+overall number of kernels.
 
 %----------------------------------------------------------------------------------------
 
-\section{Method optimization}
-\label{sec:opt}
+\section{Some considerations on complexity}
 
 Implementing our methodology as it has been defined in Algorithm \ref{alg:method},
 results in a memory consumption bound of $O(c \cdot (R\cdot m^2))$ with $c$ being
@@ -259,7 +282,7 @@ a specific implementation may need to instantiate, $R$ the number of kernels and
 $m$ the number of samples in the dataset, although we empirically determined that
 it can be kept below $2\cdot (R\cdot m^2)$.
 This complexity measure can be extrapolated from  Algorithm \ref{alg:method}:
-at any given point during its execution, the kernels vector () is in
+at any given point during its execution, the kernels vector is in
 memory with a size equal to $R\cdot m^2$ (line \ref{line:kernels});
 the validation routine of choice will then have to make a copy of the kernels vector
 for each step of the parameter selection phase concerning the kernel machine.
@@ -269,8 +292,10 @@ for this reason we designed a different approach that employs a slight modificat
 of the standard EasyMKL algorithm \cite{aiolli2015easymkl} in order to keep a
 constant level of memory occupation.
 
-This approach relies on the fact that the EasyMKL algorithm \emph{implementation}
-can be divided in two main phases, namely the margin optimization problem (KOMD)
+\subsection{An alternative constant-space implementation}
+\label{subsec:opt}
+This approach relies on the fact that the EasyMKL algorithm implementation can
+be divided in two main phases, namely the margin optimization problem (KOMD)
 solution and the weights calculation phase (Section \ref{subsec:easymkl}).
 Moreover during these phases the algorithm mostly works on a unique kernel which is
 the normalized sum of the input kernels.
@@ -280,8 +305,8 @@ therefore maintaining only one kernel in memory at one time thus achieving const
 space occupation.
 
 This method has obviously one major drawback which is the latency derived from
-having to either compute each kernel or load it from storage multiple times
-during the execution and finally having to normalize and sum it.
+having to either compute each kernel multiple times during the execution and
+finally having to normalize and sum it.
 This is inevitable because we are shifting the inherent burden of the data dimensionality
 from space to time which can still be useful for some applications
 depending on the available resources or imposed constraints.
@@ -337,8 +362,6 @@ in charge of managing the kernels computation and sum in Algorithm \ref{alg:meth
     \caption{
         Here an auxiliary function for computing, normalizing and summing the
         kernels to be combined is shown.
-        This function also splits the resulting sum matrix in two sets to
-        easy the cross-validation scheme in which it is employed.
     }
     \label{alg:compute_sum}
     \begin{algorithmic}[1]
@@ -359,10 +382,8 @@ in charge of managing the kernels computation and sum in Algorithm \ref{alg:meth
     \end{algorithmic}
 \end{algorithm}
 
-%----------------------------------------------------------------------------------------
-
-\section{Incremental kernels calculation} 
-\label{sec:inc}
+\subsection{Incremental kernels calculation} 
+\label{subsec:inc}
 The kernels we analysed in this study present feature space representations
 that are often in a subset relation; this prompted us to devise a method to
 calculate such representations in an incremental fashion trying to gain a

@@ -6,19 +6,26 @@
 \label{subsec:hierarchy}
 % describe the approach in detail (diagram and explaination)
 
+Here we will give a brief description of another baseline method that was implemented
+but not tested due to time constraints.
+This baseline aims to determine if dividing the combination process in two steps, i.e.
+first combine only the kernel generated from the same function and then combine
+the weighed sum, could boost the contribution of the single function w.r.t.
+the methodology proposed in this work.
+This baseline method is a good candidate to be tested in future work related
+to this thesis.
 
-\begin{figure}[ht]
+\begin{figure}[h]
     \centering
-    \includegraphics[scale=0.5]{Figures/nested}
-    \caption{The method illustrated. First the dataset, composed of a list of
-    kernel matrices get split into a training set and a test set (1).
-    Then a $k$-fold cross-validation is performed on the training set ($k$ was set to
-    10 in our case) (2) and the best resulting model is selected according to some
-    performance measure (3). The selected model gets re-trained on the whole initial
-    training set (4) and finally gets tested against the test set that was left out
-    during the entire process (5). At the end of the outer loop of the nested
-    cross-validation, the best model is again selected according to the chosen
-    metric (6).}
+    \includegraphics[scale=0.45]{Figures/hierarchy}
+    \caption{\footnotesize The baseline illustrated. The depicted scenario considers
+        a single learning phase, where $M > 1$ kernel functions are combined, each giving
+        origin to $N$ kernel matrices, though this number can certainly vary
+        from function to function depending on the size of the parameters grid, grouped in $M$ sets (a).
+        Each set is trained independently using EasyMKL (Section \ref{subsec:easymkl})
+        and then used to compute a weighed sum using the weights returned by EasyMKL (b).
+        The sum kernels thus obtained ($S_1,\dots,S_M$) are used in combination to train another model (c).
+    }
     \label{fig:hmethod}
 \end{figure}
 
