@@ -14,13 +14,13 @@ from \cite{nnavarin, rtesselli}.
 
 \label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter2} 
 
-\section{Machine Learning}
+\section{Machine learning}
 
 Machine learning is the Artificial Intelligence branch discipline that aims
 to approximate human learning processes, which are still rather obscure,
 by the means of algorithms and formal methods.
 Central to this discipline is the idea of learning a \emph{concept}, or a function
-$c(x_i)$ on some example data $x_i \in X$, where the learning process consist
+$c(x_i)$ on some example data $x_i \in X$, where the learning process consists
 mainly in finding an approximation good enough for the task at hand.
 The learning process is carried on by an algorithm which builds an hypothesis
 on the available data and uses that hypothesis, let's say $h()$,  to approximate
@@ -37,12 +37,12 @@ is too difficult to be formally defined or too vague.
 Since a machine learning algorithm is often looking for an approximation of the 
 optimal solution, the first problem can be solved settling with a suboptimal
 solution that is more easily obtainable; given the iterative fashion in which
-the learning progress, data noise can be recognised and avoided; lastly,
-an algorithm that learns from the data can be used to explore multiple problem
-definitions, as is often the case with more \emph{data mining} oriented approaches.
+the learning progresses, data noise can be recognised and avoided; lastly,
+an algorithm that learns from the data can be used to explore a problem in multiple
+directions, as is often the case with \emph{data mining} oriented approaches.
 
 One of the most common examples of machine learning applications is the binary
-classification of so-called spam emails.
+classification (Section \ref{subsec:sup}) of so-called spam emails.
 This problem states that an email can either be ``spam'' or not but the definition
 of ``being spam'' is not unique or universally accepted, so we need to be guided
 in the initial definition by a human counterpart: we submit a set of emails to a
@@ -93,13 +93,13 @@ available data, of which again this thesis covers only the first one:
         on the currently observed sample.
 \end{description}
 
-\subsection{Supervised Learning}
+\subsection{Supervised learning}
 \label{subsec:sup}
 
-This work considers a supervised learning, where each input example has been
-previously labelled correctly with reasonable certainty.
+This work considers supervised learning, where each input example has been
+previously labelled and represents the evidence data.
 We are then facing a \emph{classification} problem, one in which we need to learn
-a decision function that will classify each new record with the correct label.
+a decision function that will classify each new sample with the correct label.
 In this paradigm we are given a set of tuples (i.e. examples) called \emph{training set}:
 $S = \{(x_i, y_i)| i=1,\dots,n\}$ with $x_i \in \mathrm{X}, y_i \in \mathrm{Y}$
 where $\mathrm{X}$ is the set of data instances and $\mathrm{Y}$ is the set of
@@ -159,7 +159,7 @@ The contrary is called \emph{underfitting} and negatively affects the
 generalization power of an hypothesis by making it fail to learn much from the
 sample data.
 
-\subsection{Structural Risk Minimization}
+\subsection{Structural risk minimization}
 \label{subsec:srm}
 To avoid the scenarios depicted in the previous section we need a way to determine
 how powerful an hypothesis can be, i.e. its expressiveness.
@@ -210,20 +210,20 @@ minimization} which considers hypotheses spaces of crescent complexity
 the lower empirical error, finding the hypothesis with the lower bound on the
 ideal error.
 
-\subsection{Hypothesis Evaluation Strategy}
+\subsection{Hypothesis evaluation strategy}
 \label{subsec:evaluation}
 
-Given a dataset, we could train our algorithm an all the samples and that would
+Given a dataset, we could train our algorithm on all the samples and that would
 maximize the learning performance since the cardinality of the training set is
 inversely proportional to the bound on the ideal error.
 However we cannot rely on the learning phase alone but we also need a way to
 assess the goodness of a given hypothesis with respect to a given metric, be it 
-either the prediction accuracy or a more sophisticated one like the ROC AUC
+either the prediction accuracy or a more sophisticated one like the AUROC
 and because there are parameters to adjust.
 In this thesis a variant of the technique explained in the following section
 has been employed.
 
-\subsubsection{Cross Validation}
+\subsubsection{Cross validation}
 \label{subsubsec:cv}
 This technique is based on the minimization of the estimated ideal error by
 (repeatedly) splitting the whole data set into two separate sets: a training set
@@ -251,7 +251,7 @@ of decreasing the model bias (outliers will not affect the model) but increasing
 the variance on the validation set.
 On the other hand for large values of $k$, we obtain the opposite effect.
 
-\subsubsection{Nested Cross Validation}
+\subsubsection{Nested cross validation}
 \label{subsubsec:ncv}
 An important thing to notice at this point is that with the technique explained in
 the previous section we are not assessing the performance of each hypothesis
@@ -264,29 +264,36 @@ process and used exclusively for performance assessment purposes.
 The scheme consists of two nested loops, in the first loop, the training set
 is split into $k$ subsets, $k-1$ of which become the training set for the
 $i^{th}$ iteration of training while the $k^{th}$ set becomes the test set.
-The subset of the original training set thus generated is then split again in $k$ subsets
+The new training set thus generated is then split again in $k$ subsets
 which again are used for training and validation with the usual cross validation
 technique.
 Once the best hypothesis has been selected in the innermost loop, it is trained
-with the whole outer loop training set and tested against the test set, which has
+with the whole original training set and tested against the test set, which has
 remained completely isolated from the learning phase until now.
-When used in combination with hyper-parameter optimization with the so-called grid
-search technique (see Section \ref{subsubsec:grid}), the performances obtained in the outer loop are usually used
-to determine the best set of parameters in what is called model selection.
+This technique is employed in combination with a grid search technique (see Section
+\ref{subsubsec:grid}), to perform hyper-parameter selection.
+The performances obtained at the end of a nested k-fold cross-validation represent
+an unbiased performance estimate of the best performing model.
 
-\subsubsection{Grid Search}
+\subsubsection{Grid search}
 \label{subsubsec:grid}
-An often used technique to perform hyper-parameter optimization is the exhaustive
-search on a hand-picked sub-space of the hyper-parameters space that is, selecting
-a set of value for each parameter then evaluating every possible combination
-deriving from the cartesian product of these sets by the means of cross-validation.
-This approach is potentially doomed by the curse of dimensionality, a solution
-for which could be a limited randomized or local search, but is also clearly very easily
-parallelizable.
+The process of hyper-parameter selection is usually performed employing a cross-validation
+technique in combination with a search algorithm on the parameter space of the model.
+Given the size and property of this space (Section \ref{subsec:hyper1}), one of the
+most adopted search strategies consists in limiting the sampling of the space inside
+a finite subset of reasonable size.
+This approach is called \emph{grid search}. First from the domain of each parameter a 
+set of value is chosen, possibly after some process of discretization.
+The cartesian product of these set correspond to the subset of the whole parameter
+space that will be considered, i.e. the ``grid''.
+
+Each combination of values in the grid is then used to perform one of the cross-validation
+inner training phases and the combination with the associated best performing model
+will be selected as the optimal one.
 
 %----------------------------------------------------------------------------------------
 
-\section{Kernel Methods}
+\section{Kernel methods}
 \label{sec:kernel}
 
 In this section we briefly analyse a family of methods that rely on a solid
@@ -409,7 +416,7 @@ function (section~\ref{subsec:kernelfunc}) thus referring to $\mathcal{H}$
 only implicitly and avoiding to deal with a high number of dimensions
 altogether using what is commonly known as the \emph{kernel trick}.
 
-\subsubsection{Support Vector Machines}
+\subsubsection{Support vector machines}
 \label{subsubsec:svm}
 Here we will briefly describe one of the most tried kernel machines in the literature. 
 \emph{Support Vector Machines} or SVM \cite{Cortes&Vapnik:1995} rest on the principle of structural risk
@@ -651,7 +658,7 @@ mapping $\{M_{x,y}|x,y \in \mathcal{X}\}$ is transitive.
 In the following sections we will analyse some of the latest contributions in terms
 of kernel on structured data namely tree kernels and graph kernels.
 
-\subsection{Kernels For Trees}
+\subsection{Kernels for trees}
 This family of kernels stems directly from the convolution kernel and each one
 works by defining a different decomposition for the input tree.
 
@@ -718,7 +725,8 @@ The proposed implementation in \cite{dasanmartino2015exploiting} has a complexit
 $O(Hh^2\rho^2log\rho)$ with $h$ and $H$ being the limit
 of the tree visit and the number of nodes of that tree respectively.
 
-\subsection{Kernels For Graphs}
+\subsection{Kernels for graphs}
+\label{subsec:graphk}
 
 As previously mentioned, defining kernels on graph is a challenging task, mainly
 because of the need to balance the trade-off between the expressiveness of the
@@ -835,7 +843,7 @@ where $\delta$ is again the Kronecker's function.
 With the base kernel defined in Equation \ref{eq:wl}, $K_{WL}^h$ becomes the
 kernel defined in \cite{NIPS2009_3813}.
 
-\subsection{Latest Improvements on Graph Kernel Methods}
+\subsection{Latest improvements on graph kernel methods}
 \label{subsec:kernel}
 In the recent years a number of improvement over the above mentioned kernel approaches
 have been proposed, mainly to try to improve the expressiveness of the feature
@@ -923,7 +931,7 @@ In more simple terms the kernel will score a match in the following cases:
 This kernel is provably positive semidefinite because it is a combination of positive
 semidefinite kernels (see the end of Section \ref{subsec:convolution}).
 
-\section{Multiple Kernel Learning}
+\section{Multiple kernel learning}
 \label{subsec:mkl}
 Multiple Kernel Learning aims to enhance the accuracy of a target kernel machine
 combining kernels derived from multiple sources in a data-driven way.
@@ -976,7 +984,7 @@ techniques since in it requires the solution of an optimization problem whose
 formulation follows:
 
 \begin{equation}
-    \underset{\vec{\eta}:||\vec{\eta}||=1}{\mathrm{max}}\underset{\gamma \in \hat{\Gamma}}{\mathrm{min}}(1-\Lambda)\gamma^\top\hat{Y}\Big(\boldsymbol{\sum_r^R \eta_r\hat{K_r}}\Big)\hat{Y}\gamma+\Lambda||\gamma||^2
+    \underset{\vec{\eta}:||\vec{\eta}||=1}{\mathrm{max}}\underset{\gamma \in \hat{\Gamma}}{\mathrm{min}}(1-\Lambda)\gamma^\top\hat{Y}\Big(\boldsymbol{\sum_r^R \eta_r\hat{K_r}}\Big)\hat{Y}\gamma+\Lambda||\gamma||^2_2
     \label{eq:easymin}
 \end{equation}
 
@@ -996,10 +1004,11 @@ has two critical points: when $\Lambda = 0$ there is no regularization so the
 problem reduces to a hard margin SVM; when $\Lambda = 1$ the optimal solution is
 the squared distance between the positive and negative centroids in the feature
 space.
-This is more evident looking at the experimental results in Chapter
-\ref{Chapter4}.
+EasyMKL is a non-sparse MKL method because it employs the 2-norm in its regularization
+term, hence working best in conjunction with orthogonalized kernels while remaining
+resilient w.r.t. noise and duplicate features \cite{KloBreSonZie11}.
 
-\subsection{Multiple Kernel Learning On Graphs}
+\subsection{Multiple kernel learning on graphs}
 \label{subsec:gmkl}
 A recent work \cite{gmkl} has managed to integrate the algorithm explained in the
 previous section with the work on graph kernels conducted in \cite{DBLP:conf/sdm/MartinoNS12}.
@@ -1016,8 +1025,8 @@ height ensures that no two dependent features ends up in the same set.
 Every set composed in this way is then used as a separate feature space to compute
 a separate kernel and the whole list becomes the input for the EasyMKL algorithm.
 An important point that emerges from this work is that, by using the MKL approach
-in combination with an orthogonal partitioning of the feature space, a reduction
-in the number of hyper-parameters to validate was obtained.
+in combination with an orthogonal partitioning of the feature space, it is possible
+to achieve a reduction in the number of hyper-parameters to validate.
 This latter point in particular it is a considerable addition to our proposed
 methodology as explained in Section \ref{subsec:features}.
 

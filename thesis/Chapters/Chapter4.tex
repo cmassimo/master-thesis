@@ -3,9 +3,9 @@
 \chapter{Experiments}
 \label{Chapter4}
 
-In order to assess the quality of the proposed methodology, described in Section
-\ref{sec:method}, we tested it on several commonly adopted benchmarks and against
-different baselines that are detailed in the following sections.
+In order to assess the quality of the methodology described in Section \ref{sec:method},
+we tested it on several commonly adopted benchmarks and against different baselines
+that are detailed in the following sections.
 
 \section{Datasets}
 \label{subsec:datasets}
@@ -96,7 +96,7 @@ The kernel functions parameter where validated on the following sets:
         \item $h=\{1,\dots,10\}$.
     \end{itemize}
 \end{itemize}
-The parameter sets both for the kernels and the classifier were taken from \cite{rtesselli}.
+The parameter sets both for the kernels and the classifier are taken from \cite{rtesselli}.
 
 Moreover, for the first combination of the list ($TCK_{ST}$ and $ODDK_{ST}$)
 we compare our results against those in \cite{gmkl} which are:
@@ -167,7 +167,7 @@ composed from the sets:
 \end{itemize}
 both sets are taken from \cite{rtesselli}.
 To calculate the kernels derived from the $WL$ framework a grid corresponding to
-the set $h=\{1,\dots,10\}$ is employed, were $h$ is the only hyper-parameter of
+the set $h=\{1,\dots,10\}$ is employed, where $h$ is the only hyper-parameter of
 the $WL$ kernels, see Section \ref{subsubsec:fs}.
 
 The hyper-parameter selection is done only for the kernel machine and refers
@@ -218,9 +218,9 @@ of a parameter grid thus defined:
         \item the $\lambda$ parameter was fixed to 1 for the reasons explained in \ref{subsec:features}
     \end{itemize}
     \item for the kernels derived from the $WL$ the parameter $h$ was set to 10
-        given the nature of the orthogonalization applied to this kernel (DRAFT: explain).
+        given the nature of the orthogonalization applied to this kernel (see Section \ref{subsec:features}).
 \end{itemize}
-The parameter sets both for the kernels and the classifier were taken from \cite{rtesselli}.
+The parameter sets both for the kernels and the classifier are taken from \cite{rtesselli}.
 For all the experiments, the $\Lambda$ parameter of EasyMKL has been
 validated on the set $\{0.0, 0.1,\dots,1.0\}$ during the cross-validation
 routine.
@@ -246,7 +246,7 @@ are applied.
 Table \ref{table:mem1} shows the data obtained in the first case while \ref{table:mem2} shows
 the data obtained after applying the kernel orthogonalization strategy.
 The data shown here only concerns the $ODD_{ST}$ and $TCK_{ST}$ kernels since for the 
-other $ODD$-derived kernels the numbers were basically the same.
+other $ODD$-derived kernels the numbers are basically the same.
 The $WL$ and $WLC$ kernel both generated the same amount of matrices in both cases
 due to the variation in the parameter grids described above.
 
@@ -304,8 +304,7 @@ fashion does not grow with the number of kernels being computed.
     \centering
     \includegraphics[scale=0.5]{Figures/kernel_times_log2}
     \caption{Times in seconds required to compute the kernels $ODD_{ST}$ and 
-    $TCK_{ST}$ incrementally and sequentially on a selection of datasets. Time
-    scale is logarithmic for the sake of presentation.}
+    $TCK_{ST}$ incrementally and sequentially on a selection of datasets.}
     \label{fig:times}
 \end{figure}
 
@@ -334,21 +333,21 @@ set limitation in this case we had way less matrices than we should have had and
 this positively affects the single kernel method while being of no relevance for
 EasyMKL, less influenced by the number of input matrices.
 From this data we can finally conclude that our methodology is more susceptible
-to dataset dimension variation (i.e. the number of records) while the single-kernel
+to dataset dimension variation (i.e. the number of samples) while the single-kernel
 method is ideed influenced by the same measure but it is even more influenced by
 the dimensions of the parameters grid.
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[scale=0.7]{Figures/method_times_avgstd}
-    \caption{
-        This plot shows the mean computation times among all the hyper-parameter values
-        for the classifier, for each learning method and on all the benchmark datasets.
-        Each plot shows the standard deviation among the same set of values plotted as well.
-        The data here represented is taken from the experiments concerning the $TCK_{ST}$ kernel.
-    }
-        \label{fig:meantimes}
-\end{figure}
+%\begin{figure}[ht]
+%    \centering
+%    \includegraphics[scale=0.7]{Figures/method_times_avgstd}
+%    \caption{
+%        This plot shows the mean computation times among all the hyper-parameter values
+%        for the classifier, for each learning method and on all the benchmark datasets.
+%        Each plot shows the standard deviation among the same set of values plotted as well.
+%        The data here represented is taken from the experiments concerning the $TCK_{ST}$ kernel.
+%    }
+%        \label{fig:meantimes}
+%\end{figure}
 
 \subsection{Analysis of model performances}
 
@@ -459,9 +458,9 @@ more in detail this aspect.
 
 %\begin{figure}[ht]
 %    \centering
-%    \includegraphics[scale=0.7]{Figures/weightdist}
+%    \includegraphics[scale=0.7]{Figures/kcaNCI1ststc}
 %    \caption{(DRAFT: this plot is just an example of the available data for furhter analisys.
-%        I think we may be mainly interested in the experiments were two kernels are combined
+%        I think we may be mainly interested in the experiments where two kernels are combined
 %        either with or without bucketization of the feature space.)
 %        Kernel weight distributions for the $TCK_{ST}$ kernel
 %    computed according to the full parameters grid, on the NCI1 dataset.

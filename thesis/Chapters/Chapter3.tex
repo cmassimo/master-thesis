@@ -14,9 +14,9 @@ given.
 Machine learning methods perform a non-exhaustive search on the hypothesis space
 (Section \ref{subsec:sup}), therefore they have a set of parameters to influence
 and direct their search strategy, in order to find optimal solutions in reasonable time.
-The method tuning process refers to a parameter space defined by the parameters
-of each method that is the set of all possible combinations of values for all the
-different parameters.
+These parameters define a parameter space that is the set of all possible combinations of
+values for all the different parameters.
+% non covex space
 The size of a particular parameter space is given by the product of the cardinality
 of the domain associated with each parameter hence, an exhaustive search would
 prove to be too onerous if not infeasible.
@@ -58,9 +58,9 @@ Employing a grid search technique, i.e. an exhaustive search over the subset
 of the parameter space thus defined, parameter selection would require $l\cdot m\cdot n$
 searches.
 
-A first improvement over this scenario is to adopt a kernels combination approach 
+A first improvement over this scenario is to adopt a kernels combination approach
 and use all the kernel computed from the parameter grid at once.
-With the above described settings the number of needed cross-validation instances
+With the above described settings the number of search instances
 shrinks from $l\cdot m\cdot n$ to $n$, hence potentially reducing the size of the
 whole process by orders of magnitude.
 A visual comparison of these two approaches is given in Figure \ref{fig:comparison}.
@@ -76,10 +76,10 @@ A visual comparison of these two approaches is given in Figure \ref{fig:comparis
     \begin{subfigure}{.4\textwidth}
         \centering
         \includegraphics[width=\linewidth]{Figures/comp2}
-        \caption{MKL approach}
+        \caption{Kernel combination approach}
         \label{fig:comp2}
     \end{subfigure}
-    \caption{Comparison between the standard single kernel approach (a) and the MKL one (b).
+    \caption{Comparison between the standard approach (a) and the combination approach (b).
     $K_1,\dots,K_R$ refers to the kernels computed from the $R$ combinations
     derived from the parameters grid. In (a) each kernel is used to perform a full learning
     cycle, $R$ in total. In (b) all the $R$ kernels are used together
@@ -124,21 +124,21 @@ Algorithm \ref{alg:method} presents the pseudo-code for the methodology.
         \textsc{validationRoutine} represent a generic validation framework which
         takes $EasyMKL$ as the chosen kernel machine, the vector $hyperparams$
         as its associated hyper-parameters to be validated and the kernels
-        in $M$ as the new data (see Section \ref{sec:kernel}).
+        in $K$ as the new data (see Section \ref{sec:kernel}).
     }
     \label{alg:method}
     \begin{algorithmic}[1]
-        \State $M \gets \{\}$
-        \Comment{$M$ is list of the input kernels}
+        \State $K \gets \{\}$
+        \Comment{$K$ is list of the input kernels}
         \label{line:kernels}
-        \ForAll{$k \in Kernels$}
+        \ForAll{$f \in KernelFunctions$}
             \ForAll{$i \in \{1,\dots,n\}$}
             \Comment{$n$ is the size of the parameter grid}
-            \State $M_{k,i} \gets \Call{computeKernel}{kernel,~kernelparams[i],~data}$
+            \State $K_{(f,i)} \gets \Call{computeKernel}{f,~kernelparams_i,~data}$
             \EndFor
         \EndFor
 
-        \State $performances \gets \Call{validationRoutine}{EasyMKL,~hyperparams,~M}$
+        \State $performances \gets \Call{validationRoutine}{EasyMKL,~hyperparams,~K}$
 
 %        \ForAll{$i \in \{1,\dots,\mathit{numfolds}\}$}
 %        \State $\mathit{trainingset}, \mathit{testset} \gets \Call{split}{M, i}$
@@ -224,7 +224,7 @@ freedom in the hypothesis approximation.
 \label{subsec:features}
 
 MKL algorithms perform better when the information provided by each kernel is
-orthogonal with respect to each others \cite{gmkl}.
+orthogonal with respect to each others (see Section \ref{subsec:easymkl}).
 Combining kernels with the above described methodology do not satisfy this property
 in general, since they are computed by the same function thus representing very similar feature
 spaces.
@@ -292,7 +292,7 @@ for this reason we designed a different approach that employs a slight modificat
 of the standard EasyMKL algorithm \cite{aiolli2015easymkl} in order to keep a
 constant level of memory occupation.
 
-\subsection{An alternative constant-space implementation}
+\subsection{A constant-space implementation}
 \label{subsec:opt}
 This approach relies on the fact that the EasyMKL algorithm implementation can
 be divided in two main phases, namely the margin optimization problem (KOMD)
@@ -311,15 +311,14 @@ This is inevitable because we are shifting the inherent burden of the data dimen
 from space to time which can still be useful for some applications
 depending on the available resources or imposed constraints.
 This latter problem is however mitigated by the fact that the dramatic decrease
-of memory consumption allows in practice for much better parallelization of the
-whole process.
+of memory consumption allows in practice for much better parallelization.
 
 An high level overview of this approach is given as Algorithm \ref{alg:method_me}.
 \begin{algorithm}
     \caption{
         High level implementation of the constant space implementation.
         The \textsc{easyMKLopt} and \textsc{easyMKLweights} functions implement
-        the two phases of the EasyMKL algorithm as discussed in Section \ref{sec:opt}.
+        the two phases of the EasyMKL algorithm as discussed in Section \ref{subsec:opt}.
         The \textsc{computeSumKernel} function is defined in the next part
         (Algorithm \ref{alg:compute_sum}).
     }
@@ -330,10 +329,10 @@ An high level overview of this approach is given as Algorithm \ref{alg:method_me
 %            \ForAll{$\Lambda \in params$}
 %                \ForAll{$j \in \{1,\dots,\mathit{numfolds}\}$}
                     %\State $tset \gets \Call{computeSumKernel}{Ks,grid,data,innerfold}[0]$
-                    \State $M \gets \Call{computeSumKernel}{Ks,kernelparams,data}$
-                    \State $\Call{easyMKLopt}{\Lambda,M}$
+                    \State $K \gets \Call{computeSumKernel}{KernelFunctions,kernelparams,data}$
+                    \State $\Call{easyMKLopt}{\Lambda,~K}$
                     \Comment first phase of EasyMKL
-                    \State $model \gets \Call{easyMKLweights}{\Lambda,M}$
+                    \State $model \gets \Call{easyMKLweights}{\Lambda,~K}$
                     \Comment second phase of EasyMKL
                     \State \Return model
 %                    \State validate $model$ with $vset$
@@ -366,13 +365,13 @@ in charge of managing the kernels computation and sum in Algorithm \ref{alg:meth
     \label{alg:compute_sum}
     \begin{algorithmic}[1]
         \algrestore{mme}
-        \Function{computeSumKernel}{$Kernels,~kernelparams,~dataset$}
-            \State initialize $K$ as a null $m\times m$ matrix
+        \Function{computeSumKernel}{$KernelFunctions,~kernelparams,~dataset$}
+            \State initialize $K$ the null kernel
             \Comment $m$ is the size of $dataset$
-            \ForAll{$kernel \in Kernels$}
+            \ForAll{$f \in KernelFunctions$}
             \ForAll{$i \in \{1,\dots,n\}$}
             \Comment $n$ is the size of the parameter grid
-            \State $k \gets \Call{computeKernel}{kernel,~kernelparams[i],~dataset}$
+            \State $k \gets \Call{computeKernel}{f,~kernelparams_i,~dataset}$
                     \State $\Call{traceNormalize}{k}$
                     \State $K \gets K+k$
                 \EndFor
@@ -401,7 +400,7 @@ significant speed-up.
     }
     \label{alg:incremental}
     \begin{algorithmic}[1]
-        \ForAll{$kernel \in Kernels$}
+        \ForAll{$f \in KernelFunctions$}
             \State $\phi_{kernel} \gets [0,\dots,0]$
         \EndFor
 
