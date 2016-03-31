@@ -4,18 +4,18 @@
 \label{Chapter4}
 
 In order to assess the quality of the methodology described in Section \ref{sec:method},
-we tested it on several commonly adopted benchmarks and against different baselines
-that are detailed in the following sections.
+we tested it on several commonly adopted benchmarks and against a baseline method
+that is detailed in the following sections.
 
 \section{Datasets}
 \label{subsec:datasets}
 
-The experiments were conducted on five real-world applications datasets, namely:
+The experiments were conducted on five different datasets, namely:
 AIDS \cite{Weislow19041989}, CAS\footnote{http://cheminformatics.org/datasets/bursi/},
 CPDB \cite{journals/jcisd/HelmaCKR04}, GDD \cite{dobson2003}, and NCI1 \cite{journals/kais/WaleWK08}.
-All these datasets contains chemical and molecular particles encoded in graph form,
-all the nodes are labelled and none have self loops, that is an edge going out
-and into the same node.
+All these datasets contain chemical and molecular particles encoded in graph form,
+all the nodes are labelled and none have self loops, that is an edge going in and 
+out the same node.
 The AIDS Antiviral Screen dataset contains chemical compounds, labelled according to
 their antiviral activity; CAS and CPDB are dataset of mutagenic
 compounds; NCI1 consists of chemical compounds screened for activity against 
@@ -40,7 +40,7 @@ proteins represented as graphs.
 
 Some statistics about these datasets are reported in table~\ref{table:datasets},
 from this data it is clear that the CAS and NCI1 datasets are the bigger ones
-while the GDD holds the most complex graphs in terms of topography.
+while the GDD holds the most complex graphs.
 Furthermore the AIDS dataset turns out to be quite unbalanced in terms of labels
 distribution \cite{rtesselli}.  
 
@@ -54,36 +54,35 @@ cross-validation routine.
 The $k$ parameter of the cross-validation is fixed at 10 since this value
 already provides good statistical significance while helping containing the bias
 skewing during the training phase.
-Moreover, the whole routine has been run ten times with ten different splits of the
+Moreover, the whole routine is run ten times with ten different splits of the
 data in order to mitigate the high variance derived during the testing phase due to the
 chosen value of $k$.
 
 \subsection{Baselines}
+\label{subsec:baselines}
 % what
-The baseline method to which we compare our methodology is a grid search (\ref{subsubsec:grid})
-employing the Support Vector Machine (Section \ref{subsubsec:svm}).
-The kernels tested with this approach are:
+The baseline method to which we compare our methodology is a regular hyper-parameter selection
+performed through a grid search (Section \ref{subsubsec:grid}).
+The employed classifier is the Support Vector Machine (Section \ref{subsubsec:svm}).
+The kernels tested with this method are:
 \begin{itemize}
-    \item $TCK_{ST}$ (Section \ref{subsec:context}) and the kernel resulting
-        from the sum of $TCK_{ST}$ and $ODDK_{ST}$ (Section \ref{subsubsec:odd});
-    \item $TCK_{ST+}$ (Section \ref{subsec:context}) and the sum of $TCK_{ST+}$
-        and $ODDK_{ST+}$ (Section \ref{subsubsec:odd});
-    \item $WLC$ (Section \ref{subsec:context}) and the sum of $WLC$ and $WL$
-        (Section \ref{subsubsec:fs}).
+    \item $ODDK_{ST}$ (Section \ref{subsubsec:odd}), $TCK_{ST}$ (Section \ref{subsec:context}), and the kernel resulting
+        from their sum (Section \ref{subsubsec:odd});
+    \item $ODDK_{ST+}$ (Section \ref{subsubsec:odd}), $TCK_{ST+}$ (Section \ref{subsec:context}) and their sum;
+    \item $WL$ (Section \ref{subsubsec:fs}), $WLC$ (Section \ref{subsec:context}) and their sum.
 \end{itemize}
 
 % how &  why
 This method perform a standard hyper-parameter selection using an exhaustive search
 on a finite subset of the parameter space deriving from the composition of the
-respective spaces of the kernel function and kernel machine.
-The choice of kernels is such that we can compare the performances over a single
-kernel function and the implicit combination, i.e. the sum, of the the feature
-spaces of two different functions respectively.
+kernel function and kernel machine respective spaces.
+We compare the method performances with a single kernel function and with the
+kernel resulting from the sum of two kernel functions that is a combination of the two.
 This combination is reproposed in the experiments employing the new method altough
-in an explicit fashion.
+the resulting feature space is a composition rather than a union.
 
-Each kernel function has been used to train a SVM classifier whose $C$ parameter
-was validated on the set $\{10^{-3},10^{-2},\dots,10^3\}$.
+Each kernel function is used to train a SVM classifier whose $C$ parameter
+was validated on the set $\{10^{-4},10^{-3},\dots,10^3\}$.
 The kernel functions parameter where validated on the following sets:
 \begin{itemize}
     \item for the kernels derived from the $ODD$ framework:
@@ -98,12 +97,12 @@ The kernel functions parameter where validated on the following sets:
 \end{itemize}
 The parameter sets both for the kernels and the classifier are taken from \cite{rtesselli}.
 
-Moreover, for the first combination of the list ($TCK_{ST}$ and $ODDK_{ST}$)
+Moreover, for the first combination of the list ($ODDK_{ST}$ and $TCK_{ST}$)
 we compare our results against those in \cite{gmkl} which are:
 
 \begin{itemize}
-    \item $ODD-MKL$ kernel with EasyMKL as kernel machine, and
-    \item $ODD_{ST}$ kernel with SVM as kernel machine.
+    \item the $ODD-MKL$ kernel with EasyMKL as the kernel machine, and
+    \item the $ODD_{ST}$ kernel with SVM as the kernel machine.
 \end{itemize}
 
 These experiments perform a hyper-parameter selection employing both a single and 
@@ -115,36 +114,7 @@ The experiments carried on in \cite{gmkl} employ a slightly different parameter 
 than the one used here, namely the $h$ parameter of the $ODD-MKL$ and $ODDK_{ST}$ is
 validated on the set $\{1,\dots,8\}$, the parameter $\lambda$ of the $ODDK_{ST}$ is 
 validated on the set $\{0.5,0.6,\dots,1.6\}$ and the $C$ parameter of the SVM
-is validated on the set $\{10^{-4},10^{-3},\dots,10^4\}$.
-
-%Table \ref{table:baselines} describes the general structure of the experiments
-%designed with this aim.
-%
-%\begin{table}[ht]
-%    \centering
-%    \begin{tabular}{|l|l|l|}
-%        \hline
-%        n. & method & kernels \\
-%        \hline
-%        4 & EasyMKL & $K$ and $K'$ \\
-%        \hline
-%        5 & EasyMKL & $K'$ \\
-%        \hline
-%        6 & EasyMKL & $K$ \\
-%        \hline
-%        7 & SVC & $K'$ \\
-%        \hline
-%        8 & SVC & $K'+K$ \\
-%        \hline
-%    \end{tabular}
-%    \caption{Structure of the baseline experiments. Kernels $K$ and $K'$ refer
-%    to the version without and with contexts for each combination respectively.
-%    These kernels generated a set of matrices each, according to the hyper-parameters
-%    grid, which were concatenated as a list to be given in input to EasyMKL or
-%    given individually to an instance of the SVC. The expression $K + K'$ refers
-%    to the fact that the two kernel were summed prior to be used.}
-%    \label{table:baselines}
-%\end{table}
+is validated on the set $\{10^{-3},10^{-2},\dots,10^4\}$.
 
 \subsection{The proposed method}
 \label{subsec:firstg}
@@ -157,7 +127,9 @@ The kernels selected for this set of experiments are:
     \item the $ODDK_{ST+}$ (Section \ref{subsubsec:odd}) and $TCK_{ST+}$ (Section \ref{subsec:context}) graph kernels,
     \item the $WL$ (Section \ref{subsubsec:fs}) fast subtree and $WLC$ (Section \ref{subsec:context}) graph kernels.
 \end{enumerate}
-The kernel machine employed is EasyMKL, see Section \ref{subsec:easymkl}.
+The kernel machine employed is EasyMKL (Section \ref{subsec:easymkl}).
+These kernels are also tested in combination that is, the kernels resulting from
+two different functions are employed together in a single experiment.
 
 The kernels derived from the $ODD$ framework are calculated according to a parameters grid
 composed from the sets:
@@ -171,44 +143,17 @@ the set $h=\{1,\dots,10\}$ is employed, where $h$ is the only hyper-parameter of
 the $WL$ kernels, see Section \ref{subsubsec:fs}.
 
 The hyper-parameter selection is done only for the kernel machine and refers
-to the parameter grid derived from the set $\Lambda=\{0.0, 0.1,\dots,1.0\}$, i.e. the
-only hyper-paramter of the EasyMKL algorithm.
+to the parameter grid derived from the set $\Lambda=\{0.0, 0.1,\dots,1.0\}$, $\Lambda$
+being the only hyper-paramter of the EasyMKL algorithm.
 
 \subsection{The proposed method with kernel orthogonalization}
 \label{subsec:secondg}
 %Section \ref{subsec:features}.
 
 % add more motivations behind these experiments.
-The kernel combinations selected for these experiments are the same of Section \ref{subsec:firstg}.
-%\begin{enumerate}
-%    \item the $ODDK_{ST}$ (Section \ref{subsubsec:odd}) and $TCK_{ST}$ (Section \ref{subsec:context}) graph kernels,
-%    \item the $ODDK_{ST+}$ (Section \ref{subsubsec:odd}) and $TCK_{ST+}$ (Section \ref{subsec:context}) graph kernels,
-%    \item the $WL$ (Section \ref{subsubsec:fs}) fast subtree and $WLC$ (Section \ref{subsec:context}) graph kernels.
-%\end{enumerate}
-
-%\begin{table}[ht]
-%    \centering
-%    \begin{tabular}{|l|l|l|}
-%        \hline
-%        n. & method & kernels \\
-%        \hline
-%        1 & EasyMKL & $K$ and $K'$ \\
-%        \hline
-%        2 & EasyMKL & $K'$ \\
-%        \hline
-%        3 & EasyMKL & $K$ \\
-%        \hline
-%    \end{tabular}
-%    \caption{Structure of the main experiments. Kernels $K$ and $K'$ refer
-%    to the version without and with contexts for each combination respectively.
-%    These kernels generated a set of matrices each, according to the technique
-%    described in Section \ref{subsec:features} which were concatenated as a list
-%    to be given in input to EasyMKL.}
-%    \label{table:structure}
-%\end{table}
-
-These experiments model the methodology proposed in Section \ref{subsec:features}.
-The set of kernel matrices has been pre-computed for each one of the possible combinations
+The experiments to test the improved methodology proposed in Section \ref{subsec:features}
+reflect the list of those in Section \ref{subsec:firstg}.
+The set of kernel matrices is pre-computed for each of the possible combinations
 of a parameter grid thus defined:
 
 \begin{itemize}
@@ -221,7 +166,7 @@ of a parameter grid thus defined:
         given the nature of the orthogonalization applied to this kernel (see Section \ref{subsec:features}).
 \end{itemize}
 The parameter sets both for the kernels and the classifier are taken from \cite{rtesselli}.
-For all the experiments, the $\Lambda$ parameter of EasyMKL has been
+For all the experiments, the $\Lambda$ parameter of EasyMKL is
 validated on the set $\{0.0, 0.1,\dots,1.0\}$ during the cross-validation
 routine.
 
@@ -237,6 +182,20 @@ of the data structures contained in this dataset.
 
 \section{Results and discussion}
 \label{sec:results}
+
+\subsection{Notation}
+\label{subsec:notation}
+Given the number of experiments presented, they have been grouped according
+to the employed method.
+The group is indicated as an apex on the kernel names considered from time to time, with the following meaning:
+\begin{itemize}
+    \item the group labelled $\boldsymbol{hs}$ refers to the experiments where a standard
+        \textbf{h}yper-parameter \textbf{s}election is performed, i.e. the baseline experiments (Section \ref{subsec:baselines});
+\item the group labelled $\boldsymbol{c}$ refers to the experiment conducted \textbf{c}ombining the 
+        kernels with EasyMKL, i.e. the proposed method (Section \ref{subsec:firstg});
+\item the group labelled $\boldsymbol{oc}$ refers to the experiments concerning the \textbf{o}rthogonalized
+        kernels \textbf{c}ombination with EasyMKL i.e. the improvement over the proposed method (Section \ref{subsec:secondg}).
+\end{itemize}
 
 \subsection{Space resources requirements}
 Given the large number of kernel matrices involved in the combination exepriments
@@ -254,17 +213,17 @@ due to the variation in the parameter grids described above.
     \centering\footnotesize
     \begin{tabular}{|l|l|r|r|r|r|r|r|}
         \hline
-        n. & kernels & no. k. & AIDS & CAS & CPDB & GDD & NCI1 \\
+        $\mathrm{(kernels)^{method}}$ & n. of kernels & AIDS & CAS & CPDB & GDD & NCI1 \\
         \hline
-        4 & $TCK_{ST}$ and $ODD_{ST}$ & 220 & 10 GB & 56 GB & 5 GB & 3 GB & 48 GB \\
+        $(ODDK_{ST})^c$ & 110 & 5 GB & 32 GB & 2 GB & 1 GB & 24 GB \\
         \hline
-        5 & $TCK_{ST}$ & 110 & 5 GB & 32 GB & 2 GB & 1 GB & 24 GB \\
+        $(TCK_{ST})^c$ & 110 & 5 GB & 32 GB & 2 GB & 1 GB & 24 GB \\
         \hline
-        6 & $ODD_{ST}$ & 110 & 5 GB & 32 GB & 2 GB & 1 GB & 24 GB \\
+        $(ODDK_{ST}, TCK_{ST})^c$ & 220 & 10 GB & 56 GB & 5 GB & 3 GB & 48 GB \\
         \hline
     \end{tabular}
     \caption{\footnotesize The number of computed kernels matrices and the memory
-    occupation in GigaBytes for each dataset during the experiments relative to
+    occupation in GigaBytes for each dataset during the experiments described in
     Section \ref{subsec:firstg}.}
     \label{table:mem1}
 \end{table}
@@ -272,17 +231,17 @@ due to the variation in the parameter grids described above.
     \centering\footnotesize
     \begin{tabular}{|l|l|r|r|r|r|r|r|}
         \hline
-        n. & kernels & no. k. & AIDS & CAS & CPDB & GDD & NCI1 \\
+        $\mathrm{(kernels)^{method}}$  & n. of kernels & AIDS & CAS & CPDB & GDD & NCI1 \\
         \hline
-        1 &  $TCK_{ST}$ and $ODD_{ST}$ & 130 & 5 GB & 34 GB & 3 GB & <2 GB & 29 GB \\
+        $(ODDK_{ST})^{oc}$ & 65 & 3 GB & 19 GB & <2 GB & <1 GB & 17 GB \\
         \hline
-        2 &  $TCK_{ST}$ & 65 & 3 GB & 19 GB & <2 GB & <1 GB & 17 GB \\
+        $(TCK_{ST})^{oc}$ & 65 & 3 GB & 19 GB & <2 GB & <1 GB & 17 GB \\
         \hline
-        3 & $ODD_{ST}$ & 65 & 3 GB & 19 GB & <2 GB & <1 GB & 17 GB \\
+        $(ODDK_{ST}, TCK_{ST})^{oc}$ & 130 & 5 GB & 34 GB & 3 GB & <2 GB & 29 GB \\
         \hline
     \end{tabular}
     \caption{\footnotesize The number of computed kernels matrices and the memory
-    occupation in GigaBytes for each dataset during the experiments relative to
+    occupation in GigaBytes for each dataset during the experiments described in 
     Section \ref{subsec:secondg}.}
     \label{table:mem2}
 \end{table}
@@ -297,46 +256,84 @@ The plot in figure~\ref{fig:times} shows the relation between the computation ti
 for the $ODD_{ST}\text{ and }TCK_{ST}$ kernels combination on the benchmark datasets,
 using Algorithm \ref{alg:incremental} detailed in Section \ref{subsec:inc}.
 See Section~\ref{subsec:datasets} for further details on the composition of each dataset.
-From the data it is clear that the complexity of computing the kernel in an incremental
-fashion does not grow with the number of kernels being computed.
+This data has been collected from experiments run on the same machine.
+From the plot it is clear that the complexity of computing the kernel in an incremental
+fashion does not grow linearly with the number of kernels being computed.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[scale=0.5]{Figures/kernel_times_log2}
-    \caption{Times in seconds required to compute the kernels $ODD_{ST}$ and 
+    \includegraphics[scale=0.5]{Figures/kernel_times_log}
+    \caption{Log time in seconds required to compute the kernels $ODD_{ST}$ and 
     $TCK_{ST}$ incrementally and sequentially on a selection of datasets.}
     \label{fig:times}
 \end{figure}
 
-We now present an analysis of the computational time performances of our methodology
-compared to the two baselines. To keep the results comparable we are here considering
-only the results obtained by experiments no. 2, 6, and 8; this choice stem from the fact
-that these experiments employ the same kernel function with three different methods.
+We now present an analysis of the computational time performances of the proposed methodology
+with respect to the baseline method. To keep the results comparable we consider only those
+experiments employing the same kernels and the same setup, that is:
+
+\begin{itemize}
+    \item $(TCK_{ST})^{hs}$, $(TCK_{ST})^c$, and $(TCK_{ST})^{oc}$
+    \item $(TCK_{ST+})^{hs}$, $(TCK_{ST+})^c$, and $(TCK_{ST+})^{oc}$
+    \item $(WLC)^{hs}$, $(WLC)^c$, and $(WLC)^{oc}$
+\end{itemize}
+
+This data has been collected by experiments run on two identical machines.
 
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=0.7]{Figures/total_times}
-    \caption{(DRAFT: this plot will be replicated for each one of the kernels combination)
-        Plot of the times required to compute a full nested
-        10-fold cross-validation on the benchmark datasets.
-        The data shown here refers to experiments 2 (cyan), 6 (magenta) and 8 (yellow)
-        i.e. with the kernel $TCK_{ST}$.
+    \caption{
+        This plot shows the time required by each method to compute a full nested 10-fold cross-validation on the benchmark datasets.
+        The data shown here refers only to the experiments conducted employing the $TCK_{ST}$ kernel.
     }
     \label{fig:datasetstimes}
 \end{figure}
 
-As one can see from Figure \ref{fig:datasetstimes}, our method performs generally
-better or has comparable performances with respect to the single-kernel approach.
-The only case where our method fares worse is with the GDD dataset and this can be
-ascribed to the particular case which it represents, that is, due to the parameters
-set limitation in this case we had way less matrices than we should have had and
-this positively affects the single kernel method while being of no relevance for
-EasyMKL, less influenced by the number of input matrices.
+As one can see from Figure \ref{fig:datasetstimes}, the proposed methodology performs generally
+better or has comparable performances with respect to the baseline method.
+In this case, $(TCK_{ST})^{oc}$ register a 36.4\% average
+decrement in the overall time required to perform a full nested 10-fold cross
+validation with respect to the standard method, i.e. $(TCK_{ST})^{hs}$.
+The only case where the proposed methodology fares worse is with the GDD dataset.
+This can be ascribed to the particular case that this dataset represents that is, due to the parameters
+set limitation in this case, less kernels are generated w.r.t. the other datasets
+and this deeply affects the hyper-parameter selection process while being of no relevance for
+EasyMKL, that remains linear in the input size.
 From this data we can finally conclude that our methodology is more susceptible
 to dataset dimension variation (i.e. the number of samples) while the single-kernel
 method is ideed influenced by the same measure but it is even more influenced by
 the dimensions of the parameters grid.
 
+The data shown in Figure \ref{fig:datasetstimes2} is in agreement with the data
+in figure \ref{fig:datasetstimes}; we register smaller time durations in general
+and that is probably because the higher expressivity of the $ODDK_{ST+}$ and the
+$TCK_{ST+}$ allows the kernel machines to find the optimal separator earlier with
+respect to their ST counterparts.
+
+Figure \ref{fig:datasetstimes1} shows a completely different picture.
+Recalling that in this set of experiment the number of kernel considered was particularly
+small with respect to the other experiments, these results confirm the expectations.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.7]{Figures/total_times2}
+    \caption{
+        This plot shows the time required by each method to compute a full nested 10-fold cross-validation on the benchmark datasets.
+        The data shown here refers only to the experiments conducted employing the $TCK_{ST}$ kernel.
+    }
+    \label{fig:datasetstimes2}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.7]{Figures/total_times1}
+    \caption{
+        This plot shows the time required by each method to compute a full nested 10-fold cross-validation on the benchmark datasets.
+        The data shown here refers only to the experiments conducted employing the $WLC$ kernel.
+    }
+    \label{fig:datasetstimes1}
+\end{figure}
 %\begin{figure}[ht]
 %    \centering
 %    \includegraphics[scale=0.7]{Figures/method_times_avgstd}
@@ -351,125 +348,225 @@ the dimensions of the parameters grid.
 
 \subsection{Analysis of model performances}
 
-Here we present the empirical results we got from the devised experiments described
-in the previous sections.
-Data is divided in three tables, one for each of the three combinations we chose.
-Each table reports the AUROC measure with the standard deviation measured with
+Here we present the model performance estimates resulting from the experiments described
+in Section \ref{sec:description}.
+Each table reports the AUROC measure with the standard deviation obtained with
 a nested 10-fold cross validation.
 
 Looking at Table \ref{table:results_st}, it is immediately evident how the results
-obtained by our methodology are always comparable when not even better with respect
-to the baselines except in when considering the GDD dataset which, as mentioned in
-Section \ref{subsec:time_results} is a rather peculiar case given the smaller dimensions
-of the parameters grid considered.
-While the results for experiment 2 seem in accordance with the results in \cite{gmkl},
-the $TCK_{ST}$ (experiment 3) performs significantly worse with our MKL method than with
-the SVM.
-(DRAFT: experiments 4 and 6 have unexpected high performancs though.)
+achieved by the proposed methodology are always comparable when not better with respect
+to the baseline except when considering the GDD dataset.
+$(ODDK_{ST},TCK_{ST})^{oc}$, $(TCK_{ST})^{oc}$, and $(ODDK_{ST})^{oc}$ are the best performers on the NCI1,
+AIDS, and CPDB datasets respectively.
+On the CAS dataset, the proposed methodology achieves comparable results as the baseline derived from
+\cite{gmkl}, i.e $(ODD-MKL)^{hs}$.
+
+As mentioned in Section \ref{subsec:time_results} the GDD dataset represents a rather peculiar case
+in which a smaller number of kernels is employed.
+EasyMKL is a non-sparse MKL method (Section \ref{subsec:easymkl}) which means that
+if the kernels are very similar each one tends to contribute in the same manner to
+the final combination, in other words, if combining $R$ identical kernels,
+the weights assigned by the algorithm to each kernel would be $\frac{1}{R}$.
+On the GDD dataset we are combining a small number of very similar kernels, because
+the values considered for the hyper-parameter $h$ are very small.
+This, coupled with the rather simple feature space sported by the $ODDK_{ST}$ and 
+$TCK_{ST}$ has the effect of a performance deterioration when measured on a 
+dataset contained very complex structures as the GDD (Section \ref{subsec:datasets})
 
 Table \ref{table:results_stp} present results in accordance with Table \ref{table:results_st}
-beside the case of GDD in which apparently the $ODD_{ST+}$ and the version with
-contextual informations are able to outperform the baselines while maintaining
-comparable performance when used in combination (experiment 1).
+beside the case of the GDD dataset in which the $(ODDK_{ST+})^{oc}$ and $(TCK_{ST+})^{oc}$
+outperform the baseline.
+This data confirms previous results showing that the $ODD_{ST+}$ kernels achieves
+comparable or better performances with respect to the $ODD_{ST}$ kernel \cite{dasanmartino2015exploiting}.
+The data also confirms the better performances of the $TCK_{ST+}$ on the GDD dataset
+with respect to the $TCK_{ST}$ \cite{rtesselli}.
 
-From these results something that we can infer is the scarce improvment gained from
-using one kernel and its contextualized version in combination with or without
+Finally in Table \ref{table:results_wl} we present the results obtained employing the 
+kernels derived from the WL framework.
+With respect to the previous experiments, in this cases the number of considered
+kernels is much lower, i.e. around 10 (see Tables \ref{table:mem1} and \ref{table:mem2}
+for a comparison).
+
+From these results it is clear that the WL kernels benefit from being employed with the
+proposed method since the performances remain significantly above the baseline
+on the AIDS dataset, while remaining very similar on the CAS, CPDB and NCI1 datasets.
+A thing worth noting is that these kernel in general seem not to gain any advantage
+from being further orthogonalized: in the case of the GDD dataset we even register an
+outright performance loss.
+
+From these results we can infer the scarce improvment gained from
+using one kernel function and its contextualized version in combination, with or without
 the orthogonalization of the feature space.
-All the obtained results shows that either both kernel fare at the same level or
-one of them dominates the combination outcome: section \ref{sec:kca} will cover
-more in detail this aspect.
+All the obtained results shows that either both kernels fare at the same level or
+one of them dominates the combination outcome.
 
 \begin{landscape}
-%    \begin{table}[ht]
-%        \label{table:times}
-%        \caption{(DRAFT) Times}
-%    \end{table}
-
-    \begin{table}[ht]\footnotesize
+    \begin{table}[ht]
         \centering
-        \begin{tabular}{|l|l|r|r|r|r|r|}
+        \begin{tabular}{|l|l|l|l|l|l|}
             \hline
-            n. &method&CAS&NCI1&AIDS&CPDB&GDD\\
+            $\mathrm{(kernels)^{method}}$&CAS&NCI1&AIDS&CPDB&GDD\\
             \hline
-            1& $MKL~(ODDK_{ST}, TCK_{ST})^*$&0.9038 $\pm$ 0.0010&\textbf{0.9196 $\pm$ 0.0006}&0.8632 $\pm$ 0.0034&\textbf{0.8632 $\pm$ 0.0038}&0.8528 $\pm$ 0.0022\\
-            2& $MKL~(ODDK_{ST})^*$&0.9033 $\pm$ 0.0010&0.9195 $\pm$ 0.0006&0.8627 $\pm$ 0.0035&0.8632 $\pm$  0.0029&0.8543 $\pm$ 0.0024\\
-            3& $MKL~(TCK_{ST})^*$&0.9036 $\pm$ 0.0010&0.9189 $\pm$ 0.0006&\textbf{0.8634 $\pm$ 0.0034}&0.8625 $\pm$ 0.0032&0.8458 $\pm$ 0.0021\\
+            $(ODDK_{ST})^{hs}$&0.8982 $\pm$ 0.0017&0.9069 $\pm$ 0.0010&0.8262 $\pm$ 0.0052&0.8442 $\pm$ 0.0067&0.8473 $\pm$ 0.0038\\
+            $(TCK_{ST})^{hs}$&0.9006 $\pm$ 0.0013&0.9150 $\pm$ 0.0011&0.8225 $\pm$ 0.0067&0.8422 $\pm$ 0.0080&\textbf{0.8674 $\pm$ 0.0026}\\
+            $(ODDK_{ST} + TCK_{ST})^{hs}$&0.9010 $\pm$ 0.0011&0.9110 $\pm$ 0.0011&0.8323 $\pm$ 0.0065&0.8497 $\pm$ 0.0072&0.8627 $\pm$ 0.0018\\
+            $(ODD-MKL_{ST})^{hs}$&\textbf{0.9049 $\pm$ 0.0008}&0.9144 $\pm$ 0.0008&0.8515 $\pm$ 0.0031&0.8564 $\pm$ 0.0056&0.8498 $\pm$ 0.0026\\
             \hline
-            4& $MKL~(ODDK_{ST}, TCK_{ST})$&0.8960 $\pm$  0.0012&0.9076 $\pm$ 0.0007&0.8468 $\pm$ 0.0042&0.8517 $\pm$ 0.0034&0.8612 $\pm$ 0.0018\\
-            5& $MKL~(ODDK_{ST})$&0.8899 $\pm$ 0.0013&0.8976 $\pm$ 0.0010 &0.8388 $\pm$ 0.0044&0.8401 $\pm$ 0.0033&0.8013 $\pm$ 0.0019\\
-            6& $MKL~(TCK_{ST})$&0.8954 $\pm$ 0.0013&0.9095 $\pm$ 0.0006&0.8487 $\pm$ 0.0040&0.8525 $\pm$ 0.0030&0.8617 $\pm$ 0.0022\\
+            $(ODDK_{ST})^c$&0.8899 $\pm$ 0.0013&0.8976 $\pm$ 0.0010 &0.8388 $\pm$ 0.0044&0.8401 $\pm$ 0.0033&0.8013 $\pm$ 0.0019\\
+            $(TCK_{ST})^c$&0.8954 $\pm$ 0.0013&0.9095 $\pm$ 0.0006&0.8487 $\pm$ 0.0040&0.8525 $\pm$ 0.0030&0.8617 $\pm$ 0.0022\\
+            $(ODDK_{ST}, TCK_{ST})^c$&0.8960 $\pm$  0.0012&0.9076 $\pm$ 0.0007&0.8468 $\pm$ 0.0042&0.8517 $\pm$ 0.0034&0.8612 $\pm$ 0.0018\\
             \hline
-             & $MKL~(ODDK_{ST})^{**}$&\textbf{0.9049 $\pm$ 0.0008}&0.9144 $\pm$ 0.0008&0.8515 $\pm$ 0.0031&0.8564 $\pm$ 0.0056&0.8498 $\pm$ 0.0026\\
-             & $SVM~(ODDK_{ST})^{**}$&0.8982 $\pm$ 0.0017&0.9069 $\pm$ 0.0010&0.8262 $\pm$ 0.0052&0.8442 $\pm$ 0.0067&0.8473 $\pm$ 0.0038\\
-            \hline
-            7& $SVM~(TCK_{ST} + ODDK_{ST})$&0.9010 $\pm$ 0.0011&0.9110 $\pm$ 0.0011&0.8323 $\pm$ 0.0065&0.8497 $\pm$ 0.0072&0.8627 $\pm$ 0.0018\\
-            8& $SVM~(TCK_{ST})$&0.9006 $\pm$ 0.0013&0.9150 $\pm$ 0.0011&0.8225 $\pm$ 0.0067&0.8422 $\pm$ 0.0080&\textbf{0.8674 $\pm$ 0.0026}\\
+            $(ODDK_{ST})^{oc}$&0.9033 $\pm$ 0.0010&0.9195 $\pm$ 0.0006&0.8627 $\pm$ 0.0035&0.8632 $\pm$  0.0029&0.8543 $\pm$ 0.0024\\
+            $(TCK_{ST})^{oc}$&0.9036 $\pm$ 0.0010&0.9189 $\pm$ 0.0006&\textbf{0.8634 $\pm$ 0.0034}&0.8625 $\pm$ 0.0032&0.8458 $\pm$ 0.0021\\
+            $(ODDK_{ST}, TCK_{ST})^{oc}$&0.9038 $\pm$ 0.0010&\textbf{0.9196 $\pm$ 0.0006}&0.8632 $\pm$ 0.0034&\textbf{0.8632 $\pm$ 0.0038}&0.8528 $\pm$ 0.0022\\
             \hline
         \end{tabular}
-        \caption{\footnotesize AUROC results ($\pm$ standard deviation) relative
-            to the $ODD_{ST}$ kernel and the $TCK_{ST}$ kernel. Results are
-            obtained from a nested 10-fold cross validation. The first column is
-            given as a reference to the experiment description given in Section
-            \ref{sec:description}.
-            The top part of the table contains the results of the main experiments
-            while the bottom part those of the baselines.
-            Lines marked with $^*$ refer to kernels whose feature space is orthogonalized
-            according to the technique exposed in \ref{subsec:features}.
-            Lines marked with $^{**}$ refer to results obtained in \cite{gmkl}.
+        \caption{AUROC results ($\pm$ standard deviation) relative to the experiments
+            with the kernels $ODD_{ST}$ and $TCK_{ST}$. Results are
+            obtained from a nested 10-fold cross validation.
+            Grouping notation is described in Section \ref{subsec:notation}.
+            The results of experiments $(ODDK_{ST})^{hs}$ and $(ODD-MKL_{ST})^{hs}$ are taken from \cite{gmkl}.
         }
         \label{table:results_st}
         \medskip
 
-        \begin{tabular}{|l|l|r|r|r|r|r|}
+        \begin{tabular}{|l|l|l|l|l|l|}
             \hline
-            n. & metodo&CAS&NCI1&AIDS&CPDB&GDD\\
+            $\mathrm{(kernels)^{method}}$&CAS&NCI1&AIDS&CPDB&GDD\\
             \hline
-            1& $MKL~(ODDK_{ST+}, TCK_{ST+})^*$&&&0.8632 $\pm$  0.0034&0.8632 $\pm$  0.0038&0.8528 $\pm$ 0.0022\\
-            2& $MKL~(ODDK_{ST+})^*$&&&0.8628 $\pm$  0.0036&0.8652 $\pm$ 0.0030&\textbf{0.8720 $\pm$ 0.0021}\\
-            3& $MKL~(TCK_{ST+})^*$&&&\textbf{0.8649 $\pm$  0.0030}&\textbf{0.8666 $\pm$  0.0038}&0.8711 $\pm$ 0.0018 \\
+            $(ODDK_{ST+})^{hs}$&-&-&-&-&-\\
+            $(TCK_{ST+})^{hs}$&0.9008 $\pm$ 0.0017&0.9165 $\pm$ 0.0013&0.8222 $\pm$ 0.0067&0.8462 $\pm$ 0.0048&0.8588 $\pm$ 0.0028\\
+            $(ODDK_{ST+} + TCK_{ST+})^{hs}$&0.9022 $\pm$ 0.0015 &0.9163 $\pm$ 0.0011&0.8256 $\pm$ 0.0068&0.8521 $\pm$ 0.0038&0.8570 $\pm$ 0.0043\\
             \hline
-            4& $MKL~(ODDK_{ST+}, TCK_{ST+})$&&&0.8468 $\pm$ 0.0042&0.8517 $\pm$ 0.0034&0.8612 $\pm$ 0.0018\\
-            5& $MKL~(ODDK_{ST+})$&&&0.8489 $\pm$  0.0039&0.8461 $\pm$ 0.0036&0.8178 $\pm$ 0.0022\\
-            6& $MKL~(TCK_{ST+})$&&&0.8503 $\pm$  0.0038&0.8528 $\pm$ 0.0039&0.8645 $\pm$ 0.0018\\
+            $(ODDK_{ST+})^c$&-&-&0.8489 $\pm$  0.0039&0.8461 $\pm$ 0.0036&0.8178 $\pm$ 0.0022\\
+            $(TCK_{ST+})^c$&-&-&0.8503 $\pm$  0.0038&0.8528 $\pm$ 0.0039&0.8645 $\pm$ 0.0018\\
+            $(ODDK_{ST+}, TCK_{ST+})^c$&-&-&0.8468 $\pm$ 0.0042&0.8517 $\pm$ 0.0034&0.8612 $\pm$ 0.0018\\
             \hline
-            7& $SVM~(TCK_{ST+} + ODDK_{ST+})$&0.9022 $\pm$ 0.0015 &0.9163 $\pm$ 0.0011&0.8256 $\pm$ 0.0068&0.8521 $\pm$ 0.0038&0.8570 $\pm$ 0.0043\\
-            8& $SVM~(TCK_{ST+})$&0.9008 $\pm$ 0.0017&0.9165 $\pm$ 0.0013&0.8222 $\pm$ 0.0067&0.8462 $\pm$ 0.0048&0.8588 $\pm$ 0.0028\\
+            $(ODDK_{ST+})^{oc}$&-&-&0.8628 $\pm$  0.0036&0.8652 $\pm$ 0.0030&\textbf{0.8720 $\pm$ 0.0021}\\
+            $(TCK_{ST+})^{oc}$&-&-&\textbf{0.8649 $\pm$  0.0030}&\textbf{0.8666 $\pm$  0.0038}&0.8711 $\pm$ 0.0018 \\
+            $(ODDK_{ST+}, TCK_{ST+})^{oc}$&-&-&0.8632 $\pm$  0.0034&0.8632 $\pm$  0.0038&0.8528 $\pm$ 0.0022\\
             \hline
         \end{tabular}
-        \caption{AUROC results ($\pm$ standard deviation) relative to the combination
-                of the $ODD_{ST+}$ kernel with the $TCK_{ST+}$ kernel. Results are
-                obtained from a nested 10-fold cross validation. Nomenclature and
-                results disposition is analogue to the one of Table \ref{table:results_st}.}
+        \caption{AUROC results ($\pm$ standard deviation) of the experiments conducted on
+                the $ODD_{ST+}$ kernel and the $TCK_{ST+}$. Results are
+                obtained from a nested 10-fold cross validation.
+                The notation is analogue to the one of Table \ref{table:results_st} and described in Section \ref{subsec:notation}.}
         \label{table:results_stp}
     \end{table}
 
-%    \begin{table}[ht]
-%        \label{table:results_wl}
-%        \caption{AUROC results ($\pm$ standard deviation) relative to the combination
-%                of the $WL$ kernel with the $WLC$ kernel. Results are
-%                obtained from a nested 10-fold cross validation. The nomenclature and
-%            results disposition is analogue to the one of Table \ref{table:results_st}.}
-%        \label{table:results_wl}
-%    \end{table}
+    \begin{table}[ht]
+        \label{table:results_wl}
+
+        \begin{tabular}{|l|l|l|l|l|l|}
+            \hline
+            $\mathrm{(kernels)^{method}}$&CAS&NCI1&AIDS&CPDB&GDD\\
+            \hline
+            $(WL)^{hs}$&0.9015 $\pm$ 0.0020&0.9153 $\pm$ 0.0007&0.8278 $\pm$ 0.0045&0.8548 $\pm$ 0.0063&0.8597 $\pm$ 0.0023\\
+            $(WLC)^{hs}$&0.8945 $\pm$ 0.0028&0.9155 $\pm$ 0.0008&0.8274 $\pm$ 0.0056&0.8591 $\pm$ 0.0047&0.7244 $\pm$  0.0039\\
+            $(WL + WLC)^{hs}$&0.8995 $\pm$ 0.0020&0.9160 $\pm$ 0.0008&0.8295 $\pm$ 0.0063&0.8518 $\pm$ 0.0056&\textbf{0.8685 $\pm$ 0.0019}\\
+            \hline
+            $(WL)^c$&0.8984 $\pm$ 0.0016&0.9141 $\pm$ 0.0007&0.8583 $\pm$ 0.0032&0.8566 $\pm$  0.0036&0.8551 $\pm$ 0.0019\\
+            $(WLC)^c$&0.9002 $\pm$ 0.0015&0.9174 $\pm$ 0.0008&0.8596 $\pm$ 0.0032&0.8589 $\pm$ 0.0033&0.7263 $\pm$ 0.0036\\
+            $(WL, WLC)^c$&\textbf{0.9010 $\pm$ 0.0015}&\textbf{0.9176 $\pm$ 0.0007}&0.8594 $\pm$ 0.0031 &\textbf{0.8597 $\pm$ 0.0032}&0.8583 $\pm$ 0.0015\\
+            \hline
+            $(WL)^{oc}$&-&-&0.8599 $\pm$ 0.0043&0.8510 $\pm$ 0.0051&0.8175 $\pm$ 0.0015\\
+            $(WLC)^{oc}$&-&-&\textbf{0.8603 $\pm$ 0.0044}&0.8499 $\pm$ 0.0046&0.7266 $\pm$ 0.0035\\
+            $(WL, WLC)^{oc}$&-&-&0.8602 $\pm$ 0.0043&0.8508 $\pm$ 0.0052&0.8159 $\pm$ 0.0016\\
+            \hline
+        \end{tabular}
+        \caption{AUROC results ($\pm$ standard deviation) relative to the experiments
+                conducted with the kernels $WL$ and $WLC$. Results are
+                obtained from a nested 10-fold cross validation.
+                The notation is analogue to the one of Table \ref{table:results_st} and described in Section \ref{subsec:notation}.}
+        \label{table:results_wl}
+    \end{table}
+
 \end{landscape}
 
 \section{Kernels Contribution Analysis}
 \label{sec:kca}
 
-%\begin{figure}[ht]
-%    \centering
-%    \includegraphics[scale=0.7]{Figures/kcaNCI1ststc}
-%    \caption{(DRAFT: this plot is just an example of the available data for furhter analisys.
-%        I think we may be mainly interested in the experiments where two kernels are combined
-%        either with or without bucketization of the feature space.)
-%        Kernel weight distributions for the $TCK_{ST}$ kernel
-%    computed according to the full parameters grid, on the NCI1 dataset.
-%    The $x$ axis shows all the employed kernel matrices indexed by their hyperparameters
-%    values (ascending values left to right), the $y$ axis the weight values.
-%    Each plot refers to one run of the nested 10-fold cross-validation routine relative to one
-%    value for the $\Lambda$ parameter of EasyMKL. Weight values are the means between each of the inner
-%    cross-validation runs. The vertical lines highlight the kernel with the maximum weight for each value of $\Lambda$.}
-%        \label{fig:weightdist}
-%\end{figure}
+%EasyMKL finds the optimal linear combination of the kernels it receives in input
+%that is, the one that maximizes the separation between the two sets of samples.
+%The linear combination is defined as a weighed sum of the kernels;
 
+One point that emerges from the experiments presented here is that the proposed
+methodology in general will better perform better when presented with a large number of kernels.
+
+\dots
+
+In general a kernel weight reflects its contribution with respect to the
+other kernels being combined and it should not be treated as an absolute index
+of the goodness of the kernel.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/kca_GDD_WL_oc}
+        \label{fig:gdd_wloc}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/kca_GDD_WLC_oc}
+        \label{fig:gdd_wlcoc}
+        \caption{}
+    \end{subfigure}
+    \caption{}
+    \label{fig:kca_gdd_wl}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/kca_GDD_ODDST_oc}
+        \label{fig:gdd_wloc}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/kca_GDD_ODDSTC_oc}
+        \label{fig:gdd_wlcoc}
+        \caption{}
+    \end{subfigure}
+    \caption{}
+    \label{fig:kca_gdd_wl}
+\end{figure}
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/kca_GDD_ODDSTP_oc}
+        \label{fig:gdd_wloc}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/kca_GDD_ODDSTP_oc}
+        \label{fig:gdd_wlcoc}
+        \caption{}
+    \end{subfigure}
+    \caption{}
+    \label{fig:kca_gdd_wl}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/kca_CAS_ODDST_oc}
+        \label{fig:gdd_wloc}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/kca_CAS_ODDSTC_oc}
+        \label{fig:gdd_wlcoc}
+        \caption{}
+    \end{subfigure}
+    \caption{}
+    \label{fig:kca_gdd_wl}
+\end{figure}
 

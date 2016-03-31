@@ -16,7 +16,7 @@ from \cite{nnavarin, rtesselli}.
 
 \section{Machine learning}
 
-Machine learning is the Artificial Intelligence branch discipline that aims
+Machine learning is the Artificial Intelligence branch that aims
 to approximate human learning processes, which are still rather obscure,
 by the means of algorithms and formal methods.
 Central to this discipline is the idea of learning a \emph{concept}, or a function
@@ -35,10 +35,9 @@ algorithmic solution to the problem (learning $c()$) would be infeasible, when
 there is too much uncertainty in the data or when the problem definition itself
 is too difficult to be formally defined or too vague.
 Since a machine learning algorithm is often looking for an approximation of the 
-optimal solution, the first problem can be solved settling with a suboptimal
-solution that is more easily obtainable; given the iterative fashion in which
-the learning progresses, data noise can be recognised and avoided; lastly,
-an algorithm that learns from the data can be used to explore a problem in multiple
+solution, the first problem can be solved settling with an approximated
+solution that is more easily obtainable; noise in the data can be recognised and avoided;
+lastly, an algorithm that learns from the data can be used to explore a problem in multiple
 directions, as is often the case with \emph{data mining} oriented approaches.
 
 One of the most common examples of machine learning applications is the binary
@@ -119,7 +118,7 @@ try to approximate as tightly as possible the function $c:X\to Y$ with an
 hypothesis $h:X\to Y, h\in \mathcal{H}$, where $\mathcal{H}$ is the hypotheses
 space that is fixed a priori, setting an inductive bias.
 Bias can be introduced either by said choice of the hypotheses space or by the
-choice of the learning algorithm and is a guarantee that learning is taking place:
+choice of the learning algorithm and is necessary for the learning to take place:
 a infinite hypotheses space and an exhaustive search algorithm would render
 any learning useless since the algorithm could return an infinite number of
 hypothesis from $\mathcal{H}$ that could fit any given data.
@@ -156,8 +155,8 @@ hypotheses space is too complex or the model has too many parameters with
 respect to the number of samples i.e. we are trying too hard to model the
 available data.
 The contrary is called \emph{underfitting} and negatively affects the
-generalization power of an hypothesis by making it fail to learn much from the
-sample data.
+predictive capabilities of an hypothesis, which fails to incorporate the relevant
+traits of the sample data.
 
 \subsection{Structural risk minimization}
 \label{subsec:srm}
@@ -218,10 +217,8 @@ maximize the learning performance since the cardinality of the training set is
 inversely proportional to the bound on the ideal error.
 However we cannot rely on the learning phase alone but we also need a way to
 assess the goodness of a given hypothesis with respect to a given metric, be it 
-either the prediction accuracy or a more sophisticated one like the AUROC
-and because there are parameters to adjust.
-In this thesis a variant of the technique explained in the following section
-has been employed.
+either the prediction accuracy or a more sophisticated one like the AUROC.
+In this work we employed the technique explained in the following sections.
 
 \subsubsection{Cross validation}
 \label{subsubsec:cv}
@@ -369,12 +366,11 @@ Kernel are also demonstrably closed under the sum operation:
 What kernel machines try to accomplish is basically sample separation in a given
 feature space.
 This is achieved exploiting the information encoded by the kernel function about
-sample pairwise similarity, by defining the separation problem as an optimization
-problem, constrained on those similarity values, we are guaranteed to find
-a global optimum by the properties of the kernel function, as detailed in
-Section~\ref{subsec:kernelfunc}.
-Taking as an example setting non-linearly separable data in a binary classification
-context, we will now go through the whole technique.
+sample pairwise similarity. By defining the separation problem as a convex optimization
+problem constrained on the similarity values computed by the kernel function,
+we are guaranteed to find a global optimum, as detailed in Section~\ref{subsec:kernelfunc}.
+We will now go through the whole technique, taking as an example setting non-linearly
+separable data in a binary classification context.
 Being non linearly separable means that the data cannot be separated by a single
 hyperplane in the input space, that is, the space in which the samples are defined.
 A solution to this problem is to define a non-linear function $\phi$ that maps each
@@ -405,14 +401,14 @@ with a linear separator, this concept is exemplified in Figure \ref{fig:phi}.
 \end{figure}
 
 Given these premises, and a value of $M$ high enough for the mapped samples to
-be linearly separable, a kernel machine looks for the optimal linear separator in
-$\mathcal{H}$ that corresponds to a non-linear separator in the input space.
-To find this optimal separator the kernel machine has to deal with samples of
+be linearly separable, a kernel machine looks for the linear separator that maximizes
+the margin in $\mathcal{H}$ which corresponds to a non-linear separator in the input space.
+To find this separator the kernel machine has to deal with samples of
 very high (possibly infinite) dimensionality and this could quickly render the
 search for the solution to the optimization problem infeasible or too onerous.
 Given that in the problem formulation the function $\phi$ only appears inside
-the computation of dot products, values can be calculated by a kernel
-function (section~\ref{subsec:kernelfunc}) thus referring to $\mathcal{H}$
+the computation of dot products, values can be calculated efficiently by a kernel
+function defined on the input space (section~\ref{subsec:kernelfunc}) thus referring to $\mathcal{H}$
 only implicitly and avoiding to deal with a high number of dimensions
 altogether using what is commonly known as the \emph{kernel trick}.
 
@@ -806,7 +802,7 @@ the time complexity of $ODDK$ with ST features is $O(|V_g|log|V_g|)$.
 
 \subsubsection{Fast subtree kernels}
 \label{subsubsec:fs}
-The fast subtree kernel \cite{NIPS2009_3813} belongs to family of kernels defined
+The fast subtree kernel \cite{NIPS2009_3813} belongs to a family of kernels defined
 as instances of the Weisfeiler-Lehman kernel framework which bases its discriminative
 power on the Weisfeiler-Lehman test of isomorphism.
 The main idea behind this framework is that every graph can be represented as
@@ -814,16 +810,27 @@ a sequence of graphs, each one being generated from the previous one through
 a new labeling function that encapsulates the isomorphism test.
 Given a graph $X = (V,E,L)$, this sequence can be formally defined as:
 
-\[\{X_0,X_1,\dots,X_h\} = \{(V,E,L_0),(V,E,L_1),\dots,(V,E,L_h)\}\]
+\[\{X^0,X^1,\dots,X^h\} = \{(V,E,L^0_\pi),(V,E,L^1_\pi),\dots,(V,E,L^h_\pi)\}\]
 
-where $X_0 = X$, $L_0 = L$ and $L_i$ is represents the relabeling of the graph
-$X_{i-1}$ obtained applying the Weisfeiler-Lehman test.
+where $X^0 = X$, $L^0_\pi = L_\pi$ and $L^i_\pi$ represents the relabeling of the graph
+$X^{i-1}$, defined as:
 
-Let $k$ be a positive semidefinite kernel for graphs the Weisfeiler-Lehman kernel
+\[L^i_\pi(v) = h(\pi(X^{i-1},v))\]
+
+where $v$ is a vertex in $X^{i-1}$, $\pi$ is the function that extracts the set
+of neighbours of a vertex from the graphs it belongs to and $h()$ assign a unique
+numerical value to its argument.
+The WL isomorphism test is performed iteratively relabeling the nodes of $X$ with
+$L^i_\pi$ thus obtaining a multiset of node labels. 
+Considering two graphs, if such multiset differs, then they are not isomorphic,
+otherwise there is not enough information to state whether the two graphs are
+isomorphic or not.
+
+Let $k$ be a positive semidefinite kernel for graphs, then the Weisfeiler-Lehman kernel
 framework can be formulated as:
 
 \begin{equation}
-    K_{WL}^h(X,Y) = k(X_0,Y_0) + k(X_1,Y_1) + \dots + k(X_h,Y_h)
+    K_{WL}^h(X,Y) = k(X^0,Y^0) + k(X^1,Y^1) + \dots + k(X^h,Y^h)
     \label{eq:fs}
 \end{equation}
 

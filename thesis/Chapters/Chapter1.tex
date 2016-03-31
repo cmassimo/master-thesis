@@ -24,17 +24,17 @@ was born with the intent of derive \emph{knowledge} that ``we don't know we don'
 Most of data mining techniques draw from a variety of other fields like Statistics,
 Computer Science, Information Theory and Mathematics just to mention a few.
 This discipline rests its theoretical foundation upon the field of \emph{Machine Learning},
-the discipline that studies algorithms and techniques that allows a machine
+the discipline that studies algorithms and techniques that allow a machine
 to learn a concept (or an approximation of it) from a set of examples.
 These algorithms start from limited evidence and try to build up a general model
 by refining an initial \emph{hypothesis}.
-Machine Learning is mostly useful when either an exact solution to a very
-difficult problem is computationally infeasible or the problem specification
+Machine Learning is mostly useful when either an exact solution to the considered
+problem is computationally infeasible or the problem specification
 is rather vague or not unambiguously defined, leaving to the algorithm the burden
 of exploration.
 
 One of the pivotal concepts of this field is data \emph{representation}.
-For the most part, data is collected and stored in unstructured form, e.g. vectors,
+For the most part, data is collected and stored in unstructured form, i.e. vectors,
 and a lot of machine learning techniques are tailored to this representation.
 In the last decades some approaches tried to address those problems whose data cannot
 be represented in vectorial form or whose representation in this form would cause
@@ -57,10 +57,12 @@ Biology, Computer Vision and Natural Language Processing.
 For these applications it is natural to collect data that carries an inherent
 amount of information concerning its structure.
 That is, some data is naturally structured, e.g. molecular graphs or a sentence parse tree,
-and represent it in vectorial form will inevitably cause a loss of information about
+and representing it in vectorial form would inevitably cause a loss of information about
 its structure.
-Moreover, adding structural information to a vectorial representation
-makes it more complex and consequently more difficult to work with.
+There are some known ways of adding structural information to a vectorial representation,
+with the addition of meta-data for instance, but this approach can render the
+whole representation more cumbersome and potentially too complex to be treated
+efficiently.
 
 Graphs are a structured data form that can represent a great deal of different
 information depending on the domain of application.
@@ -79,8 +81,9 @@ of connectivity, density etc.
 \subsubsection{Examples}
 \label{subsubsec:examples}
 
-Chemical compounds are naturally represented by their molecule; a simple graph
-representation of a molecule is given in Figure \ref{fig:chem}.
+Chemical compounds are naturally represented by their molecular graph that carries
+a lot of information about the structure of the molecule such as which atoms are
+bound together; a simple graph representation of a molecule is given in Figure \ref{fig:chem}.
 Most of the benchmark datasets employed in this study contain chemical compounds
 represented in a similar way.
 
@@ -142,21 +145,19 @@ an exemplification of this is given in Figure \ref{fig:scene}.
     \end{subfigure}
     \begin{subfigure}{.45\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{Figures/linkedin-social-maps}
+        \includegraphics[width=\linewidth]{Figures/socialnetwork}
         \caption{}
         \label{fig:network}
     \end{subfigure}
 \caption{a) Scene understanding via graph decomposition in Computer Vision. b)
-        LinkedIn's social maps show how a social network graph representation
-        can quickly become very complex.}
+        An example of a social graph where the nodes represent people and 
+        the edges the property of ``knowing someone''.}
 \end{figure}
 
 Finally, graphs deriving from the inherently structured organization of every social
 network can lead to a large number of mining possibilities given the vast
 amount of data available \cite{gundecha2012mining}.
-Figure \ref{fig:network} shows an example of social network derived from a real-world
-application.
-
+Figure \ref{fig:network} shows an example of a graph representing social relationships.
 %----------------------------------------------------------------------------------------
 
 \section{Graph kernel learning}
@@ -202,8 +203,8 @@ The explicit representation of the feature space is never accessed by the algori
 that refers to it only implicitly through the kernel function.
 This is commonly known as the \emph{kernel trick} and the reason behind it is 
 that computing the dot product for each pair of samples in a high dimensional space
-would be infeasible but can be avoided thanks to the kernel function since they are
-equivalent (Section \ref{subsec:kernelfunc}).
+would be infeasible, but can be avoided thanks to the generally more efficient
+kernel function since they are equivalent (Section \ref{subsec:kernelfunc}).
 
 Kernel machines are learning algorithms that employ the similarity measures defined
 by kernel functions to find a linear separator in a high dimensional feature space
@@ -221,7 +222,7 @@ SVMs employ the samples pairwise distance as their similarity measure.
 Most learning methods have parameters that need tuning, i.e. in order to achieve
 good generalization performances each value has to be selected from a set of
 possible choices according to a performance measure.
-These parameters, often referred to also as \emph{hyper-parameters}, define a
+These parameters, often referred to as \emph{hyper-parameters}, define a
 \emph{parameter space} characterized by their number, and by the size and type
 of their domains.
 This space can be potentially infinite and it is usually highly non-convex, making
@@ -258,7 +259,7 @@ Each phase employs a different set of data, training data and test data respecti
 that is sampled from the original dataset.
 Hyper-parameter values can deeply affect these two phases, in particular
 because they determine which hypotheses are selected by the learning algorithm.
-There are two main factors that are influenced by the values selected for the
+There are two main phenomena that are influenced by the values selected for the
 hyper-parameters.
 
 On one hand we have \emph{overfitting}, which happens when the hypothesis
@@ -272,29 +273,30 @@ in a direction that makes it unable to grasp the full complexity of the data res
 in a high classification error even on the training data.
 This can be due to the model being too simple because of the chosen parameter values. 
 
-To find the optimal balance between these two factors, typically hyper-parameter
-selection is performed employing a \emph{validation set}, that is a fixed subset of the
-data left out from the training phase and used to validate the performances of a
-model built according to a given set of values for the parameters.
+In general we want to avoid the occurrence of either of these two phenomena:
+typically a way to do this is to perform hyper-parameter selection employing
+a \emph{validation set}, that is a fixed subset of the data left out from the
+training phase and used to validate the performances of a model built according
+to a given set of values for the parameters.
 In this case the validation set coincides with the test data.
-To reduce the bias, i.e. the distortion, deriving from the fixed selection of
+To reduce the bias, i.e. the distortion deriving from the fixed selection of
 the validation set, a k-fold cross-validation technique is employed: the
 data is split into $k$ subsets, $k-1$ become the training set while the last one
-is used as the validation set; this procedure is repeated $k$ times, with the
-validation set being a different one of the $k$ subsets during each iteration
-(\emph{fold}).
+is used as the validation set; this procedure is repeated $k$ times, each time employing
+different parameter values and a different validation set sequentially chosen from the
+$k$ subsets in which the data is split.
 
-This way the best performing model built according to a set of parameter values
-is selected, which is equivalent to select the best set of parameter values.
+In this way, the model that performs better is selected and determines the parameter
+values to be selected.
 This process is still prone to overfitting because, due to the way cross-validation
 is performed, the final model gets trained and validated on the same
 data.
 
 \subsubsection{Nested cross-validation}
-A remedy to the possible overfitting deriving from a cross-validation,
-the so-called nested k-fold cross validation is employed.
+A remedy to the possible overfitting deriving from a cross-validation, is
+the so-called nested k-fold cross validation.
 This technique consists in two k-fold cross-validation nested one within the other.
-In the outer loop the whole dataset is split in $k$ subset, one of which becomes the
+The outer loop splits the whole data in $k$ subsets, one of which becomes the
 \emph{test set}.
 The remaining training data is then used to perform a regular k-fold cross-validation
 whose selected model is trained again on the whole training set and finally evaluated
@@ -324,7 +326,7 @@ obtain the desired results.
 % this can be a problem because kernel computation tends to be heavy.
 % so a lot of kernels = a lot of time
 
-Kernel learning methods needs to select the optimal values for a number of parameters
+Kernel learning methods have to select the optimal values for a number of parameters
 belonging both to the kernel function and to the kernel machine of choice.
 Kernel function parameters shape the underlying feature space thus greatly affecting
 the resulting kernel performances. Hence the number of values to select from has
@@ -340,7 +342,7 @@ computationally demanding (Section \ref{subsec:graphk}).
 % intro mkl
 A different approach, called \emph{multiple kernel learning} (MKL), has been
 developed to allow the combination of different kernels into a single learning phase.
-This family of methods typically tries to find the best (non) linear combination between the
+This family of methods typically tries to find the best combination among the
 given kernels, to increase the individual performances and implicitly perform the
 kernel selection in a data driven way.
 This approach has been developed with the initial aim to be employed with a small
@@ -352,8 +354,7 @@ From the numerous implementations available in literature \cite{journals/jmlr/Go
 we want to mention EasyMKL, a recently proposed state-of-the-art MKL implementation
 \cite{aiolli2015easymkl} with a linear complexity bound w.r.t. the input size.
 This algorithm is an \emph{optimization based} MKL implementation with a strong
-theoretical background (Section \ref{subsec:easymkl}) and was selected to be part
-of the this work.
+theoretical background (Section \ref{subsec:easymkl}).
 
 In this study we propose a methodology to perform graph kernel learning avoiding
 the process of kernel hyper-parameter selection, reducing the overall time
@@ -363,13 +364,13 @@ Employing EasyMKL combination capabilities from a different perspective, we
 perform the learning task employing at once all the kernels that would have been
 individually computed according to a kernel parameters grid (Section \ref{subsubsec:grid}).
 Therefore we achieve a consistent reduction of the hyper-parameters to validate, since
-eliminating all the kernel function parameters from the selection process, only those of the
+eliminating the need to test all the kernel function parameters, only those of the
 kernel machine remain.
 
 % results
 
-The obtained results show on average a significant decrease in computational times across the
-considered datasets while the predictive performances remain comparable when not
+The results on real world datasets show a significant decrease in computational
+times on average, while the predictive performances remain comparable when not
 above the selected baseline methods.
 Moreover, the proposed methodology can be generalized to consider multiple kernel functions.
 
