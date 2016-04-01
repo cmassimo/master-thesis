@@ -80,7 +80,7 @@ headsepline, % Uncomment to get a line under the header
 \supervisor{Prof. Alessandro \textsc{Sperduti}} % Your supervisor's name, this is used in the title page, print it elsewhere with \supname
 \cosupervisor{Dott. Nicol\`o \textsc{Navarin}} % Your supervisor's name, this is used in the title page, print it elsewhere with \supname
 \examiner{} % Your examiner's name, this is not currently used anywhere in the template, print it elsewhere with \examname
-\degree{Laurea Magistrale} % Your degree name, this is used in the title page and abstract, print it elsewhere with \degreename
+\degree{Laurea Magistrale in Informatica} % Your degree name, this is used in the title page and abstract, print it elsewhere with \degreename
 \author{Carlo Maria \textsc{Massimo}} % Your name, this is used in the title page and abstract, print it elsewhere with \authorname
 \addresses{} % Your address, this is not currently used anywhere in the template, print it elsewhere with \addressname
 
@@ -108,15 +108,20 @@ headsepline, % Uncomment to get a line under the header
 \begin{titlepage}
 \begin{center}
 
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.15]{Figures/logounipd1}
+\end{figure}
+
 \textsc{\LARGE \univname}\\[1.5cm] % University name
 \textsc{\large \deptname}\\[0.5cm] % Thesis type
-
  
 \textsc{ Corso di Laurea Magistrale in Informatica}\\[0.5cm] % Thesis type
-\textsc{\small Anno Accademico 2015-2016}\\[2.5cm] % Thesis type
+\textsc{\small Anno Accademico 2015-2016}\\[2cm] % Thesis type
 
 \HRule \\[0.4cm] % Horizontal line
-{\huge \bfseries \ttitle}\\[0.4cm] % Thesis title
+{\huge \bfseries A New Methodology For Combining Graph Kernels\par} % Thesis title
+\vspace{0.4cm}
 \HRule \\[1.5cm] % Horizontal line
 
 \begin{minipage}[t]{0.4\textwidth}
@@ -160,29 +165,25 @@ headsepline, % Uncomment to get a line under the header
 \begin{abstract}
 \addchaptertocentry{\abstractname} % Add the abstract to the table of contents
 
-Graph mining and particularly kernel learning methods that use the graph representation
-have seen a steady growth in success and proposed approaches during the last decades.
-A number of improvements over the existing techniques, have recently been
-proposed, further raising the performance limits.
-These works typically address a specific weak point in a particular approach,
-so a natural question one may want to answer is if a combination of these
-improvements can outperform the single one.
-Moreover usually the procedure to estimate the resulting model performances is
-still computationally demanding for most serious applications.\\
-WIP\\
-In this study we address these problems by devising a general methodology to
-validate graph kernel methods effectively and efficiently.
 
-To warrant the generalization of the proposed methodology we analysed three
-possible combination, namely we took three graph kernels that has recently
-been extended with contextual information and combined the two versions for each
-one.
-The analyses are derived from a number of real world, publicly available
-bio-chemical datasets.
+Graph mining and particularly kernelized learning algorithms for graph-structured data
+have seen a steady growth in popularity during the last decades. A number of improvements
+over the existing graph kernels, have recently been proposed, further raising the performance limits.
+The procedure to estimate the performances of these kernels in real applications
+is still computationally demanding due to the essential process of hyper-parameter selection.
+In this study we want to determine if it is possible to devise a method that can
+substitute the commonly adopted procedures of kernel hyper-parameter selection,
+avoiding it entirely while preserving the predictive performances of the method.
 
-Empirical results show that the proposed methodology is faster than current
-state-of-the-art while always maintaining comparable performances
-and in some cases exceed those of the proposed baselines.
+To assess the generality of the proposed methodology we analyse six
+different kernels, namely we consider three graph kernels that have recently
+been extended with contextual information and employ the contextualized and
+non-contextualized version for each one.
+The analyses are derived from commonly adopted real world bio-chemical datasets.
+
+Empirical results show that the proposed methodology is faster than the 
+baseline method when considering large scale kernel combination while always
+maintaining comparable and in some cases superior performances.
 \end{abstract}
 
 %----------------------------------------------------------------------------------------

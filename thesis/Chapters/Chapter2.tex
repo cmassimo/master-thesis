@@ -256,21 +256,26 @@ independently from the training set since every validation set becomes at some
 point part of the training set of another fold.
 This will likely lead to an overestimate of the hypothesis performance.
 
-It is hence mandatory that the test set must be left out from the whole training
+It is hence mandatory that the test set is left out from the whole training
 process and used exclusively for performance assessment purposes.
-The scheme consists of two nested loops, in the first loop, the training set
-is split into $k$ subsets, $k-1$ of which become the training set for the
-$i^{th}$ iteration of training while the $k^{th}$ set becomes the test set.
-The new training set thus generated is then split again in $k$ subsets
-which again are used for training and validation with the usual cross validation
-technique.
-Once the best hypothesis has been selected in the innermost loop, it is trained
-with the whole original training set and tested against the test set, which has
-remained completely isolated from the learning phase until now.
-This technique is employed in combination with a grid search technique (see Section
-\ref{subsubsec:grid}), to perform hyper-parameter selection.
-The performances obtained at the end of a nested k-fold cross-validation represent
-an unbiased performance estimate of the best performing model.
+% more formal with sets {Va_i...Va_n}
+
+The nested k-fold cross validation aims to address this problem employing two
+k-fold cross-validation, one nested inside the other.
+In the outer loop, the dataset is divided in $k$ sets $\{S_1,\dots,S_k\}$, 
+then for each iteration $i \in \{1,\dots,k\}$ the set $Te = S_i$ is selected as the
+current tests set while the set $Tr = \{S_1,\dots,S_{i-1}\} \cup \{S_{i+1},\dots,S_k\}$
+becomes the current dataset for the inner loop, where hyper-parameter selection
+is performed by the means of another cross-validation.
+The set $Tr$ is the split in $k$ subsets $\{V_1,\dots,V_k\}$, for each iteration
+$j \in \{1,\dots,k\}$ of the procedure, the set $V_j$ is selected as the current
+validation set; $\hat{Tr} = \{V_1,\dots,V_{j-1}\} \cup \{V_{j+1},\dots,V_k\}$
+becomes the new training set over which a model is built according to a set of parameters.
+The $j^{th}$ model is then validated on $V_j$, at the end of the inner loop, the
+best model is selected and re-trained on $Tr$ and the evaluated on $Te$.
+The innermost loop of the procedure is tasked with hyper-parameter selection (\ref{subsubsec:grid}),
+while the outer will return an unbiased performance estimate of the model
+performances measured on the test sets.
 
 \subsubsection{Grid search}
 \label{subsubsec:grid}
@@ -285,8 +290,8 @@ The cartesian product of these set correspond to the subset of the whole paramet
 space that will be considered, i.e. the ``grid''.
 
 Each combination of values in the grid is then used to perform one of the cross-validation
-inner training phases and the combination with the associated best performing model
-will be selected as the optimal one.
+training phases and the parameter combination which results in the best performing model
+will be selected.
 
 %----------------------------------------------------------------------------------------
 
@@ -820,7 +825,7 @@ $X^{i-1}$, defined as:
 where $v$ is a vertex in $X^{i-1}$, $\pi$ is the function that extracts the set
 of neighbours of a vertex from the graphs it belongs to and $h()$ assign a unique
 numerical value to its argument.
-The WL isomorphism test is performed iteratively relabeling the nodes of $X$ with
+This isomorphism test is performed iteratively relabeling the nodes of $X$ with
 $L^i_\pi$ thus obtaining a multiset of node labels. 
 Considering two graphs, if such multiset differs, then they are not isomorphic,
 otherwise there is not enough information to state whether the two graphs are

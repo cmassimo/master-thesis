@@ -3,8 +3,8 @@
 \chapter{Introduction} % Main chapter title
 \label{Chapter1} % For referencing the chapter elsewhere, use \ref{Chapter1} 
 
-This chapter presents a brief overview of the present thesis.
-First we introduce some basic concept about data and knowledge along with some examples,
+This chapter presents a brief overview of the thesis.
+First we introduce some basic concepts about data and knowledge,
 then the main contribution is explained with some more in-depth discussion,
 followed by the document outline.
 
@@ -12,22 +12,21 @@ followed by the document outline.
 
 The current amount of digital data produced daily is estimated to be in the realm of 
 ZettaBytes ($1~ZB = 10^{12}~GB$) \cite{idc}.
-Of this amount, only a small fraction sees actual processing and interpretation,
-mainly because while the flow of information is steady, the available resources
+Of this amount, only a small fraction undergoes actual processing and interpretation,
+mainly because while the flow of information is steady, the available computational resources
 devoted to the task are often limited \cite{idc}.
 Moreover in some cases the rapidity at which a meaningful interpretation of the 
 raw data has to be produced is critical.
 Hence, just the plain fact of owning the data does not imply that some useful 
 information pattern can be derived from it; in fact the whole discipline of \emph{Data Mining}
-was born with the intent of derive \emph{knowledge} that ``we don't know we don't know''.
+was born with the intent of extracting \emph{knowledge} that ``we don't know we don't know''.
 
-Most of data mining techniques draw from a variety of other fields like Statistics,
-Computer Science, Information Theory and Mathematics just to mention a few.
-This discipline rests its theoretical foundation upon the field of \emph{Machine Learning},
+Data mining techniques rests their theoretical foundation upon the field of \emph{Machine Learning},
 the discipline that studies algorithms and techniques that allow a machine
 to learn a concept (or an approximation of it) from a set of examples.
 These algorithms start from limited evidence and try to build up a general model
-by refining an initial \emph{hypothesis}.
+by refining an initial \emph{hypothesis} drawn from an hypotheses space,
+according to a performance measure, i.e. and objective function.
 Machine Learning is mostly useful when either an exact solution to the considered
 problem is computationally infeasible or the problem specification
 is rather vague or not unambiguously defined, leaving to the algorithm the burden
@@ -51,7 +50,7 @@ information loss.
 The increasing amount of available structured data has made it necessary to develop
 machine learning methods that can effectively deal with it.
 More specifically some work has been done to devise methods that could learn
-directly from graphs, a very useful kind of \emph{structured data} that sees many
+directly from graphs, a very useful kind of \emph{structured data} that has many
 important real-world applications nowadays, encompassing the fields of Computational
 Biology, Computer Vision and Natural Language Processing.
 For these applications it is natural to collect data that carries an inherent
@@ -64,21 +63,24 @@ with the addition of meta-data for instance, but this approach can render the
 whole representation more cumbersome and potentially too complex to be treated
 efficiently.
 
-Graphs are a structured data form that can represent a great deal of different
+The graph is a structured data form that can represent a great deal of different
 information depending on the domain of application.
+A graph $G$ is commonly defined as a tuple $G=(V,E,L)$, where $V$
+is the set of vertices, $E$ the set of edges and $L:V\to\Sigma$ the function that
+assigns a label to each vertex.
 Graphs have multiple levels of information semantics and each level can have
 different connotations, e.g. consider the set of edges, they can represent
 different notions of link between two nodes while maintaining the same
 representation.
 Beside edges, that express a kind of local ``relationship''
-information among the nodes, we have information stored at the node level in the
+among the nodes, we have information stored at the node level in the
 labels, where some qualitative or quantitative data may be present.
 At a higher level we have topological information, which can be
 viewed like an extended relationship level, and finally the information that can
 be derived by looking at the shape of the graph such as notions
 of connectivity, density etc.
 
-\subsubsection{Examples}
+\subsubsection{Examples of graph-structured data}
 \label{subsubsec:examples}
 
 Chemical compounds are naturally represented by their molecular graph that carries
@@ -97,7 +99,7 @@ represented in a similar way.
 \end{figure}
 
 Graph structured data has proven useful in the classification of non-coding RNA
-molecules, modeled as shown in Figure \ref{fig:bio} \cite{nnavarin, conf/psb/KarklinMH05},
+molecules \cite{nnavarin, conf/psb/KarklinMH05}, modeled as shown in Figure \ref{fig:bio}.
 
 \begin{figure}[ht]
     \centering
@@ -107,6 +109,7 @@ molecules, modeled as shown in Figure \ref{fig:bio} \cite{nnavarin, conf/psb/Kar
         \label{fig:rna}
         \caption{}
     \end{subfigure}
+    \\
     \begin{subfigure}{.4\textwidth}
         \centering
         \includegraphics[width=\linewidth]{Figures/ldgrna}
@@ -120,7 +123,9 @@ molecules, modeled as shown in Figure \ref{fig:bio} \cite{nnavarin, conf/psb/Kar
 
 Natural Language Processing is another field where graph representation is often used
 as the basis for elaborate meaning extraction, as is the case for building opinion
-lexicon from users review \cite{10.1371/journal.pone.0079294}, see Figure \ref{fig:wordrel}.
+lexicon from users review \cite{10.1371/journal.pone.0079294}, Figure \ref{fig:wordrel}
+shows how, in a multilingual context, the relationships between words with the same meaning
+can be represented as a graph.
 
 \begin{figure}[ht]
     \centering
@@ -170,7 +175,7 @@ design of a new representation is needed every time a new type of data
 is encountered.
 
 Another way to address the problem of graph learning is to adapt the existing methods
-to work directly on graphs, thus allowing the exploitation of the existing techniques.
+to work directly on graphs, thus allowing the exploitation of existing techniques.
 Some recently proposed works \cite{DBLP:conf/sdm/MartinoNS12, NIPS2009_3813}
 embed graph specific knowledge into well established \emph{kernel methods}
 that, given the inherent decoupling between the data representation and the learning
@@ -204,7 +209,8 @@ that refers to it only implicitly through the kernel function.
 This is commonly known as the \emph{kernel trick} and the reason behind it is 
 that computing the dot product for each pair of samples in a high dimensional space
 would be infeasible, but can be avoided thanks to the generally more efficient
-kernel function since they are equivalent (Section \ref{subsec:kernelfunc}).
+kernel function that is equivalent to computing such dot product, for an opportune
+choice of the space (Section \ref{subsec:kernelfunc}).
 
 Kernel machines are learning algorithms that employ the similarity measures defined
 by kernel functions to find a linear separator in a high dimensional feature space
@@ -214,20 +220,45 @@ One of the most adopted methods is the Support Vector Machine (SVM) \cite{Cortes
 which is a binary classifier that tries to find a separator that maximizes the \emph{margin}
 between two sets of labelled samples that is, the distance between the separator and the
 nearest sample of each class.
-SVMs employ the samples pairwise distance as their similarity measure.
+SVMs employ kernel functions as similarity measures.
 
 \subsection{Hyper-parameter selection}
 \label{subsec:hyper1}
 
-Most learning methods have parameters that need tuning, i.e. in order to achieve
-good generalization performances each value has to be selected from a set of
-possible choices according to a performance measure.
+% - machine learning have often ill-posed problems
+% - to address this nd to prevent overfitting a regularization term is introduced
+% - and combined with the loss function inside the objective function 
+Machine learning problems are often ill-posed, due to the problem being difficult or
+the domain knowledge scarce.
+This issue can be mitigated applying a process of \emph{regularization} is applied that is,
+the addition of further information to the problem formulation.
+This is usually achieved through the design of the objective function that should
+therefore combine the loss function, i.e. the function that measures the cost of
+inaccurate classification of the samples, with a regularization terms that tries
+to keep the overall model simpler and sparser, in order for it to be more generalizing
+and to prevent overfitting.
+
+Most learning methods have \emph{parameters} that need tuning, i.e. in order to achieve
+good generalization performances each value has to be selected from a set of possible
+choices according to a performance measure, i.e. an objective function.
+In particular, kernel method parameters can be found on two levels:
+parameters relative to the kernel function and parameters that belongs to the
+kernel machine (solver).
+The parameters of the former typically influence the feature space being generated,
+directly affecting the expressiveness of the similarity measure, i.e. the ability
+to discern between two different samples.
+In other words, kernel function parameters determine the complexity of the hypotheses space
+and must be carefully selected since a particular choice of values corresponds to
+a specific \emph{bias selection} on the hypotheses space.
+The parameters of the solver are usually employed as regularization coefficients, 
+as is the case for the SVM, where its only hyper-parameter is used to balance the trade-off between a good
+(generalizing) separator and empirical error.
+
 These parameters, often referred to as \emph{hyper-parameters}, define a
 \emph{parameter space} characterized by their number, and by the size and type
 of their domains.
 This space can be potentially infinite and it is usually highly non-convex, making
-the search for a global optimum very hard, if any exists.
-
+the search for a global optimum very hard.
 For this reason the selection procedure often involves a limited search on the parameter space
 that is, a set of values for each parameter is fixed, possibly after a discretization,
 and all the combinations are tested to find the best one.
@@ -235,19 +266,11 @@ However, in order to be useful the sampling on the parameter space needs to be a
 even with a heuristic approach the complexity of this search can still be daunting because
 it depends on the number of parameters.
 
-In the context of kernel learning hyper-parameters can be found on two levels:
-parameters relative to the kernel function and parameters that belongs to the
-kernel machine (solver).
-The parameters of the former typically influence the feature space being generated,
-directly affecting the expressiveness of the similarity measure, i.e. the ability
-to discern between two different samples.
-The parameters of the solver are usually employed as regularization factors,
-as is the case for the SVM, where its only hyper-parameter is used to balance the trade-off between a good
-(generalizing) separator and empirical error.
 Once the solver has been chosen, the parameter space is determined by the kernel
-hyper-parameters hence, the kernel choice can greatly affect the computational
+hyper-parameters, hence the kernel choice can greatly affect the computational
 performances of the whole approach.
-Moreover, often the kernel has to be selected in a similar way, thus increasing the
+Moreover, since a number of different kernel functions exist, each one with its distinct
+feature space, often the kernel has to be selected in a similar way, thus increasing the
 computational burden even more.
 
 \subsection{Validation procedures}
@@ -337,10 +360,14 @@ further slow down hyper-parameter selection.
 This is particularly true for graph kernel learning, since graph kernels are usually
 computationally demanding (Section \ref{subsec:graphk}).
 
+In this thesis we want to determine if it is possible to devise a method that can 
+substitute the standard approach of kernel hyper-parameter selection while achieving an
+overall improvement both in computational and predictive performances.
+
 % sol
 
 % intro mkl
-A different approach, called \emph{multiple kernel learning} (MKL), has been
+A different approach to kernel learning, called \emph{multiple kernel learning} (MKL), has been
 developed to allow the combination of different kernels into a single learning phase.
 This family of methods typically tries to find the best combination among the
 given kernels, to increase the individual performances and implicitly perform the

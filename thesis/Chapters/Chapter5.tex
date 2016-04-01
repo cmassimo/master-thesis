@@ -1,9 +1,45 @@
-% Chapter 5
-
 \chapter{Conclusions and Future Work}
 \label{Chapter5}
+
+The work proposed in this thesis stems from the necessity to streamline the learning
+process involving graph kernels and kernel methods in general.
+Given the recent progresses both in graph kernel design and in Multiple Kernel Learning
+methods we saw the opportunity to try and tackle the computational performance
+problem represented by the standard method of hyper-parameter selection.
+
+Hyper-parameter selection is an essential process in machine learning since it
+is employed to balance the trade-off between complexity and generalizing power of
+the hypothesis selected by the learning method.
+% kernel functions
+In particular, kernel functions have parameters that are directly linked with the
+complexity of the hypotheses space, requiring a careful selection in order to 
+achieve good performances and avoid overfitting.
+
+% recap of the solution
+The solution we propose is able to substitute the kernel hyper-parameter selection
+phase entirely, combining together all the kernel that would have been generated
+and individually tested by a standard selection method.
 By combining a large number of kernels, derived from selected graph kernel
 learning approaches, into a single learning process we wanted to determine if an
 effective and overall performance improvement both in computational times and 
 in target prediction was possible.
+This was employing EasyMKL, a state-of-the-art linear time MKL implementation.
+The proposed methodology was tested against a standard way of performing hyper-parameter
+selection, namely the grid search technique with the SVM classifier.
 
+% recap of results
+
+The results we obtained show that the methodology is able to outperform the baseline
+in those cases where the parameter grid employed for the selection phase has a
+considerable size while not being convenient when its size is small.
+
+% future works
+% more and more differentiated sampling 
+% more in-depth study of the two methods complexity to determine the relations
+
+The results of the experiments highlight the necessity of performing more 
+tests with a different and possibly larger sampling for the parameter values.
+Moreover a more in-depth study of the relationship between the complexities of
+the two methods is needed.
+
+% vim: spell spelllang=en_gb

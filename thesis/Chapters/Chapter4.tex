@@ -17,7 +17,7 @@ All these datasets contain chemical and molecular particles encoded in graph for
 all the nodes are labelled and none have self loops, that is an edge going in and 
 out the same node.
 The AIDS Antiviral Screen dataset contains chemical compounds, labelled according to
-their antiviral activity; CAS and CPDB are dataset of mutagenic
+their antiviral activity; CAS and CPDB are datasets of mutagenic
 compounds; NCI1 consists of chemical compounds screened for activity against 
 non-small lung cancer cells; GDD is composed of X-ray crystal structures of
 proteins represented as graphs.
@@ -73,7 +73,7 @@ The kernels tested with this method are:
 \end{itemize}
 
 % how &  why
-This method perform a standard hyper-parameter selection using an exhaustive search
+This method performs a standard hyper-parameter selection using an exhaustive search
 on a finite subset of the parameter space deriving from the composition of the
 kernel function and kernel machine respective spaces.
 We compare the method performances with a single kernel function and with the
@@ -83,7 +83,7 @@ the resulting feature space is a composition rather than a union.
 
 Each kernel function is used to train a SVM classifier whose $C$ parameter
 was validated on the set $\{10^{-4},10^{-3},\dots,10^3\}$.
-The kernel functions parameter where validated on the following sets:
+The kernel functions parameters where validated on the following sets:
 \begin{itemize}
     \item for the kernels derived from the $ODD$ framework:
     \begin{itemize}
@@ -106,7 +106,7 @@ we compare our results against those in \cite{gmkl} which are:
 \end{itemize}
 
 These experiments perform a hyper-parameter selection employing both a single and 
-a multiple kernel learning approach using two of the kernel function selected here.
+a multiple kernel learning approach using two of the kernel functions selected here.
 In particular the experiments concerning the $ODD-MKL$ kernel use a setup similar to
 our methodology while employing only the kernels computed from a single tuple of
 parameters coming from the grid for each experiment.
@@ -290,8 +290,8 @@ This data has been collected by experiments run on two identical machines.
     \label{fig:datasetstimes}
 \end{figure}
 
-As one can see from Figure \ref{fig:datasetstimes}, the proposed methodology performs generally
-better or has comparable performances with respect to the baseline method.
+As one can see from Figure \ref{fig:datasetstimes}, the proposed methodology is more
+efficient in general with respect to the baseline method.
 In this case, $(TCK_{ST})^{oc}$ register a 36.4\% average
 decrement in the overall time required to perform a full nested 10-fold cross
 validation with respect to the standard method, i.e. $(TCK_{ST})^{hs}$.
@@ -492,9 +492,6 @@ one of them dominates the combination outcome.
 
 One point that emerges from the experiments presented here is that the proposed
 methodology in general will better perform better when presented with a large number of kernels.
-
-\dots
-
 In general a kernel weight reflects its contribution with respect to the
 other kernels being combined and it should not be treated as an absolute index
 of the goodness of the kernel.
