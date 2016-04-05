@@ -11,8 +11,8 @@ from matplotlib.colors import LightSource
 from matplotlib import cm
 rc('font', **{'family':'serif','serif':['Palatino']})
 rc('text', usetex=True)
-sys.argv.append("../../cluster_backup/partial_weights_dists/sorted/NCI1ststcWD_sorted.csv")
-sys.argv.append("ODDSTC,ODDST")
+sys.argv.append("../../cluster_backup/dists/GDD_wl")
+sys.argv.append("WL")
 
 plt.clf()
 fig = plt.figure(figsize=(3, 3))
@@ -22,7 +22,8 @@ ax = fig.add_subplot(111, projection='3d')
 #colors = [cm(1.*i/11, alpha=0.5) for i in range(11)]
 # MKL matrices weights distribution
 weights_raw = np.loadtxt(sys.argv[1], delimiter=',', dtype='str').T
-wdict = {re.search('[A-Z]*.r\d+\.l\d\.\d', w[0]).group(0):np.array(w[1:], dtype='float64') for w in weights_raw}
+#wdict = {re.search('[A-Z]*.r\d+\.l\d\.\d', w[0]).group(0):np.array(w[1:], dtype='float64') for w in weights_raw}
+wdict = {re.search('[A-Z]*.h\d+.*', w[0]).group(0):np.array(w[1:], dtype='float64') for w in weights_raw}
 kernels = sys.argv[2].split(',')
 lambdas = [0.1, 0.5, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.8]
 Lambdas = [l/10. for l in range(11)]
@@ -92,3 +93,10 @@ plt.legend([p[0] for p in  plots], labels, bbox_to_anchor=(1.01, 1), loc=2, bord
 
 
 #plt.savefig('NCI1_ODDSTC_weights_dist.pdf')
+
+
+
+
+
+
+

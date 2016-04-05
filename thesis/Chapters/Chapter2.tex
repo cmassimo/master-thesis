@@ -618,6 +618,45 @@ some examples of kernels defined on trees and on graphs, all of which are instan
 of the framework proposed by Haussler.
 
 \subsection{Graph notation}
+% graph
+A Graph $G$ is usually defined as a triplet $G=(V,E,L)$ where $V$ is the set of
+the vertices (nodes), $E$ is the set of the edges and $L:V\to\Sigma$ is the labelling
+function, i.e. a function that assigns a label $l \in \Sigma$ to each vertex $v \in V$.
+% size
+The $size$ of a graph is identified with the number of nodes $|V|$.
+% directed
+
+A graph can be undirected, in which case $(v,u)\in E \iff (u,v) \in E~\forall u,v \in V$,
+or directed otherwise.
+% walks
+% paths
+A walk on a graph is a sequence of vertex $v_0,\dots,v_n$ such that $v_i \in V~\forall i \in \{1,\dots,n\}$
+and $(v_i,v_{i+1}) \in E~\forall i \in \{1,\dots,n\}$; a $path$ is a walk where all the nodes
+are distinct.
+% cycles
+A cycle is a walk where $v_0 = v_n$ and a simple cycle is a cycle where all the node are
+distinct beside the first and the last one which coincide.
+
+% dags
+A graph is connected if for each $u,v\in V$ a path exists between $u$ and $v$.
+A graph without cycles is called acyclic; when the graph is also directed, it is a
+$DAG$ i.e. a directed acyclic graph.
+% trees and proper subtrees
+A connected DAG is rooted if exactly one node does not have any incoming
+edges and a $tree$ is a connected rooted DAG where all the nodes have at most one
+incoming edge.
+A subtree is a set $S\subseteq V$ of connected nodes of $G$; a proper subtree rooted in $v$
+is a subtree that comprehends all the descendants of $v$ and is indicated with $\overset{v}{\triangle}$.
+% degree
+The number of nodes connected to $v\in V$ is called $degree$ of $v$ and is indicated with $\rho(v)$
+while $\rho$ indicates the maximum degree of a graph.
+% height
+The $height$ of a tree is the number of edges that compose the shortest path
+to the most distant leaf from the root.
+The $depth$ of a node $v$ in a tree is the number of edges in the shortest path from the root
+to $v$.
+% depth
+% shortest paths
 
 \subsection{The framework: convolution kernels}
 \label{subsec:convolution}
