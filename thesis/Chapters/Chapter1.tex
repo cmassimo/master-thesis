@@ -230,16 +230,16 @@ SVMs employ kernel functions as similarity measures.
 % - and combined with the loss function inside the objective function 
 Machine learning problems are often ill-posed, due to the problem being difficult or
 the domain knowledge scarce.
-This issue can be mitigated applying a process of \emph{regularization} is applied that is,
+This issue can be mitigated applying a process of \emph{regularization} that is,
 the addition of further information to the problem formulation.
 This is usually achieved through the design of the objective function that should
 therefore combine the loss function, i.e. the function that measures the cost of
-inaccurate classification of the samples, with a regularization terms that tries
-to keep the overall model simpler and sparser, in order for it to be more generalizing
-and to prevent overfitting.
+inaccurate classification of the samples, with a regularization term that tries
+to keep the overall model simpler and sparser; in other words we want to
+favor more generalizing solutions, and prevent overfitting.
 
-Most learning methods have \emph{parameters} that need tuning, i.e. in order to achieve
-good generalization performances each value has to be selected from a set of possible
+For this reasons, most learning methods have \emph{parameters} that need tuning,
+each value has to be selected from a set of possible
 choices according to a performance measure, i.e. an objective function.
 In particular, kernel method parameters can be found on two levels:
 parameters relative to the kernel function and parameters that belongs to the

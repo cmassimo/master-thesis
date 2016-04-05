@@ -3,43 +3,74 @@
 
 The work proposed in this thesis stems from the necessity to streamline the learning
 process involving graph kernels and kernel methods in general.
+Graph kernel learning has many important applications, mainly in the fields of
+Bioinformatics and Chemoinformatics, where data is often naturally represented
+in graph structured form.
 Given the recent progresses both in graph kernel design and in Multiple Kernel Learning
-methods we saw the opportunity to try and tackle the computational performance
-problem represented by the standard method of hyper-parameter selection.
+approaches, we saw the opportunity to tackle the computational performance 
+issue that is often associated with kernel hyper-parameter selection.
 
+% recap of bg
 Hyper-parameter selection is an essential process in machine learning since it
-is employed to balance the trade-off between complexity and generalizing power of
+is employed to balance the trade-off between the complexity and the generalizing power of
 the hypothesis selected by the learning method.
+A commonly adopted technique consists in employing a grid search in combination
+with cross-validation.
+Grid search is an exhaustive search on a finite subset of the parameter space, i.e. the grid,
+induced by the hyper-parameters of the considered method.
+This search is directed by the maximization of the classification accuracy of the
+model generated according to the each parameters combination.
 % kernel functions
-In particular, kernel functions have parameters that are directly linked with the
-complexity of the hypotheses space, requiring a careful selection in order to 
-achieve good performances and avoid overfitting.
+In particular, kernel methods have to select hyper-parameters values both for
+the chosen kernel function and kernel machine.
+Kernel functions define a similarity measure among samples that is fundamental for
+kernel machines to work.
+By employing the kernel trick, kernel machines can work with data represented by
+a large number of dimensions without having to deal with its explicit representation
+which is hidden by the kernel function.
+In the context of binary classification problems, representing data in a higher
+dimensional space w.r.t. its original space makes it easier to find a linear
+separator for it.
+Hyper-parameters associated with kernel functions are directly linked with the
+complexity of the hypotheses space, i.e. the space from where the separator is drawn,
+requiring careful selection in order to achieve good performances and avoid overfitting.
 
 % recap of the solution
-The solution we propose is able to substitute the kernel hyper-parameter selection
-phase entirely, combining together all the kernel that would have been generated
+The solution we propose is able to entirely substitute the kernel hyper-parameter selection
+phase, combining together all the kernels that would have been generated
 and individually tested by a standard selection method.
-By combining a large number of kernels, derived from selected graph kernel
-learning approaches, into a single learning process we wanted to determine if an
-effective and overall performance improvement both in computational times and 
-in target prediction was possible.
-This was employing EasyMKL, a state-of-the-art linear time MKL implementation.
+By combining a large number of kernels into a single learning process we wanted to determine if an
+effective and overall performance improvement was possible, both in computational times and 
+in target prediction.
+This was achieved employing EasyMKL, a state-of-the-art linear time MKL implementation.
 The proposed methodology was tested against a standard way of performing hyper-parameter
-selection, namely the grid search technique with the SVM classifier.
+selection, namely the grid search technique with an SVM classifier.
 
 % recap of results
 
-The results we obtained show that the methodology is able to outperform the baseline
-in those cases where the parameter grid employed for the selection phase has a
-considerable size while not being convenient when its size is small.
+(DRAFT: this paragraph will be rewritten after the data from the incremental experiments comes in)
+The results we obtained show that the methodology is (significantly?) faster than the baseline
+in those cases where the hyper-parameter selection would consider a large number of 
+combinations, while not being convenient for selecting a few parameters.
+Predictive performances were assessed on a number of commonly adopted bio-chemical
+datasets; the performance results are generally above the baseline although not in a
+significant way, beside some particular cases.
 
 % future works
 % more and more differentiated sampling 
 % more in-depth study of the two methods complexity to determine the relations
 
-The results of the experiments highlight the necessity of performing more 
-tests with a different and possibly larger sampling for the parameter values.
-Moreover a more in-depth study of the relationship between the complexities of
-the two methods is needed.
+Moreover, these results highlight the necessity of performing more 
+tests with a different and possibly larger subset of the parameter space, i.e.
+values sampling, in order to be able to paint a broader and less biased picture.
+A more in-depth study of the relationship between the complexities of
+the two methods is indeed desirable, to better assess the strengths and weaknesses
+of the proposed methodology.
+Furthermore, the kernel functions that have been combined together in this study
+are quite redundant in the information they provide; a future development could
+be the search for better combinations in terms of function heterogeneity,
+or to devise better strategies of orthogonalization.
+Finally, improvements on the side of the kernel machine, i.e. EasyMKL, could definitely
+affect the performance gap between the two methodologies in a positive way.
 
 % vim: spell spelllang=en_gb

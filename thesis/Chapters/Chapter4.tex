@@ -23,14 +23,14 @@ non-small lung cancer cells; GDD is composed of X-ray crystal structures of
 proteins represented as graphs.
     \begin{table}[ht]
         \centering
-        \begin{tabular}{|r|r|r|r|r|}
+        \begin{tabular}{|r|r|r|r|r|r|r|}
             \hline
             Dataset & n. of graphs & sample split & avg nodes & avg edges \\ \hline
-            AIDS    & 1503         & 28.07        & 58.90     & 61.40     \\ \hline      
-            CAS     & \textbf{4337} & 55.36        & 29.90     & 30.90     \\ \hline      
-            CPDB    &  684         & 49.85        & 14.10     & 14.60     \\ \hline      
-            GDD     & 1503         & 58.65        & 284.31    & \textbf{2862.63}   \\ \hline      
-            NCI1    & 1503         & 50.04        & 29.87     & 32.30     \\ \hline      
+            AIDS    & 1503         & 28.07        & 58.90     & 61.40 \\ \hline      
+            CAS     & \textbf{4337} & 55.36        & 29.90     & 30.90 \\ \hline      
+            CPDB    &  684         & 49.85        & 14.10     & 14.60 \\ \hline      
+            GDD     & 1178         & 58.65        & \textbf{284.31}    & \textbf{2862.63} \\ \hline      
+            NCI1    & 4110         & 50.04        & 29.87     & 32.30 \\ \hline      
         \end{tabular}
         \caption{Statistics about the datasets employed in the experiments: number
         of graphs, labels percentage among samples, average number of nodes, average
@@ -252,7 +252,7 @@ in Section \ref{subsec:time_results}.
 \subsection{Analysis of computational times}
 \label{subsec:time_results}
 
-The plot in figure~\ref{fig:times} shows the relation between the computation times
+The plot in Figure~\ref{fig:times} shows the relation between the computation times
 for the $ODD_{ST}\text{ and }TCK_{ST}$ kernels combination on the benchmark datasets,
 using Algorithm \ref{alg:incremental} detailed in Section \ref{subsec:inc}.
 See Section~\ref{subsec:datasets} for further details on the composition of each dataset.
@@ -306,7 +306,7 @@ method is ideed influenced by the same measure but it is even more influenced by
 the dimensions of the parameters grid.
 
 The data shown in Figure \ref{fig:datasetstimes2} is in agreement with the data
-in figure \ref{fig:datasetstimes}; we register smaller time durations in general
+in Figure \ref{fig:datasetstimes}; we register smaller time durations in general
 and that is probably because the higher expressivity of the $ODDK_{ST+}$ and the
 $TCK_{ST+}$ allows the kernel machines to find the optimal separator earlier with
 respect to their ST counterparts.
@@ -442,8 +442,8 @@ one of them dominates the combination outcome.
             $(TCK_{ST+})^c$&-&-&0.8503 $\pm$  0.0038&0.8528 $\pm$ 0.0039&0.8645 $\pm$ 0.0018\\
             $(ODDK_{ST+}, TCK_{ST+})^c$&-&-&0.8468 $\pm$ 0.0042&0.8517 $\pm$ 0.0034&0.8612 $\pm$ 0.0018\\
             \hline
-            $(ODDK_{ST+})^{oc}$&-&-&0.8628 $\pm$  0.0036&0.8652 $\pm$ 0.0030&\textbf{0.8720 $\pm$ 0.0021}\\
-            $(TCK_{ST+})^{oc}$&-&-&\textbf{0.8649 $\pm$  0.0030}&\textbf{0.8666 $\pm$  0.0038}&0.8711 $\pm$ 0.0018 \\
+            $(ODDK_{ST+})^{oc}$&0.9031 $\pm$ 0.0013&0.9197 $\pm$ 0.0007&0.8628 $\pm$  0.0036&0.8652 $\pm$ 0.0030&\textbf{0.8720 $\pm$ 0.0021}\\
+            $(TCK_{ST+})^{oc}$&0.9050 $\pm$ 0.0012&0.9200 $\pm$ 0.0007&\textbf{0.8649 $\pm$  0.0030}&\textbf{0.8666 $\pm$  0.0038}&0.8711 $\pm$ 0.0018 \\
             $(ODDK_{ST+}, TCK_{ST+})^{oc}$&-&-&0.8632 $\pm$  0.0034&0.8632 $\pm$  0.0038&0.8528 $\pm$ 0.0022\\
             \hline
         \end{tabular}
@@ -455,8 +455,6 @@ one of them dominates the combination outcome.
     \end{table}
 
     \begin{table}[ht]
-        \label{table:results_wl}
-
         \begin{tabular}{|l|l|l|l|l|l|}
             \hline
             $\mathrm{(kernels)^{method}}$&CAS&NCI1&AIDS&CPDB&GDD\\
@@ -469,9 +467,9 @@ one of them dominates the combination outcome.
             $(WLC)^c$&0.9002 $\pm$ 0.0015&0.9174 $\pm$ 0.0008&0.8596 $\pm$ 0.0032&0.8589 $\pm$ 0.0033&0.7263 $\pm$ 0.0036\\
             $(WL, WLC)^c$&\textbf{0.9010 $\pm$ 0.0015}&\textbf{0.9176 $\pm$ 0.0007}&0.8594 $\pm$ 0.0031 &\textbf{0.8597 $\pm$ 0.0032}&0.8583 $\pm$ 0.0015\\
             \hline
-            $(WL)^{oc}$&-&-&0.8599 $\pm$ 0.0043&0.8510 $\pm$ 0.0051&0.8175 $\pm$ 0.0015\\
-            $(WLC)^{oc}$&-&-&\textbf{0.8603 $\pm$ 0.0044}&0.8499 $\pm$ 0.0046&0.7266 $\pm$ 0.0035\\
-            $(WL, WLC)^{oc}$&-&-&0.8602 $\pm$ 0.0043&0.8508 $\pm$ 0.0052&0.8159 $\pm$ 0.0016\\
+            $(WL)^{oc}$&0.8879 $\pm$ 0.0018&0.9137 $\pm$ 0.0008&0.8599 $\pm$ 0.0043&0.8510 $\pm$ 0.0051&0.8175 $\pm$ 0.0015\\
+            $(WLC)^{oc}$&0.8875 $\pm$ 0.0019&0.9136 $\pm$ 0.0008&\textbf{0.8603 $\pm$ 0.0044}&0.8499 $\pm$ 0.0046&0.7266 $\pm$ 0.0035\\
+            $(WL, WLC)^{oc}$&0.8876 $\pm$ 0.0019&0.9136 $\pm$ 0.0008&0.8602 $\pm$ 0.0043&0.8508 $\pm$ 0.0052&0.8159 $\pm$ 0.0016\\
             \hline
         \end{tabular}
         \caption{AUROC results ($\pm$ standard deviation) relative to the experiments
@@ -490,80 +488,152 @@ one of them dominates the combination outcome.
 %that is, the one that maximizes the separation between the two sets of samples.
 %The linear combination is defined as a weighed sum of the kernels;
 
-One point that emerges from the experiments presented here is that the proposed
-methodology in general will better perform better when presented with a large number of kernels.
-In general a kernel weight reflects its contribution with respect to the
-other kernels being combined and it should not be treated as an absolute index
-of the goodness of the kernel.
+%One point that emerges from the experiments presented here is that the proposed
+%methodology in general will better perform better when presented with a large number of kernels.
+Given the differing performance results obtained in some cases, we want to investigate wether
+avoding the explicit model selection (i.e. the baseline) in favour of a
+more implicit kernel selection (i.e. EasyMKL) improves the learning process.
+Selecting a single combination of parameter values is an important source of bias that
+is largely influenced by the value sampling.
+While the proposed methodology is not immune to this problem, the information composition
+resulting from a kernel combination would in principle allow for a better, more faceted
+similarity measure, with respect to the information provided by a single kernel.
+
+In general the weight coefficients calculated by EasyMKL reflect each kernel
+contribution with respect to the other kernels and it should not
+be treated as an absolute index of the goodness of the kernel either way.
+In other words, the weight assigned to a single kernel is not representative of the
+absolute kernel performances that could be measured with a single kernel approach, i.e. with
+an SVM classifier.
+These coefficients represent the amount of information that is contributed to the overall learning
+process; they range in the interval $[0,1]$ and their sum is equal to 1.
+
+% more info on weighrt interpretation
+% we want crests -> features are orthogonal and informative
+% we don't want plateau -> feature are less informative/noisy or overlapping
+
+The following plots aim to show some examples of the weights distribution for some
+experiments to highlight the most common patterns we encountered.
+The selected experiments concern the proposed methodology with the orthogonalized
+feature space.
+The employed orthogonalization strategy consists in dividing the original kernel feature space
+in $h+1$ subsets $\{b_0,\dots,b_h\}$ (buckets) according to feature height (Section \ref{subsec:features})
+that is, all the features of height $d \in \{0,\dots,h\}$ end up in subset $b_d$.
+Each plots shows the weights distributions obtained from the 10-fold cross-validation
+and they are organized as follows:
+\begin{itemize}
+    \item on the vertical axis there is the weight scale;
+    \item on the longitudinal axis there are the different value of EasyMKL's
+        hyper-parameter $\Lambda$ used throughout the experiments, each corresponding
+        to one of the colored plots;
+    \item on the horizontal axis there are the kernel parameters employed to generate
+        a particular kernel matrix; only for the last matrix for each value of the
+        kernel hyper-parameter $h$; every dark line corresponds to one matrix, i.e. kernel.
+\end{itemize}
+Moreover we report the selected kernel hyper-parameter values obtained by the baseline for the
+same non-orthogonalized kernel.
+
+From these plots it is clear that there is a common pattern occurring in the data: all the orthogonalized
+kernels show a tendency of contributing more the more complex they are, i.e. the larger the
+height of the features they represent ($d$) with respect to the value of the parameter $h$.
+This probably happens because the more complex, more discriminative features can
+definitely contribute with more information w.r.t. the simpler ones.
+In other words the weights returned by EasyMKL act as a weighing scheme for the features
+according to their complexity \cite{gmkl}.
 
 \begin{figure}[ht]
     \centering
-    \begin{subfigure}{.45\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{Figures/kca_GDD_WL_oc}
-        \label{fig:gdd_wloc}
-        \caption{}
-    \end{subfigure}
-    \begin{subfigure}{.45\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{Figures/kca_GDD_WLC_oc}
-        \label{fig:gdd_wlcoc}
-        \caption{}
-    \end{subfigure}
-    \caption{}
-    \label{fig:kca_gdd_wl}
+    \includegraphics[scale=.6]{Figures/kca_CAS_ODDSTC_oc}
+    \caption{\footnotesize Weight distribution for $(ODDSTC)^{oc}$ on the CAS dataset.}
+    \label{fig:cas_stc}
 \end{figure}
+ 
+Figure \ref{fig:cas_stc} shows an example of rather dispersed weights: all the values
+are below 0.07 with the exception of two kernel generated from $h=9$ and $h=10$.
+In this last case, the kernels relative to higher values of $d$ do not contribute much
+probably because there are few features of height exactly equal to 10 in this dataset.
+With the non-orthogonalized kernel, the baseline method ($(ODDSTC)^{hs}$) selected the values $h=4$ and $\lambda=1.3$
+while both methods register roughly the same AUROC value.
 
 \begin{figure}[ht]
     \centering
-    \begin{subfigure}{.45\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{Figures/kca_GDD_ODDST_oc}
-        \label{fig:gdd_wloc}
-        \caption{}
-    \end{subfigure}
-    \begin{subfigure}{.45\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{Figures/kca_GDD_ODDSTC_oc}
-        \label{fig:gdd_wlcoc}
-        \caption{}
-    \end{subfigure}
-    \caption{}
-    \label{fig:kca_gdd_wl}
+    \includegraphics[scale=.6]{Figures/kca_AIDS_ODDSTC_oc}
+    \caption{\footnotesize Weights distribution for $(ODDSTC)^{oc}$ on the AIDS dataset.}
+    \label{fig:aids_stc}
 \end{figure}
-\begin{figure}[ht]
-    \centering
-    \begin{subfigure}{.45\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{Figures/kca_GDD_ODDSTP_oc}
-        \label{fig:gdd_wloc}
-        \caption{}
-    \end{subfigure}
-    \begin{subfigure}{.45\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{Figures/kca_GDD_ODDSTP_oc}
-        \label{fig:gdd_wlcoc}
-        \caption{}
-    \end{subfigure}
-    \caption{}
-    \label{fig:kca_gdd_wl}
-\end{figure}
+
+In Figure \ref{fig:aids_stc}, the analog experiment employing the AIDS dataset is shown.
+In this case the weights are more definite, with a consistent contribution coming from the
+kernels relative to high values of $d$.
+In this case the proposed methodology performs significantly better than the baseline which
+selects the values $h=$ and $\lambda=$.
 
 \begin{figure}[ht]
     \centering
-    \begin{subfigure}{.45\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{Figures/kca_CAS_ODDST_oc}
-        \label{fig:gdd_wloc}
-        \caption{}
-    \end{subfigure}
-    \begin{subfigure}{.45\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{Figures/kca_CAS_ODDSTC_oc}
-        \label{fig:gdd_wlcoc}
-        \caption{}
-    \end{subfigure}
-    \caption{}
-    \label{fig:kca_gdd_wl}
+    \includegraphics[scale=.6]{Figures/kca_GDD_ODDSTC_oc}
+    \caption{\footnotesize Weights distribution for $(ODDSTC)^{oc}$ on the GDD dataset.}
+    \label{fig:gdd_stc}
 \end{figure}
+
+Figure \ref{fig:gdd_stc} shows a scenario where even if the weights are more
+sparsely distributed than in Figures \ref{fig:cas_stc} and \ref{fig:aids_stc},
+the performance of the methodology is worse than the baseline (selected values $h=1$ and $\lambda=0.9$).
+This is happening because this experiment employs less kernels than the other two and
+the noise deriving from the overlapping feature spaces prevails.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=.6]{Figures/kca_AIDS_ODDSTPC_oc}
+    \caption{\footnotesize Weights distribution for $(TCK_{ST+})^{oc}$ on the AIDS dataset.}
+    \label{fig:aids_stpc}
+\end{figure}
+
+In Figure \ref{fig:aids_stpc} an example of good performance is shown, i.e. in
+this case the kernel weights highlight a more decisive contribution by fewer kernels
+and this translates in significantly better performances compared to the baseline, which
+selects values $h=10$ and $\lambda=1.2$.
+The fact that ODD kernels perform better on the AIDS dataset means that the orthogonalized
+feature spaces can better capture the signal in the data w.r.t. the original ODD feature space
+and the EasyMKL algorithm rewards them with higher weights.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=.6]{Figures/kca_GDD_ODDSTP_oc}
+    \caption{\footnotesize Weights distribution for $(TCK_{ST+})^{oc}$ on the GDD dataset.}
+    \label{fig:gdd_stp}
+\end{figure}
+
+In Figure \ref{fig:gdd_stp} we can see how the $TCK_{ST+}$ kernel performs better
+on the GDD dataset w.r.t. its non-augmented counterpart (Figure \ref{fig:gdd_stc}).
+Here we see that the amount of noise is greatly reduced by the lower weighing of the
+simpler kernels, i.e. those for low values of $h$.
+The baseline in this case selects $h=$ and $\lambda=$.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=.6]{Figures/kca_AIDS_WLC_oc}
+    \caption{\footnotesize Weights distribution for $(WLC)^{oc}$ on the AIDS dataset.}
+    \label{fig:aids_wlc}
+\end{figure}
+
+The experiment relative to the orthogonalized WLC kernel on the AIDS dataset
+is shown in Figure \ref{fig:aids_wlc}.
+Here we can clearly see how the kernel contribution follows the complexity of its
+features.
+In this case the baseline selects $h=7$.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=.6]{Figures/kca_GDD_WLC_oc}
+    \caption{\footnotesize Weights distribution for $(WLC)^{oc}$ on the GDD dataset.}
+    \label{fig:gdd_wlc}
+\end{figure}
+ 
+Finally, in Figure \ref{fig:gdd_wlc} we can see a worst case scenario in the context of 
+MKL, i.e. when all the kernels get roughly the same weight.
+This situation is equivalent to having reduntant feature and
+the effect of the generated noise can be well seen on the performance outcome (Table \ref{table:results_stp}).
+In this case also the baseline registered poor performances ($h=2$) and this can then
+be ascribed to the incapacity of the orthogonalized $WLC$ kernel to catch the complexity
+in the data of the GDD dataset.
 
