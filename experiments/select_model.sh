@@ -1,21 +1,21 @@
 #!/bin/bash
 
 #for dataset in "AIDS" "CPDB" "GDD" "CAS" "NCI1"; do
-#for dataset in "GDD"; do
-for dataset in "CAS" "NCI1"; do
+#for dataset in "AIDS" "CPDB" "GDD"; do
+#for dataset in "CAS" "NCI1"; do
 
 echo "#!/bin/sh
 
 ### Set the job name
-#PBS -N performance.sign
+#PBS -N modsel.sign
 
 ### Declare myprogram non-rerunable
 #PBS -r n
 
 ### Optionally specifiy destinations for your myprogram output
 ### Specify localhost and an NFS filesystem to prevent file copy errors.
-#PBS -e localhost:${HOME}/tesi/logs/err/$dataset.times.err
-###PBS -o localhost:${HOME}/tesi/logs/results/modsel/$2
+#PBS -e localhost:${HOME}/tesi/logs/err/modsel.err
+#PBS -o localhost:${HOME}/tesi/logs/results/modsel/$2
 
 ### Set the queue to batch, the only available queue. 
 #PBS -q cluster_long
@@ -37,9 +37,10 @@ echo "#!/bin/sh
 
 cd $HOME/cluster_bundle/scikit-learn-graph/
 
-python -u $HOME/cluster_bundle/master-thesis/experiments/svm_performance_significance.py $HOME/tesi/cvres/$dataset/group2/$1 $HOME/tesi/logs/results/group2/${dataset}$2" > $HOME/tesi/jobs/performance_sign.job
+#python -u $HOME/cluster_bundle/master-thesis/experiments/new_performance_significance.py $HOME/tesi/cvres/$dataset/group2/$1 $HOME/tesi/logs/results/group2/${dataset}$2
+python -u $HOME/cluster_bundle/master-thesis/experiments/svm_model_selection_from_nested.py $1"> $HOME/tesi/jobs/performance_sign.job
 
 qsub $HOME/tesi/jobs/performance_sign.job
 rm $HOME/tesi/jobs/performance_sign.job
 
-done
+#done

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #for dataset in "CAS" "NCI1" "AIDS" "CPDB" "GDD"; do
-for dataset in "NCI1"; do
+#for dataset in "NCI1"; do
 #for radius in "1" "2" "3" "4"; do
 for radius in "3" "4"; do
 for iteration in "0" "1" "2" "3" "4" "5" "6" "7" "8"; do

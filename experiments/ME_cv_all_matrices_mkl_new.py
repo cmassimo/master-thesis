@@ -20,7 +20,7 @@ mfiles = sys.argv[5:len(sys.argv)]
 nfolds = 10
 
 def calculate_outer_AUC_kfold(grams, target_array, L, rs, folds, outfile):
-    f = open((outfile+".seed"+str(rs)+".L"+str(L)), 'w')
+    f = open(outfile, 'w')
 
     kf = cross_validation.StratifiedKFold(target_array, n_folds=folds, shuffle=True, random_state=rs)
 
@@ -64,6 +64,8 @@ target_array = load_svmlight_file(mfiles[0], ncols, zero_based=True)[1]
 
 for rs in seeds:
     for l in Lambdas:
-        calculate_outer_AUC_kfold(grams, target_array, l, rs, nfolds, output)
+        fname = output+".seed"+str(rs)+".L"+str(l)
+        if not os.path.isfile(fname):
+            calculate_outer_AUC_kfold(grams, target_array, l, rs, nfolds, fname)
 
 print "END"

@@ -23,7 +23,8 @@ for s in range(42,52):
     std_dev = np.zeros(k)
     filename=['' for i in range(k)]
 
-    for f_name in glob.iglob(dirtocheck+"/*.seed"+str(s)+"*"):
+    # multikernel.seed46.L0.8
+    for f_name in glob.iglob(dirtocheck+"/*.seed"+str(s)+".L0.[0-7]"):
         try:
             f = np.loadtxt(f_name, delimiter="\t", skiprows=2, dtype='str')
         except StopIteration:

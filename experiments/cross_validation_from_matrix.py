@@ -1,4 +1,3 @@
-import time
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '',''))
 import numpy as np
@@ -12,13 +11,11 @@ if len(sys.argv)<4:
 
 c=float(sys.argv[2])
 shape=int(sys.argv[3])
-output=sys.argv[[4]
+output=sys.argv[4]
 
 km, target_array = load_svmlight_file(sys.argv[1], shape)
-times_file = open(os.path.dirname(output) + "/times/" + os.path.basename(output) + ".seed"+str(rs)+".c"+str(c), 'w')
 
 sc=[]
-start = time.clock()
 
 for rs in range(42,52):
     fname = str(output+".seed"+str(rs)+".c"+str(c)) 
@@ -49,7 +46,6 @@ for rs in range(42,52):
             test_gram = []# [[] for x in xrange(0,len(test))]
               
             #print "generate train matrix and test matrix"
-            #mstart = time.clock()
             #generate train matrix and test matrix
             index=-1    
             for row in gram:
@@ -60,8 +56,6 @@ for rs in range(42,52):
                 else:
         #                test_gram.append([gram[index,i] for i in train_index])
                     test_gram.append(np.array(row).take(train_index))
-            #mend = time.clock()
-            #print "Elapsed time: %0.4f s" % (mend - mstart)
 
             X_train, X_test, y_train, y_test = np.array(train_gram), np.array(test_gram), target_array[train_index], target_array[test_index]
 
@@ -92,12 +86,5 @@ for rs in range(42,52):
         f.close()
         scores=np.array(sc) #sc dovrebbe essere accuracy non nested sui vari random seed di 10-fold.
 
-        end = time.clock()
-
 #        print "Accuracy: %0.8f (+/- %0.8f)" % (scores.mean(), scores.std())
-        print "Elapsed time: %0.4f s" % (end - start)
-        times_file.write("Elapsed time: %0.4f s" % (end - start))
-
-times_file.close()
-
 

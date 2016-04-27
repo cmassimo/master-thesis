@@ -16,13 +16,15 @@ output=sys.argv[3]
 cs=[0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
 rs=42
 
-times_file = open(output)
+times_file = open(output, 'w')
 times_file.write("r,l,c,time\n")
+#times_file.write("r,c,time\n")
 
 for r in range(1,11):
     for l in [0.1, 0.5, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.8]:
         # kODDSTC.r3.l1.0.mtx.svmlight
         fname = sys.argv[1]+".r"+str(r)+".l"+str(l)+".mtx.svmlight"
+        #fname = sys.argv[1]+".r"+str(r)+".mtx.svmlight"
 
         km, target_array = load_svmlight_file(fname, shape, zero_based=True)
 
@@ -61,6 +63,7 @@ for r in range(1,11):
 
             end = time.clock()
             times_file.write(str(r)+","+str(l)+","+str(c)+","+str(end - start)+"\n")
+            #times_file.write(str(r)+","+str(c)+","+str(end - start)+"\n")
 
 times_file.close()
 

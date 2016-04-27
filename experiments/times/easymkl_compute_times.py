@@ -9,18 +9,18 @@ from sklearn.metrics import roc_auc_score
 from skgraph.kernel.EasyMKL.EasyMKL import EasyMKL
 from easymkl_innercv_times import calculate_inner_AUC_kfold
 
-if len(sys.argv)<4:
-    sys.exit("python compute_times.py outfile shape matrix_files*")
-
+#if len(sys.argv)<4:
+#    sys.exit("python compute_times.py outfile shape matrix_files*")
 output = sys.argv[1]
 ncols = int(sys.argv[2])
 mfiles = sys.argv[3:len(sys.argv)]
 
-Lambdas = map(lambda x: x/10., range(11))
+#Lambdas = map(lambda x: x/10., range(11))
+Lambdas = map(lambda x: x/10., range(8))
 nfolds = 10
 rs=42
 
-def calculate_outer_AUC_kfold(grams, target_array, L, rs, folds, outfile):
+def calculate_outer_AUC_kfold(grams, target_array, L, rs, folds):
 
     kf = cross_validation.StratifiedKFold(target_array, n_folds=folds, shuffle=True, random_state=rs)
 
@@ -45,13 +45,13 @@ def calculate_outer_AUC_kfold(grams, target_array, L, rs, folds, outfile):
 grams = [matrix(load_svmlight_file(mf, ncols, zero_based=True)[0].todense()) for mf in mfiles]
 target_array = load_svmlight_file(mfiles[0], ncols, zero_based=True)[1]
 
-times_file = open(output)
+times_file = open(output, 'w')
 times_file.write("nmat,L,time\n")
 
 for l in Lambdas:
     start = time.clock()
-    calculate_outer_AUC_kfold(grams, target_array, l, rs, nfolds, output)
+    calculate_outer_AUC_kfold(grams, target_array, l, rs, nfolds)
     end = time.clock()
-    times_file.write(len(mfiles)+","+str(l)+","+str(end-start)+"\n")
+    times_file.write(str(len(grams))+","+str(l)+","+str(end-start)+"\n")
 
 times_file.close()

@@ -18,27 +18,23 @@ dirtocheck = sys.argv[1]
 maxparam=(0,0,0)
 maxacc=0
 maxdev=0
-for r in range(2,6):
-    for l in ['0.1','0.5','0.8','0.9','1.0','1.1','1.2','1.3','1.4','1.5','1.8']:
-        for C in ['0.0001','0.001','0.01','0.1','1.0','10.0','100.0','1000.0']:
-            accuracies=[]
-            for f_name in glob.iglob(dirtocheck+"/*.r"+str(r)+".l"+l+"*.c"+C):
-                #print f_name
-                f = open(f_name,'r')
-                i=-3
-                for line in f:
-                    i+=1
-                    if (i>=0):
-                        words=line.split()
-                        words=map(float,words)
-                        accuracies.append(words[1])
-                f.close()
-#                if i!=9:
-#                    print "missing line ",f_name
-            #print "len acc", len(accuracies) 
-            if maxacc<np.array(accuracies).mean():
-                maxacc=np.array(accuracies).mean()
-                maxparam=(r,l,C)
-                maxdev=np.array(accuracies).std()
+for L in [i/10. for i in range(11)]:
+    accuracies=[]
+    for f_name in glob.iglob(dirtocheck+"/*.L"+str(L)):
+        try:
+            f = np.loadtxt(f_name, delimiter="\t", skiprows=2, dtype='str')
+        except StopIteration:
+            print "error in:", f_name
+            raise
+
+        for i, line in enumerate(f):
+            fline = np.array(line[0:3], dtype='float64')
+            accuracies.append(fline[1])
+
+    accuracies = np.array(accuracies)
+    if maxacc < accuracies.mean():
+        maxacc=accuracies.mean()
+        maxparam=L
+        maxdev=accuracies.std()
 print "max param, ",maxparam
 print "accuracy, ",maxacc, " std: ",maxdev
